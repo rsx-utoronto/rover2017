@@ -1,0 +1,25 @@
+{
+  "name": "rover2017",
+  "version": "1.0.0",
+  "description": "rsx rover code 2017",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rsx-utoronto/rover2017.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rsx-utoronto/rover2017/issues"
+  },
+  "homepage": "https://github.com/rsx-utoronto/rover2017#readme",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "commander": "^2.9.0",
+    "cors": "^2.8.1",
+    "express": "^4.14.0",
+    "serialport": "^4.0.1"
+  }
+}
