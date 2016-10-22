@@ -1,0 +1,15 @@
+.wheel {
+	border-style: solid;
+	margin: 5px;
+}
+
+.rover-body {
+	border-style: solid;
+	margin: 5px;
+	height: 275px;
+}
+
+/*body {
+	background-image: url('mars.jpg');
+	background-position: center;
+}*/
