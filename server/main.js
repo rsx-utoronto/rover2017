@@ -11,8 +11,7 @@ var drive = require('./drive_server');
 
 model = {
 	drive: {
-		speed: 0,
-		turn_speed: 0,
+		speed: [0, 0],
 		pivot: 0,
 		drive_mode: true, // drive mode vs pivot mode
 		temperatures: [0, 0, 0, 0, 0, 0],

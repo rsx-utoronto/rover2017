@@ -16,17 +16,17 @@ function init(model, config) {
 		res.json(model.drive);
 	})
 
-	// sets rover speed only. used to scale the rover speed by a factor
+	// sets rover forward speed.
 	router.put('/speed/:speed', (req, res) => {
-		model.drive.speed = req.params.speed;
+		model.drive.speed[0] = model.drive.speed[1] = req.params.speed;
 		model.drive.drive_mode = true;
 		res.json(model.drive);
 	});
 
-	// sets rover speed and turning speed. used for normal driving.
-	router.put('/speed/:speed/turnspeed/:turn_speed', (req, res) => {
-		model.drive.speed = req.params.speed;
-		model.drive.turn_speed = req.params.turn_speed;
+	// sets rover speed on both wheels.
+	router.put('/speed/:speed0/:speed1', (req, res) => {
+		model.drive.speed[0] = req.params.speed0;
+		model.drive.speed[1] = req.params.speed1;
 		model.drive.drive_mode = true;
 		res.json(model.drive);
 	});
@@ -39,19 +39,14 @@ function init(model, config) {
 		res.json(model.drive);
 	});
 
+	router.put('/stop', (req, res) => {
+		model.drive.speed[0] = model.drive.speed[1] = 0;
+		res.json(model.drive);
+	});
+
 	app.use('/drive', router);
 	app.listen(config.server_port);
 	console.log('drive server started');
 }
 
 module.exports = {init};
-
-
-// question: how much computation to outsource to the Arduino vs. the server?
-// arguments for arduino: modularity, ease of testing
-// arguments for server: robustness, manual reconfiguration of wheels.
-// i guess this isn't super important because we don't have time to do this anyways during the competition...
-
-
-// todo: how to listen to multiple ports? should be able to listen to drive system and dashboard
-// another slightly useful project, esp for demo: build mini-dashboards that emulate the arduinos
