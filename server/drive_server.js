@@ -4,7 +4,7 @@ var cors = require('cors');
 var app = express();
 
 function init(model, config) {
-	console.log('initializing drive server')
+	console.log('-> started drive server');
 
 	app.use(cors({
 		origin: [config.dashboard_port, config.drive_port].map(x => 'http://localhost:' + x)
@@ -46,7 +46,7 @@ function init(model, config) {
 
 	app.use('/drive', router);
 	app.listen(config.server_port);
-	console.log('drive server started');
+	console.log('-> drive server started');
 }
 
 module.exports = {init};

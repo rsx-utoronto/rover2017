@@ -1,10 +1,12 @@
 // command line arguments to control which systems are enabled
+var _ = require('lodash');
+var Promise = require('bluebird');
 var program = require('commander')
 	.usage('node main.js [options]')
-	.option('-s, --serial', 'Enable arduinos connected over serial');
-var promise = require('bluebird');
-var fs = promise.promisifyAll(require('fs'));
-
+	.option('-s, --serial', 'Enable arduinos connected over serial')
+	.option('-v, --verbose', 'Enable verbose debugging')
+	.parse(process.argv)
+var fs = Promise.promisifyAll(require('fs'));
 
 var drive = require('./drive_server');
 // var system = program.serial ? require('./serial_connection') : require('./dummy_system');
@@ -19,13 +21,15 @@ model = {
 	}
 };
 
+console.log('Starting server...');
 fs.readFileAsync('./../config.json', 'utf8')
-.then(function(config) {
-	config = JSON.parse(config);
+.then(function(configFile) {
+	console.log('-> loaded config file');
+	config = _.assignIn(JSON.parse(configFile), program);
 	drive.init(model, config);
 })
 .catch(function(err) {
 	console.error(err);
 });
 
-console.log('done');
+console.log('Server has started');
