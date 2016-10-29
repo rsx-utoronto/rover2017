@@ -28,10 +28,10 @@ export default class Current extends React.Component {
 		if(newProps.current <= 10){
 			status = stateOk;
 		}
-		else if(neProps.current > 10 && neProps.current <= 20){
+		else if(newProps.current > 10 && newProps.current <= 20){
 			status = stateDanger;
 		}
-		else if (neProps.current > 20){
+		else if (newProps.current > 20){
 			status = stateCritical;
 		}
 
