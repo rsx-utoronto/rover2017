@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 def main():
     # full colour image loaded only so user can see output on top
-    img = cv2.imread('desert.jpg')
-    imgGrey = cv2.imread('desert.jpg', 0)
+    img = cv2.imread('img/desert.jpg')
+    imgGrey = cv2.imread('img/desert.jpg', 0)
 
     imgGrey = cv2.blur(imgGrey, (3, 3))
     # detect sharp edges only, so high threshold
@@ -39,23 +39,6 @@ def main():
     cv2.imshow('img', imgGrey)
     cv2.waitKey(0)
 
-
-def get_adjacent_edge_points(point, visited, img):
-    ''' Return list of points adjacent to point that have not been visited
-        and that are part of an edge (white). Diagonal adjacency is counted. '''
-    points = []
-
-    for i in range(-1, 2, 1):
-        for j in range(-1, 2, 1):
-            if (i, j) != (0, 0):
-                try:
-                    if img.item(point[1] + j, point[0] + i) == 255:
-                        if (point[0] + i , point[1] + j) not in visited:
-                            points.append((point[0] + i, point[1] + j))
-                except(IndexError):
-                    pass
-
-    return points
 
 def get_edge_list(img):
     ''' Find and return list of edges in img, where img is assumed to be
@@ -92,12 +75,32 @@ def get_edge_list(img):
 
     return edges
 
+
+def get_adjacent_edge_points(point, visited, img):
+    ''' Return list of points adjacent to point that have not been visited
+        and that are part of an edge (white). Diagonal adjacency is counted. '''
+    points = []
+
+    for i in range(-1, 2, 1):
+        for j in range(-1, 2, 1):
+            if (i, j) != (0, 0):
+                try:
+                    if img.item(point[1] + j, point[0] + i) == 255:
+                        if (point[0] + i , point[1] + j) not in visited:
+                            points.append((point[0] + i, point[1] + j))
+                except(IndexError):
+                    pass
+
+    return points
+
+
 def remove_short_edges(edge_list, threshold):
     ''' Remove edges in image that are shorter than threshold. These edges
         are assumed to represent noise or irrelevant features such as an
         obstacle that the rover could easily traverse. '''
 
     return [a for a in edge_list if len(a) >= threshold]
+
 
 def remove_circular_edges(edge_list, threshold):
     ''' Remove edges in image that are contained entirely by a box of side
