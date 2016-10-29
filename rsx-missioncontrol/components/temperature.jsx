@@ -35,7 +35,7 @@ export default class Temperature extends React.Component {
 		}
 
 		this.setState((prevState) => ({
-			temperature: newProps.temperature,
+			temperature: newProps.temp,
 			status: status
 		}));
 	}

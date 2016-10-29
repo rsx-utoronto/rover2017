@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Wheel from './wheel.jsx';
 import RoverBody from './rover_body.jsx'
+import Speed from './speed.jsx'
 
 class RoverMain extends React.Component {
 	
@@ -38,14 +39,14 @@ class RoverMain extends React.Component {
 	}
 
 	componentDidMount() {
-		this.interval = setInterval(() => this.updateData(), 1000);
+		this.interval = setInterval(() => this.updateData(), 100);
 	}
 
 	render() {
 		return(
-			<div className = "row text-center">
-				<div className = "col-md-4 col-sm-4 col-xs-4">
-					<h1>{this.state.drive.speed[0]}</h1>
+			<div className = "text-center">
+				<div className = "col-md-3 col-sm-3 col-xs-3 col-md-offset-1">
+					<h3>{this.state.drive.speed[0]}</h3>
 					<Wheel id={0} current={this.state.drive.currents[0]} temperature={this.state.drive.temperatures[0]}/>
 					<Wheel id={1} current={this.state.drive.currents[1]} temperature={this.state.drive.temperatures[1]}/>
 					<Wheel id={2} current={this.state.drive.currents[2]} temperature={this.state.drive.temperatures[2]}/>
@@ -53,8 +54,8 @@ class RoverMain extends React.Component {
 				<div className = "col-md-4 col-sm-4 col-xs-4">
 					<RoverBody pivot = {this.state.drive.pivot} drive_mode = {this.state.drive.drive_mode}/>
 				</div>
-				<div className = "col-md-4 col-sm-4 col-xs-4">
-					<h1>{this.state.drive.speed[1]}</h1>
+				<div className = "col-md-3 col-sm-3 col-xs-3">
+					<h3>{this.state.drive.speed[1]}</h3>
 					<Wheel id={3} current={this.state.drive.currents[3]} temperature={this.state.drive.temperatures[3]}/>
 					<Wheel id={4} current={this.state.drive.currents[4]} temperature={this.state.drive.temperatures[4]}/>
 					<Wheel id={5} current={this.state.drive.currents[5]} temperature={this.state.drive.temperatures[5]}/>
