@@ -8,8 +8,8 @@ var program = require('commander')
 	.parse(process.argv)
 var fs = Promise.promisifyAll(require('fs'));
 
-var drive = require('./drive_server');
-// var system = program.serial ? require('./serial_connection') : require('./dummy_system');
+var driveServer = require('./drive_server');
+var serialConnection = program.serial ? require('./serial_connection') : require('./dummy_system');
 
 model = {
 	drive: {
@@ -26,7 +26,8 @@ fs.readFileAsync('./../config.json', 'utf8')
 .then(function(configFile) {
 	console.log('-> loaded config file');
 	config = _.assignIn(JSON.parse(configFile), program);
-	drive.init(model, config);
+	driveServer.init(model, config);
+	serialConnection.init(model, config);
 })
 .catch(function(err) {
 	console.error(err);
