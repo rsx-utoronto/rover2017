@@ -7,15 +7,23 @@ export default class Wheel extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-
+			current: this.props.current,
+			temperature: this.props.temperature
 		};
+	}
+
+	componentWillReceiveProps(newProps) {
+		this.setState({
+			current: this.props.current,
+			temperature: this.props.temperature
+		});
 	}
 
 	render() {
 		return(
 			<div className = "wheel container-fluid">
-				<Temperature temp={7}/>
-				<Current current={7}/>
+				<Temperature temp={this.state.temperature}/>
+				<Current current={this.state.current}/>
 			</div>
 
 		);

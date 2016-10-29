@@ -10,6 +10,12 @@ export default class RoverBody extends React.Component{
 		};
 	}
 
+	componentWillReceiveProps(newProps) {
+		this.setState({
+			pivot: newProps.pivot,
+			drive_mode: newProps.drive_mode
+		});
+	}
 
 	render() {
 		return(

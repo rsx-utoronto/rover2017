@@ -21,27 +21,28 @@ export default class Temperature extends React.Component {
 		};
 	}
 
-	updateStatus() {
+	componentWillReceiveProps(newProps) {
 		let status;
 
-		if(this.state.temperature <= 25){
+		if(newProps.temperature <= 25){
 			status = stateOk;
 		}
-		else if(this.state.temperature > 25 && this.state.temperature <= 45){
+		else if(newProps.temperature > 25 && newProps.temperature <= 45){
 			status = stateDanger;
 		}
-		else if (this.state.temperature > 45){
+		else if (newProps.temperature > 45){
 			status = stateCritical;
 		}
 
 		this.setState((prevState) => ({
-			temperature: prevState.temperature + 1,
+			temperature: newProps.temperature,
 			status: status
 		}));
 	}
 
+
 	componentDidMount() {
-		this.interval = setInterval(() => this.updateStatus(), 300);
+		
 	}
 
 	render() {
