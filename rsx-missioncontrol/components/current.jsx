@@ -22,27 +22,27 @@ export default class Current extends React.Component {
 		};
 	}
 
-	updateStatus() {
+	componentWillReceiveProps(newProps) {
 		let status;
 
-		if(this.state.current <= 10){
+		if(newProps.current <= 10){
 			status = stateOk;
 		}
-		else if(this.state.current > 10 && this.state.current <= 20){
+		else if(newProps.current > 10 && newProps.current <= 20){
 			status = stateDanger;
 		}
-		else if (this.state.current > 20){
+		else if (newProps.current > 20){
 			status = stateCritical;
 		}
 
 		this.setState((prevState) => ({
-			current: prevState.current + 1,
+			current: newProps.current,
 			status: status
 		}));
 	}
 
 	componentDidMount() {
-		this.interval = setInterval(() => this.updateStatus(), 700);
+		
 	}
 
 	render() {

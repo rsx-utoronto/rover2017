@@ -1,6 +1,6 @@
 {
 	"server_port": 8080,
-	"dashboard_port": 8000,
+	"dashboard_port": 3000,
 	"drive_port": 7000,
 	"arm_port": 6000,
 	"internal_sensor_port": 5000,
