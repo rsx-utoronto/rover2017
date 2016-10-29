@@ -10,9 +10,11 @@ const int InB1 = 3; // backward
 //motor2
 const int InA2 = 4;
 const int InB2 = 5;
-const int Forwardpin = 8;
-const int PivotRpin = 9;
-const int PivotLpin = 10;
+
+//PWM input
+const int enA = 8;
+const int enB = 9;
+
 
 void setup() {
   Serial.begin(9600);
@@ -22,9 +24,8 @@ void setup() {
   pinMode(InA2, OUTPUT);
   pinMode(InB2, OUTPUT);
 
-  pinMode(Forwardpin, OUTPUT);
-  pinMode(PivotRpin, OUTPUT);
-  pinMode(PivotLpin, OUTPUT);
+  pinMode(enA, OUTPUT);
+  pinMode(enB, OUTPUT);
   
 }
 
@@ -32,7 +33,7 @@ void loop() {
   readSensors();  
   delay(10); // give the server time to process
   parseDrive(); 
-  delay(200); 
+  delay(1000); 
 }
 
 /*
@@ -50,46 +51,43 @@ void parseDrive() {
   }
 
   if (driveMode != 0) {
-    forward();
-    digitalWrite(Forwardpin, HIGH);
-    digitalWrite(PivotRpin, LOW);
-    digitalWrite(PivotLpin, LOW);
+    forward(speedl,speedr);
   }
   else if (pivot > 0) {
-    pivotR();
-    digitalWrite(PivotRpin, HIGH);
-    digitalWrite(Forwardpin, LOW);
-    digitalWrite(PivotLpin, LOW);
+    pivotR(speedl,speedr);
   }
-  else {
-    pivotL();
-    digitalWrite(PivotLpin, HIGH);
-    digitalWrite(PivotRpin, LOW);
-    digitalWrite(Forwardpin, LOW);
+  else{
+    stopit();
   }
+  
 }
 
-void forward() {
+void forward(int speedl, int speedr) {
   digitalWrite(InA1, HIGH);
   digitalWrite(InB1, LOW);
-
+  analogWrite(enA, speedl);
+  
   digitalWrite(InA2, HIGH);
   digitalWrite(InB2, LOW);
+  analogWrite(enB, speedr);
+
 }
 
-void pivotR() {
+void pivotR(int speedl, int speedr) {
+  
   digitalWrite(InA1, HIGH);
   digitalWrite(InB1, LOW);
-
+  analogWrite(enA, speedl);
+  
   digitalWrite(InA2, LOW);
   digitalWrite(InB2, HIGH);
+  analogWrite(enB, speedr);
 }
 
-void pivotL() {
+void stopit() {
   digitalWrite(InA1, LOW);
-  digitalWrite(InB1, HIGH);
-
-  digitalWrite(InA2, HIGH);
+  digitalWrite(InB1, LOW);
+  digitalWrite(InA2, LOW);
   digitalWrite(InB2, LOW);
 }
 
