@@ -12,7 +12,7 @@ const int InA2 = 4;
 const int InB2 = 5;
 
 //PWM input
-const int enA = 8;
+const int enA = 6;
 const int enB = 9;
 
 
@@ -33,7 +33,7 @@ void loop() {
   readSensors();  
   delay(10); // give the server time to process
   parseDrive(); 
-  delay(1000); 
+  delay(200); 
 }
 
 /*

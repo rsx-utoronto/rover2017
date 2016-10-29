@@ -6,10 +6,10 @@ var getSerialPorts = Promise.promisify(SerialPort.list);
 init = function(model, config) {
 	getSerialPorts()
 	.then(portInfo => {
-		let port = new SerialPort(portInfo[0].comName, {
+		let port = new SerialPort(portInfo[1].comName, {
 			parser: SerialPort.parsers.readline('\n')
 		});
-		console.log('-> started serial port on ', portInfo[0].comName);
+		console.log('-> started serial port on ', portInfo[1].comName);
 		if (config.verbose)
 			console.log('Available ports: ', portInfo);
 
