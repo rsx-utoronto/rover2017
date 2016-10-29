@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    img = cv2.imread('img/d0.jpg')
-    imgGrey = cv2.imread('img/d0.jpg', 0)
+    img = cv2.imread('desert.jpg')
+    imgGrey = cv2.imread('desert.jpg', 0)
 
     # imgGrey = cv2.bilateralFilter(imgGrey, 9, 30, 30)   # blur slightly to remove noise
     imgGrey = cv2.blur(imgGrey, (3, 3))
@@ -17,13 +17,14 @@ def main():
     # find length of edges, remove short ones
     edge_list = get_edge_list(imgEdge, imWidth, imHeight)
     edge_list = [a for a in edge_list if len(a) > 30]
-
-    # flatten list
-    edge_list = [item for sublist in edge_list for item in sublist]
+    edge_list = remove_circular_edges(edge_list, 20)
+    
+    # flatten list and put edges back on image
+    edge_list_flat = [item for sublist in edge_list for item in sublist]
     imgEdge[:] = 0
-    for point in edge_list:
+    for point in edge_list_flat:
         imgEdge[point[1], point[0]] = 255
-
+    '''
     stepSize = 8
     edgeArray = []
 
@@ -101,6 +102,11 @@ def main():
     for y in range(len(obstacleArray)):
         for x in range(len(obstacleArray[y]) - 1):
             cv2.line(img, obstacleArray[y][x], obstacleArray[y][x + 1], (255, 0, 0), 4)
+    '''
+
+    for edge in edge_list:
+        for i in range(len(edge) - 1):
+            cv2.line(img, edge[i], edge[i + 1], (255, 0, 0), 4)
 
     # display image
     cv2.namedWindow('img', cv2.WINDOW_NORMAL)
