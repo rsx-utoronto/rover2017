@@ -35,10 +35,12 @@ function scangamepads() {
         method: 'put'
       });
     }
+    else{
+      fetch("http://localhost:8080/drive/speed/"+leftSpeed+"/"+rightSpeed+"/",{
+        method: 'put'
+      });
+    }
 	  // console.log(gamepads[0].axes);
-    fetch("http://localhost:8080/drive/speed/"+leftSpeed+"/"+rightSpeed+"/",{
-      method: 'put'
-    });
   }
 }
 
