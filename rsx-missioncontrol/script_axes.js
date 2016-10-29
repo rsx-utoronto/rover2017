@@ -29,7 +29,13 @@ function scangamepads() {
 	  controller = gamepads[0];
     leftSpeed = Math.floor(gamepads[0].axes[1] * -255);
     rightSpeed = Math.floor(gamepads[0].axes[3] * -255);
-	  console.log(gamepads[0].axes);
+
+    if(leftSpeed == 255){
+      fetch("http://localhost:8080/drive/pivot/100",{
+        method: 'put'
+      });
+    }
+	  // console.log(gamepads[0].axes);
     fetch("http://localhost:8080/drive/speed/"+leftSpeed+"/"+rightSpeed+"/",{
       method: 'put'
     });
