@@ -10,6 +10,9 @@ const int InB1 = 3; // backward
 //motor2
 const int InA2 = 4;
 const int InB2 = 5;
+const int Forwardpin = 8;
+const int PivotRpin = 9;
+const int PivotLpin = 10;
 
 void setup() {
   Serial.begin(9600);
@@ -18,6 +21,11 @@ void setup() {
 
   pinMode(InA2, OUTPUT);
   pinMode(InB2, OUTPUT);
+
+  pinMode(Forwardpin, OUTPUT);
+  pinMode(PivotRpin, OUTPUT);
+  pinMode(PivotLpin, OUTPUT);
+  
 }
 
 void loop() {
@@ -36,14 +44,28 @@ void parseDrive() {
   int pivot = Serial.parseInt();
   int driveMode = Serial.parseInt();
 
+  while(Serial.available()){ 
+    char x = Serial.read(); 
+    if (x == '\n') break; 
+  }
+
   if (driveMode != 0) {
     forward();
+    digitalWrite(Forwardpin, HIGH);
+    digitalWrite(PivotRpin, LOW);
+    digitalWrite(PivotLpin, LOW);
   }
   else if (pivot > 0) {
     pivotR();
+    digitalWrite(PivotRpin, HIGH);
+    digitalWrite(Forwardpin, LOW);
+    digitalWrite(PivotLpin, LOW);
   }
   else {
     pivotL();
+    digitalWrite(PivotLpin, HIGH);
+    digitalWrite(PivotRpin, LOW);
+    digitalWrite(Forwardpin, LOW);
   }
 }
 
