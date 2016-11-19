@@ -9,7 +9,8 @@
 - ` $ npm install -g http-server `
 - ` $ npm install -g webpack `
 ##### Frontend window
-- ` $ cd rsx-missioncontrol && webpack webpack.config.js bundle.js # compile the frontend `
+- ` $ cd rsx-missioncontrol
+- ` $ webpack ` Compile the front-end `
 - ` $ http-server -p 3000  # runs the frontend `
 ##### Server window
 ` $ cd server && node main.js # runs the server `

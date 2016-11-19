@@ -19,12 +19,28 @@ export default class RoverBody extends React.Component{
 
 	render() {
 		return(
-			<div className = "rover-body container-fluid">
+			<div className = "container-fluid">
 				<div className = "row">
-					{this.state.pivot}
-				</div>
-				<div className = "row">
-					Drive Mode : {String(this.state.drive_mode)}
+					<div className = "col-md-12">
+						<ul className="list-group">
+						  <li className="list-group-item">
+						    <span className="badge">{this.state.pivot}</span>
+						    Pivot
+						  </li>
+						  <li className="list-group-item">
+						    <span className="badge">{String(this.state.drive_mode)}</span>
+						    Drive Mode
+						  </li>
+						  <li className="list-group-item">
+						    <span className="badge">78%</span>
+						    Battery Life
+						  </li>
+						  <li className="list-group-item">
+						    <span className="badge">-10 db</span>
+						    Signal 
+						  </li>
+						</ul>
+					</div>
 				</div>
 			</div>
 		);

@@ -1,0 +1,34 @@
+body {
+	padding-top: 60px;
+}
+.wheel {
+	border-radius: 25px;
+	border-style: solid;
+	margin: 5px;
+}
+
+/*.rover-body {
+	border-radius: 25px;
+	border-style: solid;
+	height: 225px;
+	overflow: hidden;
+}*/
+
+.equal, .equal > div[class*='col-'] {  
+    display: -webkit-flex;
+    display: flex;
+    flex:1 1 auto;
+}
+
+
+
+/*#maps {
+	width:100%;
+	height: 300px;
+}*/
+
+
+/*body {
+	background-image: url('mars.jpg');
+	background-position: center;
+}*/
