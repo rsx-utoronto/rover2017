@@ -13,11 +13,13 @@ var app = express();
 
 var driveServer = require('./drive_server');
 var armServer = require('./arm_server')
+var sensorServer = require('./sensor_server');
 var serialConnection = program.serial ? require('./serial_connection') : require('./dummy_system');
 
 model = {
 	drive: {},
-	arm: {}
+	arm: {},
+	sensor: {}
 };
 
 console.log('Starting server...');
@@ -26,12 +28,12 @@ fs.readFileAsync('./../config.json', 'utf8')
 	console.log('-> loaded config file');
 	config = _.assignIn(JSON.parse(configFile), program);
 
-	app.use(cors({
-		origin: [config.dashboard_port, config.drive_port, config.arm_port].map(x => 'http://localhost:' + x)
-	}));
-	app
-		.use('/drive/', driveServer.init(model, config))
-		.use('/arm/', armServer.init(model, config))
+	app.use(
+		cors({origin: [config.dashboard_port, config.drive_port, config.arm_port, config.sensor_port]
+			.map(x => 'http://localhost:' + x)}))
+	.use('/drive/', driveServer.init(model, config))
+	.use('/arm/', armServer.init(model, config))
+	.use('/sensor/', sensorServer.init(model, config))
 	serialConnection.init(model, config);
 
 	app.listen(config.server_port);
