@@ -6,6 +6,8 @@
  You can see the client's input in the serial monitor as well.
  Using an Arduino Wiznet Ethernet shield.
 
+RSX: connect using Node server
+
  Circuit:
  * Ethernet shield attached to pins 10, 11, 12, 13
 
@@ -31,7 +33,7 @@ IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 
-// telnet defaults to port 23
+
 EthernetServer server(5000);
 boolean alreadyConnected = false; // whether or not the client was connected previously
 
@@ -47,7 +49,7 @@ void setup() {
   }
 
 
-  Serial.print("Chat server address:");
+  Serial.print("IP address:");
   Serial.println(Ethernet.localIP());
 }
 
@@ -60,8 +62,8 @@ void loop() {
     if (!alreadyConnected) {
       // clear out the input buffer:
       client.flush();
-      Serial.println("We have a new client");
-      client.println("Hello, client!");
+      Serial.println("Connected to Node Server");
+      client.println("Arduino: Welcome to the Jungle ");
       alreadyConnected = true;
     }
 
