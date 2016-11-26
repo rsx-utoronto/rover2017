@@ -1,5 +1,6 @@
 var express = require('express');
 var fetch = require('node-fetch');
+var net = require('net');
 
 function init(model, config) {
 	model.drive = {
@@ -53,6 +54,15 @@ function init(model, config) {
 		})
 		.catch(function(err){
 			console.log('error', err);
+		});
+	});
+
+	router.get('/tcp', (req,res) => {
+		var client = new net.Socket();
+		client.connect(5000,'192.168.0.177',()=>{
+			console.log('Connected');
+			client.write('Hello Server! Love, Client');
+			client.destroy();
 		});
 	});
 
