@@ -1,14 +1,14 @@
 var express = require('express');
-var cors = require('cors');
-
-var app = express();
 
 function init(model, config) {
-	console.log('-> started drive server');
+	model.drive = {
+		speed: [0, 0],
+		pivot: 0,
+		drive_mode: true, // drive mode vs pivot mode
+		temperatures: [0, 0, 0, 0, 0, 0],
+		currents: [0, 0, 0, 0, 0, 0]
+	}
 
-	app.use(cors({
-		origin: [config.dashboard_port, config.drive_port].map(x => 'http://localhost:' + x)
-	}));
 	var router = express.Router();
 
 	// gets rover speed and turning parameters
@@ -44,9 +44,8 @@ function init(model, config) {
 		res.json(model.drive);
 	});
 
-	app.use('/drive', router);
-	app.listen(config.server_port);
 	console.log('-> drive server started');
+	return router;
 }
 
 module.exports = {init};
