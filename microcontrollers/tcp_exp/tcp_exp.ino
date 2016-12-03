@@ -6,7 +6,8 @@
  You can see the client's input in the serial monitor as well.
  Using an Arduino Wiznet Ethernet shield.
 
-RSX: connect using Node server
+RSX: connect using Node server or any TCP connection. Use port numbers specifed below to connect. 
+Supports two connections, one for Base Station Node server, other for autnomous software
 
  Circuit:
  * Ethernet shield attached to pins 10, 11, 12, 13
@@ -32,16 +33,18 @@ IPAddress myDns(192,168,1, 1);
 IPAddress gateway(192, 168, 1, 1);
 IPAddress subnet(255, 255, 255, 0);
 
+#define baseStationPort 5000
+#define AutoSysPort 6000
 
-
-EthernetServer server(5000);
-boolean alreadyConnected = false; // whether or not the client was connected previously
+EthernetServer baseConn(baseStationPort);
+EthernetServer AutoSysConn(AutoSysPort);
 
 void setup() {
   // initialize the ethernet device
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
   // start listening for clients
-  server.begin();
+  baseConn.begin();
+  AutoSysConn.begin();
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
@@ -53,28 +56,40 @@ void setup() {
   Serial.println(Ethernet.localIP());
 }
 
-void loop() {
-  // wait for a new client:
-  EthernetClient client = server.available();
-
-  // when the client sends the first byte, say hello:
-  if (client) {
-    if (!alreadyConnected) {
-      // clear out the input buffer:
-      client.flush();
-      Serial.println("Connected to Node Server");
-      client.println("Arduino: Welcome to the Jungle ");
-      alreadyConnected = true;
-    }
-
-    if (client.available() > 0) {
+void processData(EthernetClient * client, short AutoSysOrBase){
+  while (client->available() > 0) {
       // read the bytes incoming from the client:
-      char thisChar = client.read();
+      char thisChar = client->read();
       // echo the bytes back to the client:
-      server.write(thisChar);
-      // echo the bytes to the server as well:
+      if(AutoSysOrBase)
+        baseConn.write(thisChar);
+       else
+          AutoSysConn.write(thisChar);
+          // echo the bytes to the server as well:
       Serial.write(thisChar);
     }
+}
+
+void loop() {
+  // wait for a new client:
+  EthernetClient baseClient = baseConn.available();
+  EthernetClient autoSysClient = AutoSysConn.available();
+  
+
+  if(autoSysClient){
+     processData(&autoSysClient, 0);
+  }
+  
+   else if(baseClient) {
+//    if (!alreadyConnected) {
+//      // clear out the input buffer:
+//      baseClient.flush();
+//      Serial.println("Connected to Node Server");
+//      baseClient.println("Arduino: Welcome to the Jungle ");
+//      alreadyConnected = true;
+//    }
+
+     processData(&baseClient, 1);
     
   }
 
