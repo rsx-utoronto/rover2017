@@ -56,16 +56,15 @@ void setup() {
   Serial.println(Ethernet.localIP());
 }
 
-void processData(EthernetClient * client, short AutoSysOrBase){
+void processData(EthernetClient * client, EthernetServer * server){
   while (client->available() > 0) {
       // read the bytes incoming from the client:
       char thisChar = client->read();
-      // echo the bytes back to the client:
-      if(AutoSysOrBase)
-        baseConn.write(thisChar);
-       else
-          AutoSysConn.write(thisChar);
-          // echo the bytes to the server as well:
+      
+      // for now, echo data back to sender. Will need to add code to parse commands
+      server->write(thisChar);
+      
+     // echo the bytes to the server as well:
       Serial.write(thisChar);
     }
 }
@@ -77,7 +76,7 @@ void loop() {
   
 
   if(autoSysClient){
-     processData(&autoSysClient, 0);
+     processData(&autoSysClient, &AutoSysConn);
   }
   
    else if(baseClient) {
@@ -89,7 +88,7 @@ void loop() {
 //      alreadyConnected = true;
 //    }
 
-     processData(&baseClient, 1);
+     processData(&baseClient, &baseConn);
     
   }
 
