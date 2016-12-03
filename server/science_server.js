@@ -1,9 +1,7 @@
 var express = require('express');
 
 function init(model, config) {
-	model.sensor = {
-		temperature: [0, 0, 0, 0, 0, 0],
-		current: [0, 0, 0, 0, 0, 0],
+	model.science = {
 		humidity: 0,
 		outer_temp: 0,
 		gas: 0
@@ -12,11 +10,12 @@ function init(model, config) {
 	var router = express.Router();
 	router.get('/', (req, res) => {
 		if(config.verbose) {
-			console.log('Sensor readings:', model.sensor);
+			console.log('Science readings:', model.science);
 		}
-		res.json({value: model.sensor});
+		res.json(model.science);
 	});
 
+	console.log('-> science server started');
 	return router;
 }
 

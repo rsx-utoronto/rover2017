@@ -4,9 +4,7 @@ function init(model, config) {
 	model.drive = {
 		speed: [0, 0],
 		pivot: 0,
-		drive_mode: true, // drive mode vs pivot mode
-		temperatures: [0, 0, 0, 0, 0, 0],
-		currents: [0, 0, 0, 0, 0, 0]
+		drive_mode: true // drive mode vs pivot mode
 	}
 
 	var router = express.Router();

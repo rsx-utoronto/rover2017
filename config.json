@@ -3,6 +3,6 @@
 	"dashboard_port": 3000,
 	"drive_port": 7000,
 	"arm_port": 6000,
-	"internal_sensor_port": 5000,
-	"extenal_sensor_port": 4000
+	"science_port": 5000,
+	"aux_port": 4000
 }
