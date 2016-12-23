@@ -16,5 +16,8 @@
 
 ### Command line arguments
 - `-h` enables help
-- `-s` enables arduinos connected to serial port
+- `-all-arduinos` enables all the arduinos on serial ports. see `main.js` for how to enable specific systems
 - `-v` enables verbose debugging
+
+Notes:
+- You can copy `example_config.json` to `config.json` if you need to set your own settings. The latter will have a higher priority.

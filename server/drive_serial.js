@@ -1,18 +1,15 @@
 var SerialPort = require("serialport");
-var Promise = require('bluebird');
-
-var getSerialPorts = Promise.promisify(SerialPort.list);
 
 init = function(model, config) {
-	getSerialPorts()
-	.then(portInfo => {
-		let port = new SerialPort(portInfo[1].comName, {
-			parser: SerialPort.parsers.readline('\n')
-		});
-		console.log('-> started serial port on ', portInfo[1].comName);
-		if (config.verbose)
-			console.log('Available ports: ', portInfo);
-
+	let port = new SerialPort(config.drive_com_port, {
+		parser: SerialPort.parsers.readline('\n')
+	},
+	function (err) {
+		if (err) {
+			console.error(`Error: Could not start drive serial port ${config.drive_com_port}`)
+			return
+		}
+		console.log(`-> started serial port on ${config.drive_com_port}`);
 		port.on('data', function(data) {
 			// get data from the dataport
 			words = data.toString().trim().split(' ');
@@ -27,7 +24,7 @@ init = function(model, config) {
 			if (config.verbose)
 				console.log(model.drive);
 		});
-	})
+	});
 }
 
 module.exports = {init};
