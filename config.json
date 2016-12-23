@@ -1,8 +1,0 @@
-{
-	"server_port": 8080,
-	"dashboard_port": 3000,
-	"drive_port": 7000,
-	"arm_port": 6000,
-	"science_port": 5000,
-	"aux_port": 4000
-}

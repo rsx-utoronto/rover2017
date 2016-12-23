@@ -26,8 +26,25 @@ model = {
 
 console.log('Starting server...');
 fs.readFileAsync('./../config.json', 'utf8')
-.then(function(configFile) {
-	console.log('-> loaded config file');
+
+new Promise((resolve, reject) => {
+	// Resolve with the first of the files below that exists
+	return Promise.mapSeries(
+		['./config.json', '../config.json', './example_config.json', '../example_config.json']
+		, (filename) => fs.readFileAsync(filename, 'utf-8')
+		.then(file => {
+			resolve([filename, file]);
+			return true;
+		})
+		.catch(_.stubFalse)
+	)
+	.then(files => { // this is required to reject when we don't receive any files
+		if(!files.some(x => x))
+			reject('did not receive any files');
+	});
+})
+.then(function([filename, configFile]) {
+	console.log(`-> loaded config file from ${filename}`);
 	config = _.assignIn(JSON.parse(configFile), program);
 
 	app.use(

@@ -1,0 +1,12 @@
+{
+	"server_port": 8080,
+	"dashboard_port": 3000,
+	"drive_port": 7000,
+	"drive_com_port": "COM3",
+	"arm_port": 6000,
+	"arm_com_port": "COM4",
+	"science_port": 5000,
+	"science_com_port": "COM5",
+	"aux_port": 4000,
+	"aux_com_port": "COM6"
+}
