@@ -33,25 +33,15 @@ model = {
 };
 
 console.log('Starting server...');
-fs.readFileAsync('./../config.json', 'utf8')
 
-new Promise((resolve, reject) => {
-	// Resolve with the first of the files below that exists
-	return Promise.mapSeries(
-		['./config.json', '../config.json', './example_config.json', '../example_config.json']
-		, (filename) => fs.readFileAsync(filename, 'utf-8')
-		.then(file => {
-			resolve([filename, file]);
-			return true;
-		})
-		.catch(_.stubFalse)
-	)
-	.then(files => { // this is required to reject when we don't receive any files
-		if(!files.some(x => x))
-			reject('did not receive any files');
-	});
-})
-.then(function([filename, configFile]) {
+let filePaths = ['./config.json', '../config.json', './example_config.json', '../example_config.json'];
+// Return the first config file and file name that work, see http://stackoverflow.com/questions/41307031/return-when-first-promise-resolves/
+filePaths.reduce(function(promise, path) {
+    return promise.catch(function(error) {
+    	return fs.readFileAsync(path, 'utf-8').then(configFile => [configFile, path]);
+    });
+}, Promise.reject())
+.then(function([configFile, filename]) {
 	console.log(`-> loaded config file from ${filename}`);
 	config = _.assignIn(JSON.parse(configFile), program);
 
@@ -68,7 +58,7 @@ new Promise((resolve, reject) => {
 	app.listen(config.server_port);
 })
 .catch(function(err) {
-	console.error("error", err);
+	console.error("error while opening config file", err);
 });
 
 console.log('Server has started');
