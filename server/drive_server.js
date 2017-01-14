@@ -67,7 +67,9 @@ function init(model, config) {
 		client = net.connect(config.drive_port, config.drive_ip, ()=>{
 			console.log('--> connected to tcp on drive arduino');
 		});
-		client.write('test')
+		client.on('data', function(data) {
+			console.log('received data from client');
+		})
 
 		res.json(model.drive);
 	});
@@ -78,7 +80,6 @@ function init(model, config) {
 			client.write(`${_.padStart(model.drive.speed[0], 5)}${_.padStart(model.drive.speed[1], 5)}${_.padStart(model.drive.pivot, 4)}${_.toNumber(model.drive.drive_mode)}`);
 		}
 	}
-
 	setInterval(sendState, 200);
 
 	console.log('-> drive server started');
