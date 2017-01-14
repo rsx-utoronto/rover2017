@@ -1,10 +1,13 @@
 var express = require('express');
 var fetch = require('node-fetch');
+var _ = require('lodash');
 var net = require('net');
+
+var client = undefined; // arduino tcp client
 
 function init(model, config) {
 	model.drive = {
-		speed: [0, 0],
+		speed: [0, 0], // -255 to 255
 		pivot: 0,
 		drive_mode: true // drive mode vs pivot mode
 	}
@@ -57,17 +60,30 @@ function init(model, config) {
 		});
 	});
 
+	// start the tcp connection
 	router.get('/tcp', (req,res) => {
-		var client = new net.Socket();
-		client.connect(5000,'192.168.0.177',()=>{
-			console.log('Connected');
-			client.write('Hello Server! Love, Client');
-			client.destroy();
+		if(client)
+			client.destroy(); // reset the connection if applicable
+		client = net.connect(config.drive_port, config.drive_ip, ()=>{
+			console.log('--> connected to tcp on drive arduino');
 		});
+		client.write('test')
+
+		res.json(model.drive);
 	});
+
+	// send the current state of the rover over tcp
+	sendState = function() {
+		if(client && client.writable) {
+			client.write(`${_.padStart(model.drive.speed[0], 5)}${_.padStart(model.drive.speed[1], 5)}${_.padStart(model.drive.pivot, 4)}${_.toNumber(model.drive.drive_mode)}`);
+		}
+	}
+
+	setInterval(sendState, 200);
 
 	console.log('-> drive server started');
 	return router;
 }
+
 
 module.exports = {init};

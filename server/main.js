@@ -11,8 +11,8 @@ var program = require('commander')
 	.option('-v, --verbose', 'Enable verbose debugging')
 	.parse(process.argv)
 var fs = Promise.promisifyAll(require('fs'));
-var cors = require('cors')
-var express = require('express')
+var cors = require('cors');
+var express = require('express');
 var app = express();
 
 var driveServer = require('./drive_server');
@@ -25,7 +25,7 @@ if(program.armArduino || program.auxArduino || program.scienceArduino) {
 	console.warn("Serial connections have not all been implemented yet :(")
 }
 
-model = {
+let model = {
 	drive: {},
 	arm: {},
 	science: {},
