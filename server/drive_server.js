@@ -47,6 +47,7 @@ function init(model, config) {
 		res.json(model.drive);
 	});
 
+	// start an http connection with the arduino
 	router.get('/ethernet',(req,res)=>{
 		fetch('http://192.168.0.177').then((response) =>{
 			if(response.ok){
