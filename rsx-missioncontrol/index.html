@@ -4,59 +4,78 @@
   	<meta charset="utf-8">
     <title>RSX Mission Control</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  	<link rel="stylesheet" href="https://bootswatch.com/paper/bootstrap.min.css">
-  	<link rel="stylesheet" href="style.css">
+  	<link rel="stylesheet" href="https://bootswatch.com/sandstone/bootstrap.min.css">
+    <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+  	<link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/simple-sidebar.css">
   </head>
 
   <body>
+  	<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a href="#" class="btn btn-success navbar-brand" id="menu-toggle">
+            <i class="fa fa-align-justify" aria-hidden="true"></i>
+          </a>
+          <a class="navbar-brand" href="#">RSX Mission Control</a>
+        </div>
+      </div>
+    </nav>
 
-  	<nav class="navbar navbar-default navbar-fixed-top">
-	  <div class="container-fluid">
-	    <!-- Brand and toggle get grouped for better mobile display -->
-	    <div class="navbar-header">
-	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-	        <span class="sr-only">Toggle navigation</span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	        <span class="icon-bar"></span>
-	      </button>
-	      <a class="navbar-brand" href="#">Rover Dashboard</a>
-	    </div>
-	  </div><!-- /.container-fluid -->
-	</nav>
-
-  	<div class="container-fluid">
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav active">
+                <li>
+                  <a href="/#/">Home</a>
+                </li>
+                <li>
+                  <a href="/#/science">Scientific Sensors</a>
+                </li>
+                <!-- <li>
+                  <a href="/#/about">About</a>
+                </li> -->
+            </ul>
+        </div>
+        <div id="page-content-wrapper">
+          <div id="app-container" class="container-fluid"></div>
+        </div>
+    </div>
+    
+  	<!-- <div class="container-fluid">
       <div class="row text-center">
-        <div class="col-md-6">
-          <div class="panel panel-default">
-              <div class="panel-heading">Rover Arm</div>
-                <div class="panel-body">
-                  <iframe src="//giphy.com/embed/v4sOCVX9Dhsv6" width="480" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
-                </div>
-            </div>
-          </div>
-        <div class="col-md-6">
-          <div class="panel panel-default">
-            <div class="panel-heading">Rover Body</div>
-              <div id="app-container" class="panel-body">
-                
+        <div class="col-md-12">
+          <div class="panel panel-primary">
+            <div class="panel-heading">Location</div>
+              <div class="panel-body">
+                <iframe id="maps" class="panel-body" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;geocode=&amp;q=Twitter,+Inc.,+Market+Street,+San+Francisco,+CA&amp;aq=0&amp;oq=twitter&amp;sll=28.659344,-81.187888&amp;sspn=0.128789,0.264187&amp;ie=UTF8&amp;hq=Twitter,+Inc.,+Market+Street,+San+Francisco,+CA&amp;t=m&amp;z=15&amp;iwloc=A&amp;output=embed" ></iframe>
               </div>
           </div>
         </div>
-      </div>
-      <div class="row text-center">
-        <div class="col-md-12">
-          <div class="panel panel-default">
-            <div class="panel-heading">Map</div>
-              <iframe id="maps" class="panel-body" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;geocode=&amp;q=Twitter,+Inc.,+Market+Street,+San+Francisco,+CA&amp;aq=0&amp;oq=twitter&amp;sll=28.659344,-81.187888&amp;sspn=0.128789,0.264187&amp;ie=UTF8&amp;hq=Twitter,+Inc.,+Market+Street,+San+Francisco,+CA&amp;t=m&amp;z=15&amp;iwloc=A&amp;output=embed" ></iframe>
+        <div class="col-md-6">
+          <div class="panel panel-primary">
+            <div class="panel-heading">Rover Body</div>
+              <div id="app-container" class="panel-body"></div>
           </div>
         </div>
+        <div class="col-md-6">
+          <div class="panel panel-primary">
+              <div class="panel-heading">Rover Arm</div>
+                <div id="rover-arm" class="panel-body">
+                </div>
+            </div>
+        </div>
       </div>
-  	</div>
+  	</div> -->
     
     <script src="bundle.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="script_axes.js"></script>
+    <script src="/js/script_axes.js"></script>
+    <script>
+      $("#menu-toggle").click(function(e) {
+          e.preventDefault();
+          $("#wrapper").toggleClass("toggled");
+      });
+    </script>
   </body>
 </html>
