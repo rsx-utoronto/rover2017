@@ -1,4 +1,4 @@
-var haveEvents = 'ongamepadconnected' in window; 
+var haveEvents = 'ongamepadconnected' in window;
 var controller = null;
 
 function connecthandler(e) {
@@ -18,29 +18,29 @@ function updateStatus() {
   if (!haveEvents) {
     scangamepads();
   }
-	
   requestAnimationFrame(updateStatus);
 }
 
 function scangamepads() {
   var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
-  
-  if (gamepads[0]) {
-	  controller = gamepads[0];
-    leftSpeed = Math.abs(Math.floor(gamepads[0].axes[1] * -255));
-    rightSpeed = Math.abs(Math.floor(gamepads[0].axes[3] * -255));
 
-    // if(leftSpeed == 255){
-    //   fetch("http://localhost:8080/drive/pivot/100",{
-    //     method: 'put'
-    //   });
-    // }
-    // else{
-    fetch("http://localhost:8080/drive/speed/"+leftSpeed+"/"+rightSpeed+"/",{
-      method: 'put'
-    });
-    // }
-	  // console.log(gamepads[0].axes);
+  activeGamepad = 2;
+  if (gamepads[activeGamepad]) {
+	  controller = gamepads[activeGamepad];
+
+    fbSpeed = Math.floor(gamepads[activeGamepad].axes[1] * -255);
+    pivotSpeed = Math.floor(gamepads[activeGamepad].axes[5] * -255);
+    // console.log('game controller', fbSpeed, pivotSpeed, gamepads[2].axes)
+
+    if(Math.abs(fbSpeed) > Math.abs(pivotSpeed))
+      fetch("http://localhost:8080/drive/speed/"+fbSpeed+"/",{
+        method: 'put'
+      });
+    else {
+      fetch("http://localhost:8080/drive/pivot/"+pivotSpeed+"/", {
+        method: 'put'
+      });
+    }
   }
 }
 
