@@ -1,32 +1,22 @@
 //L293D
-//Joint Right Motors
+//Joint Motor 1
 int InA1  = 2;  
-int InB1  = 4;  
+int InB1  = 3;  
 
-//Joint Left Motors
-int InA2  = 7; 
-int InB2  = 8; 
+//Joint Motor 2
+int InA2  = 4; 
+int InB2  = 5; 
 
-//Middle Right Motor 
-int InA3  = 10; 
-int InB3  = 11;  
+//Middle Motor 3
+int InA3  = 6; 
+int InB3  = 7;  
 
-//Middle Left Motor 
-int InA4  = 12; 
-int InB4  = 13;  
+//Middle Motor 4
+int InA4  = 8; 
+int InB4  = 9;  
 
 //Motor speed
-int Mspeed = 80;
-
-//PWM enable pins
-//Right motor
-int En1 = 3;
-//Left motor
-int En2 = 5;
-//Middle right motor
-int En3 = 6;
-//Middle left motor
-int En4 = 9;
+int Mspeed = 150;
 
 void setup(){
  
@@ -57,71 +47,71 @@ void loop() {
 
 //Stop the motor
 void Mstop(){
-    digitalWrite(InB1, 0);
-    digitalWrite(InA1, 0);
-    digitalWrite(InB2, 0);
-    digitalWrite(InA2, 0);
+    analogWrite(InB1, 0);
+    analogWrite(InA1, 0);
+    analogWrite(InB2, 0);
+    analogWrite(InA2, 0);
 
     //Middle motors
-    digitalWrite(InB3, 0);
-    digitalWrite(InA3, 0);
-    digitalWrite(InB4, 0);
-    digitalWrite(InA4, 0);
+    analogWrite(InB3, 0);
+    analogWrite(InA3, 0);
+    analogWrite(InB4, 0);
+    analogWrite(InA4, 0);
 }
 
 //Pivot left
 void pivotL(){
-    digitalWrite(InB1, Mspeed);
-    digitalWrite(InA1, 0);
-    digitalWrite(InB2, 0);
-    digitalWrite(InA2, Mspeed);
+    analogWrite(InB1, Mspeed);
+    analogWrite(InA1, 0);
+    analogWrite(InB2, 0);
+    analogWrite(InA2, Mspeed);
 
     //Middle motors
-    digitalWrite(InB3, 0);
-    digitalWrite(InA3, 0);
-    digitalWrite(InB4, 0);
-    digitalWrite(InA4, 0);
+    analogWrite(InB3, 0);
+    analogWrite(InA3, 0);
+    analogWrite(InB4, 0);
+    analogWrite(InA4, 0);
 }
 
 //Pivot right
 void pivotR(){
-    digitalWrite(InB1, 0);
-    digitalWrite(InA1, Mspeed);
-    digitalWrite(InB2, Mspeed);
-    digitalWrite(InA2, 0);
+    analogWrite(InB1, 0);
+    analogWrite(InA1, Mspeed);
+    analogWrite(InB2, Mspeed);
+    analogWrite(InA2, 0);
 
     //Middle motors
-    digitalWrite(InB3, 0);
-    digitalWrite(InA3, 0);
-    digitalWrite(InB4, 0);
-    digitalWrite(InA4, 0);
+    analogWrite(InB3, 0);
+    analogWrite(InA3, 0);
+    analogWrite(InB4, 0);
+    analogWrite(InA4, 0);
 }
 
 void forward(){
-    digitalWrite(InB1, Mspeed);
-    digitalWrite(InA1, 0);
-    digitalWrite(InB2, Mspeed);
-    digitalWrite(InA2, 0);
+    analogWrite(InB1, Mspeed);
+    analogWrite(InA1, 0);
+    analogWrite(InB2, Mspeed);
+    analogWrite(InA2, 0);
 
     //Middle motors
-    digitalWrite(InB3, Mspeed);
-    digitalWrite(InA3, 0);
-    digitalWrite(InB4, 0);
-    digitalWrite(InA4, Mspeed);
+    analogWrite(InB3, Mspeed);
+    analogWrite(InA3, 0);
+    analogWrite(InB4, 0);
+    analogWrite(InA4, Mspeed);
 }
 
 void backward(){
-    digitalWrite(InA1, Mspeed);
-    digitalWrite(InB1, 0);
+    analogWrite(InA1, Mspeed);
+    analogWrite(InB1, 0);
     
-    digitalWrite(InA2, Mspeed);
-    digitalWrite(InB2, 0);
+    analogWrite(InA2, Mspeed);
+    analogWrite(InB2, 0);
 
     //Middle motors
-    digitalWrite(InB3, 0); 
-    digitalWrite(InA3, Mspeed);
+    analogWrite(InB3, 0); 
+    analogWrite(InA3, Mspeed);
     
-    digitalWrite(InB4, Mspeed);
-    digitalWrite(InA4, 0);
+    analogWrite(InB4, Mspeed);
+    analogWrite(InA4, 0);
 }
 
