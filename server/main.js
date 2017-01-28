@@ -11,8 +11,8 @@ var program = require('commander')
 	.option('-v, --verbose', 'Enable verbose debugging')
 	.parse(process.argv)
 var fs = Promise.promisifyAll(require('fs'));
-var cors = require('cors')
-var express = require('express')
+var cors = require('cors');
+var express = require('express');
 var app = express();
 
 var driveServer = require('./drive_server');
@@ -26,7 +26,7 @@ if(program.armArduino || program.auxArduino || program.scienceArduino) {
 	console.warn("Serial connections have not all been implemented yet :(")
 }
 
-model = {
+let model = {
 	drive: {},
 	arm: {},
 	science: {},
@@ -47,7 +47,7 @@ filePaths.reduce(function(promise, path) {
 	config = _.assignIn(JSON.parse(configFile), program);
 
 	app.use(
-		cors({origin: [config.dashboard_port, config.drive_port, config.arm_port, config.sensor_port, config.aux_port]
+		cors({origin: [config.dashboard_port, config.drive_port, config.arm_port, config.sensor_port, config.aux_port, config.server_port]
 			.map(x => 'http://localhost:' + x)}))
 	.use('/drive/', driveServer.init(model, config))
 	.use('/arm/', armServer.init(model, config))
