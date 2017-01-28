@@ -8,5 +8,11 @@
 	"science_port": 5000,
 	"science_com_port": "COM5",
 	"aux_port": 4000,
-	"aux_com_port": "COM6"
+	"aux_com_port": "COM6",
+
+	"initial_position": {
+		"latitude": 43.7819,
+		"longitude": -79.4655,
+		"heading": 0
+	}
 }

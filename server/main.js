@@ -19,6 +19,7 @@ var driveServer = require('./drive_server');
 var armServer = require('./arm_server')
 var scienceServer = require('./science_server');
 var auxServer = require('./aux_server');
+var gpsServer = require('./gps_server');
 var driveSerial = program.driveArduino || program.allArduinos ? require('./drive_serial') : require('./dummy_system');
 
 if(program.armArduino || program.auxArduino || program.scienceArduino) {
@@ -52,6 +53,7 @@ filePaths.reduce(function(promise, path) {
 	.use('/arm/', armServer.init(model, config))
 	.use('/science/', scienceServer.init(model, config))
 	.use('/aux/', auxServer.init(model, config))
+	.use('/gps/', gpsServer.init(model, config))
 
 	driveSerial.init(model, config);
 
