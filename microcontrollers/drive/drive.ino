@@ -59,7 +59,7 @@ void setup() {
   pinMode(inB2, OUTPUT);
   pinMode(inB3, OUTPUT);
   pinMode(inB4, OUTPUT);
-
+  
   // initialize the ethernet device
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
   // start listening for clients
@@ -154,15 +154,20 @@ void processData(EthernetClient * client, EthernetServer * server){
   }
 
   if(buff.length() != 15) {
-    Serial.print("bad buffer");
-    Serial.print(buff);
+    Serial.print("bad buffer: ");
   }
+
+  Serial.println(buff);
 
   int speedl = buff.substring(0, 5).toInt();
   int speedr = buff.substring(5, 10).toInt();
   int pivot = buff.substring(10, 14).toInt();
   boolean driveMode = buff.charAt(14) == '1';
-
+  Serial.print(speedl); 
+  Serial.print(speedr); 
+  Serial.println(pivot); 
+  
+  
   if(driveMode && speedl > 0) {
     forward(speedl, speedr);
   }
@@ -170,10 +175,10 @@ void processData(EthernetClient * client, EthernetServer * server){
     backward(-speedl, -speedr);
   }
   else if (pivot < 0) {
-    pivotL(pivot);
+    pivotL(-pivot);
   }
   else if (pivot > 0) {
-    pivotR(-pivot);
+    pivotR(pivot);
   }
   else {
     stop();
@@ -189,8 +194,8 @@ void loop() {
      processData(&autoSysClient, &autoSysConn);
   }
 
-   else if(baseClient) {
-     processData(&baseClient, &baseConn);
+  else if(baseClient) {
+    processData(&baseClient, &baseConn);
   }
 }
 
