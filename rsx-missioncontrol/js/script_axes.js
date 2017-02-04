@@ -48,7 +48,44 @@ console.log("Running scriptExample.js");
 window.addEventListener("gamepadconnected", connecthandler);
 window.addEventListener("gamepaddisconnected", disconnecthandler);
 
+var speed = 100;
+window.onkeyup = function(e) {
+  let key = e.keyCode;
+
+  if(key == 38) {  // up key
+    fetch("http://localhost:8080/drive/speed/"+(speed)+"/",{
+      method: 'put'
+    });
+  }
+  else if (key == 40) { // down key
+   fetch("http://localhost:8080/drive/speed/"+(-speed)+"/",{
+      method: 'put'
+    });
+  }
+  else if(key == 37) {  // left key
+    fetch("http://localhost:8080/drive/pivot/"+(speed)+"/",{
+      method: 'put'
+    });
+  }
+  else if (key == 39) { // down key
+   fetch("http://localhost:8080/drive/pivot/"+(-speed)+"/",{
+      method: 'put'
+    });
+  }
+
+  // speed control
+  if (key == 34) { // page down
+    speed -= 10;
+    speed = Math.max(speed, 0);
+    console.log("speed is", speed)
+  }
+  else if (key == 33) { // page up
+    speed += 10;
+    speed = Math.min(speed, 255);
+    console.log("speed is", speed)
+  }
+}
+
 if (controller == null) {
   setInterval(scangamepads, 50);
 }
-
