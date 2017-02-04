@@ -2,10 +2,8 @@
   Drive Arduino Program
     RSX: connect using Node server or any TCP connection. Use port numbers specifed below to connect.
     Supports two connections, one for Base Station Node server, other for autnomous software
-
  Circuit:
  * Ethernet shield attached to pins 10, 11, 12, 13
-
  */
 
 #include <SPI.h>
@@ -98,22 +96,22 @@ void pivotL(int pivot){
 
     //Middle motors
     analogWrite(inB3, 0);
-    analogWrite(inA3, 0);
+    analogWrite(inA3, pivot);
     analogWrite(inB4, 0);
-    analogWrite(inA4, 0);
+    analogWrite(inA4, pivot);
 }
 //Pivot right
 void pivotR(int pivot){
-    analogWrite(inB1, 0);
-    analogWrite(inA1, pivot);
-    analogWrite(inB2, pivot);
-    analogWrite(inA2, 0);
+    analogWrite(inB1, pivot);
+    analogWrite(inA1, 0);
+    analogWrite(inB2, 0);
+    analogWrite(inA2, pivot);
 
     //Middle motors
     analogWrite(inB3, 0);
-    analogWrite(inA3, 0);
+    analogWrite(inA3, pivot);
     analogWrite(inB4, 0);
-    analogWrite(inA4, 0);
+    analogWrite(inA4, pivot);
 }
 
 void forward(int speedl, int speedr){
@@ -210,13 +208,11 @@ void readSensors() {
   float Vout = analogRead(photocellPin);
   float Temp = (Vout / 1024.0) * 5000; //convert to millivolts
   float cel = Temp / 10; //get temperature in celcius (1Cel/10mv ratio)
-
   String toPrint = "temperatures ";
   for (int i = 0; i<6; i++){
     toPrint += String(cel + i) + " ";  // change me when we get actual sensors!
   }
   Serial.println(toPrint);
-
   toPrint = "currents ";
   for (int j = 0; j<6; j++){
     toPrint += String(10.0 + j) + " ";  // change me when we get actual sensors!

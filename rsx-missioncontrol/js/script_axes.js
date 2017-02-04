@@ -53,6 +53,7 @@ window.onkeyup = function(e) {
   let key = e.keyCode;
 
   if(key == 38) {  // up key
+  	console.log('speed to ', speed)
     fetch("http://localhost:8080/drive/speed/"+(speed)+"/",{
       method: 'put'
     });
@@ -74,12 +75,12 @@ window.onkeyup = function(e) {
   }
 
   // speed control
-  if (key == 34) { // page down
+  if (key == 73) { // page down
     speed -= 10;
     speed = Math.max(speed, 0);
     console.log("speed is", speed)
   }
-  else if (key == 33) { // page up
+  else if (key == 85) { // page up
     speed += 10;
     speed = Math.min(speed, 255);
     console.log("speed is", speed)

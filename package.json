@@ -22,6 +22,7 @@
     "express": "^4.14.0",
     "lodash": "^4.16.4",
     "net": "^1.0.2",
+    "node-fetch": "^1.6.3",
     "serialport": "^4.0.1"
   }
 }
