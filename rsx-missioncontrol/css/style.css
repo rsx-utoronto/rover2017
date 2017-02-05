@@ -14,12 +14,24 @@ body {
 	overflow: hidden;
 }*/
 
-.equal, .equal > div[class*='col-'] {  
+.equal, .equal > div[class*='col-'] {
     display: -webkit-flex;
     display: flex;
     flex:1 1 auto;
 }
 
+.setup-page th, .setup-page td {
+	padding: 3px 10px;
+}
+
+.setup-page .tcp-connect-btn {
+	padding: 2px;
+	text-align: center;
+}
+
+.setup-page {
+	margin-bottom: 20px;
+}
 
 
 /*#maps {
