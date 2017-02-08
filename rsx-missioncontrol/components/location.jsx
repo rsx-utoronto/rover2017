@@ -8,9 +8,9 @@ export default class RoverLocation extends React.Component {
 
 	render() {
 		return(
-			<div className="col-md-9 offset-md-2">
-				<img className = "img-responsive center-block" src="mars_map.png" />
+			<div className="" id="map">
 			</div>
 		);
 	}
 }
+
