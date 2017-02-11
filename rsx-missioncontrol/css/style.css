@@ -33,12 +33,15 @@ body {
 	margin-bottom: 20px;
 }
 
-
-
+/* Map */
 #map {
 	min-height: 300px;
 }
 
+/* Setup page */
+.joystick-axes {
+	font-size: 7px;
+}
 
 /*body {
 	background-image: url('mars.jpg');

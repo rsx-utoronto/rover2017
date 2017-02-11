@@ -7,7 +7,8 @@ export default class Setup extends React.Component {
     var joystickMapping = _.map(navigator.getGamepads(), () => 'n/a'); // {joystick: system} mapping.
 
     this.state = {
-      joystickMapping: joystickMapping
+      joystickMapping: joystickMapping,
+      joystickPositions: navigator.getGamepads()
     };
 
     this.joystickSystems = ['drive', 'arm'];
@@ -15,10 +16,14 @@ export default class Setup extends React.Component {
     this.gamepadRow = this.gamepadRow.bind(this);
     this.bindGamepad = this.bindGamepad.bind(this);
     this.updateDriveGamepadPoller = this.updateDriveGamepadPoller.bind(this);
+    this.summarizeGamepad = this.summarizeGamepad.bind(this);
+
+    setInterval(() => // update the ui element to see joystick positions
+      this.setState({joystickPositions: navigator.getGamepads()})
+      , 100)
   }
 
   bindGamepad(index, system) {
-    console.log('binding')
     // binds gamepad[index] to system. also ensures that only one
     // system is connected at once
     let newMapping = this.state.joystickMapping.map((js, i) =>
@@ -28,7 +33,17 @@ export default class Setup extends React.Component {
     this.setState({joystickMapping: newMapping}, () => {
       this.updateDriveGamepadPoller();
     });
+  }
 
+  summarizeGamepad(index) {
+    if(!this.state.joystickPositions || !this.state.joystickPositions[index])
+      return <div></div>;
+
+    let gp = this.state.joystickPositions[index];
+    return <div>
+      forward: {gp.axes[1]} <br/>
+      pivot: {gp.axes[5]}
+    </div>
   }
 
   gamepadRow(gamepad, index) {
@@ -36,8 +51,7 @@ export default class Setup extends React.Component {
       <tr key={gamepad ? gamepad.id : index}>
         <td className='joystick-label'> Joystick {index} </td>
         <td className='joystick-axes'>
-
-
+          {this.summarizeGamepad(index)}
         </td>
         <td>
           <div className='dropdown'>
@@ -68,13 +82,14 @@ export default class Setup extends React.Component {
 
     clearInterval(this.interval);
     this.interval = setInterval(() => {
-      fbSpeed = Math.floor(gamepads[driveGamepad].axes[1] * -255);
-      pivotSpeed = Math.floor(gamepads[driveGamepad].axes[5] * -255);
+      let fbSpeed = Math.floor(gamepads[driveGamepad].axes[1] * -255);
+      let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[5] * -255);
 
-      if(Math.abs(fbSpeed) > Math.abs(pivotSpeed))
+      if(Math.abs(fbSpeed) > Math.abs(pivotSpeed)) {
         fetch("http://localhost:8080/drive/speed/"+fbSpeed+"/",{
           method: 'put'
         });
+      }
       else {
         fetch("http://localhost:8080/drive/pivot/"+pivotSpeed+"/", {
           method: 'put'
@@ -129,6 +144,7 @@ export default class Setup extends React.Component {
             </tbody>
           </table>
         </div>
+      <br/>
       </div>
     )
   }
