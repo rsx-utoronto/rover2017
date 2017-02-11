@@ -23,15 +23,15 @@ function init(model, config) {
 
     // sets rover forward speed.
     router.put('/speed/:speed', (req, res) => {
-        model.drive.speed[0] = model.drive.speed[1] = req.params.speed;
+        model.drive.speed[0] = model.drive.speed[1] = parseInt(req.params.speed);
         model.drive.drive_mode = true;
         res.json(model.drive);
     });
 
     // sets rover speed on both wheels.
     router.put('/speed/:speed0/:speed1', (req, res) => {
-        model.drive.speed[0] = req.params.speed0;
-        model.drive.speed[1] = req.params.speed1;
+        model.drive.speed[0] = parseInt(req.params.speed0);
+        model.drive.speed[1] = parseInt(req.params.speed1);
         model.drive.drive_mode = true;
         res.json(model.drive);
     });
@@ -39,7 +39,7 @@ function init(model, config) {
     // sets the pivot speed of the rover. pivoting requires us to turn off
     // the middle wheels or the rocker bogie dies.
     router.put('/pivot/:turn_speed', (req, res) => {
-        model.drive.pivot = req.params.turn_speed;
+        model.drive.pivot = parseInt(req.params.turn_speed);
         model.drive.drive_mode = false;
         res.json(model.drive);
     });

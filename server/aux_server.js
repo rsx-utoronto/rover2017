@@ -15,19 +15,12 @@ function init(model, config) {
 		res.json(model.aux);
 	});
 
-	//get currentsensor and temperature 
-	router.put('/temperature/:temperature,:current',(req,res)=>{
-		model.aux.temperature=req.params.temperature;
-		model.aux.current=req.params.current;
+	//set the relay_ith element in relay to relay_state
+	router.put('/relay/:relay_i/:relay_state',(req,res) =>	{
+		model.aux.relay[req.params.relay_i] = (req.params.relay_state !== 'false' && req.params.relay_state !== '0');
 		res.json(model.aux);
 	});
 
-	//set the relay_ith element in relay to relay_state
-	router.put('/relay/:relay_i/:relay_state',(req,res)=>{ 
-		model.aux.relay[req.params.relay_i]=Boolean(req.params.relay_state);
-		res.json(model.aux);
-	});
- 	
 	console.log('-> aux sensor started');
 	return router;
 }
