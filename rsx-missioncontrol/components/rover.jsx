@@ -1,19 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Wheel from './wheel.jsx';
-import RoverBody from './rover_body.jsx';
-import Speed from './speed.jsx';
-import RoverArm from './rover_arm.jsx';
-import ScienceCharts from './science_charts.jsx';
-import Setup from './setup.jsx';
-import RoverLocation from './location.jsx';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import Wheel from './wheel.jsx'
+import RoverBody from './rover_body.jsx'
+import Speed from './speed.jsx'
+import RoverArm from './rover_arm.jsx'
+import ScienceCharts from './science_charts.jsx'
+import Setup from './setup.jsx'
+import Map from './Map.jsx'
+import KeepAlive from './KeepAlive/KeepAlive.jsx'
 import { Router, Route, Link, hashHistory} from 'react-router'
 
 
 class RoverMain extends React.Component {
 
 	constructor(props) {
-		super(props);
+		super(props)
 		this.state = {
 			drive: {
 				speed: [5,5],
@@ -26,7 +27,7 @@ class RoverMain extends React.Component {
 				temperatures: [1, 0, 0, 0, 0, 0],
 				currents: [1, 0, 0, 0, 0, 0]
 			}
-		};
+		}
 	}
 
 	updateData() {
@@ -35,24 +36,24 @@ class RoverMain extends React.Component {
 				response.json().then((myJSON) => {
 					this.setState({
 						drive: myJSON
-					});
-				});
+					})
+				})
 			}
 			else {
-				console.log("Network Response Not OK");
+				console.log("Network Response Not OK")
 			}
 
 		})
 		.catch((error) => {
 			console.log("Cannot Reach Server")
-		});
+		})
 	}
 
 	componentDidMount() {
-		this.interval = setInterval(() => this.updateData(), 100);
+		this.interval = setInterval(() => this.updateData(), 100)
 	}
 	componentWillUnmount() {
-		clearInterval(this.interval);
+		clearInterval(this.interval)
 	}
 
 	render() {
@@ -66,7 +67,8 @@ class RoverMain extends React.Component {
 								<h3 className="panel-title">Rover Location</h3>
 							</div>
 							<div className="panel-body">
-								<RoverLocation />
+								<KeepAlive />
+								<Map />
 							</div>
 						</div>
 					</div>
@@ -111,7 +113,7 @@ class RoverMain extends React.Component {
 
 
 
-		);
+		)
 	}
 
 }
