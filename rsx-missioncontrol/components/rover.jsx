@@ -4,7 +4,8 @@ import Wheel from './wheel.jsx';
 import RoverBody from './rover_body.jsx';
 import Speed from './speed.jsx';
 import RoverArm from './rover_arm.jsx';
-import ScienceCharts from './science_charts.jsx'
+import ScienceCharts from './science_charts.jsx';
+import Setup from './setup.jsx';
 import RoverLocation from './location.jsx';
 import { Router, Route, Link, hashHistory} from 'react-router'
 
@@ -119,5 +120,6 @@ ReactDOM.render((
   <Router history={hashHistory}>
     <Route path="/" component={RoverMain}/>
     <Route path="/science" component={ScienceCharts}/>
+    <Route path="/setup" component={Setup}/>
   </Router>
 ), document.getElementById('app-container'))
