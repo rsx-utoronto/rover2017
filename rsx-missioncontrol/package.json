@@ -9,10 +9,12 @@
   "author": "Armaan Butt",
   "license": "MIT",
   "dependencies": {
+    "leaflet": "^1.0.3",
     "react": "^15.3.2",
     "react-dom": "^15.3.2",
     "react-router": "^3.0.0",
-    "recharts": "^0.15.3"
+    "recharts": "^0.15.3",
+    "socket.io": "^1.7.2"
   },
   "devDependencies": {
     "babel-core": "^6.17.0",

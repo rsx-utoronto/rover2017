@@ -23,6 +23,7 @@
     "lodash": "^4.16.4",
     "net": "^1.0.2",
     "node-fetch": "^1.6.3",
-    "serialport": "^4.0.1"
+    "serialport": "^4.0.1",
+    "socket.io": "^1.7.2"
   }
 }

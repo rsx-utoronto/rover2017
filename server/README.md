@@ -32,12 +32,14 @@ The endpoints are:
 tbd
 
 ### Auxiliary System:
-The auxiliary system reports the state of the temperature and current sensors.
+The auxiliary system reports the state of the temperature and current sensors, as well as the relays.
 
 Endpoint:
 `GET /`: Gets the auxiliary state. The information is in the form: ``` {
-	temperature: [int * 6], current: [int * 6]
-}
+	temperature: [float * 6], current: [float * 6], aux: [boolean * 6]
+}```
+
+`PUT /relay/{relay_index}/{relay_state}`: Sets the state of the i'th relay. `relay_state` can be `true` or `1` for truthy values, and `false` or `0` as falsy values. Returns the aux state.
 
 ### Science System:
 The science system reports the state from the science sensors.

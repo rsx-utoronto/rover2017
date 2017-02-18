@@ -49,6 +49,8 @@ window.addEventListener("gamepadconnected", connecthandler);
 window.addEventListener("gamepaddisconnected", disconnecthandler);
 
 var speed = 100;
+
+// key listeners
 window.onkeyup = function(e) {
   let key = e.keyCode;
 
