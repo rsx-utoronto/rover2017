@@ -108,13 +108,14 @@ void pivotL(int pivot){
     digitalWrite(dir6, HIGH);
 
     //Set all the speed to the pivoting speed
+    //Middle motors are set to zero
     //Left motors
     analogWrite(pin_speed1, pivot);
-    analogWrite(pin_speed2, pivot);
+    analogWrite(pin_speed2, 0);
     analogWrite(pin_speed3, pivot);
     //Right motors
     analogWrite(pin_speed4, pivot);
-    analogWrite(pin_speed5, pivot);
+    analogWrite(pin_speed5, 0);
     analogWrite(pin_speed6, pivot);
 }
 //Pivot right
@@ -133,13 +134,14 @@ void pivotR(int pivot){
     digitalWrite(dir6, LOW);
 
     //Set all the speed to the pivoting speed
+    //Middle motors are set to zero
     //Left motors
     analogWrite(pin_speed1, pivot);
-    analogWrite(pin_speed2, pivot);
+    analogWrite(pin_speed2, 0);
     analogWrite(pin_speed3, pivot);
     //Right motors
     analogWrite(pin_speed4, pivot);
-    analogWrite(pin_speed5, pivot);
+    analogWrite(pin_speed5, 0);
     analogWrite(pin_speed6, pivot);
 }
 
