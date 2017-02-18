@@ -8,6 +8,7 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
+#include <Servo.h>
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network.
@@ -26,37 +27,45 @@ IPAddress subnet(255, 255, 255, 0);
 EthernetServer baseConn(baseStationPort);
 EthernetServer autoSysConn(autoSysPort);
 
-//L293D
-//Joint Motor 1
-int inA1  = 2;
-int inB1  = 3;
+//SyRen
+//Left Motor back
+int pin_speed1  = 2;
+int dir1  = 3;
 
-//Joint Motor 2
-int inA2  = 4;
-int inB2  = 5;
+//Left Motor middle
+int pin_speed2  = 26;
+int dir2  = 5;
 
-//Middle Motor 3
-int inA3  = 6;
-int inB3  = 7;
+//Left Motor front
+int pin_speed3  = 6;
+int dir3  = 7;
 
-//Middle Motor 4
-int inA4  = 8;
-int inB4  = 9;
+//Right Motor back
+int pin_speed4  = 8;
+int dir4  = 9;
 
-//Motor speed
-int mSpeed = 150;
+//Right Motor middle
+int pin_speed5 = 28;
+int dir5 = 11;
 
+//Right Motor forward
+int pin_speed6 = 12;
+int dir6 = 13;
 
 void setup() {
   //Set pins as outputs
-  pinMode(inA1, OUTPUT);
-  pinMode(inA2, OUTPUT);
-  pinMode(inA3, OUTPUT);
-  pinMode(inA4, OUTPUT);
-  pinMode(inB1, OUTPUT);
-  pinMode(inB2, OUTPUT);
-  pinMode(inB3, OUTPUT);
-  pinMode(inB4, OUTPUT);
+  pinMode(pin_speed1, OUTPUT);
+  pinMode(pin_speed2, OUTPUT);
+  pinMode(pin_speed3, OUTPUT);
+  pinMode(pin_speed4, OUTPUT);
+  pinMode(pin_speed5, OUTPUT);
+  pinMode(pin_speed6, OUTPUT);
+  pinMode(dir1, OUTPUT);
+  pinMode(dir2, OUTPUT);
+  pinMode(dir3, OUTPUT);
+  pinMode(dir4, OUTPUT);
+  pinMode(dir5, OUTPUT);
+  pinMode(dir6, OUTPUT);
   
   // initialize the ethernet device
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
@@ -75,70 +84,109 @@ void setup() {
 
 //Stop the motor
 void stop(){
-    analogWrite(inB1, 0);
-    analogWrite(inA1, 0);
-    analogWrite(inB2, 0);
-    analogWrite(inA2, 0);
-
-    //Middle motors
-    analogWrite(inB3, 0);
-    analogWrite(inA3, 0);
-    analogWrite(inB4, 0);
-    analogWrite(inA4, 0);
+    analogWrite(pin_speed1, 0);
+    analogWrite(pin_speed2, 0);
+    analogWrite(pin_speed3, 0);
+    analogWrite(pin_speed4, 0);
+    analogWrite(pin_speed5, 0);
+    analogWrite(pin_speed6, 0);
 }
 
 //Pivot left
 void pivotL(int pivot){
-    analogWrite(inB1, pivot);
-    analogWrite(inA1, 0);
-    analogWrite(inB2, 0);
-    analogWrite(inA2, pivot);
+    //Stop the motors first
+    stop();
 
-    //Middle motors
-    analogWrite(inB3, 0);
-    analogWrite(inA3, pivot);
-    analogWrite(inB4, 0);
-    analogWrite(inA4, pivot);
+    //Set all the left motor dirs to backwards
+    digitalWrite(dir1, LOW);
+    digitalWrite(dir2, LOW);
+    digitalWrite(dir3, LOW);
+
+    //Set all the right motor dirs to forwards
+    digitalWrite(dir4, HIGH);
+    digitalWrite(dir5, HIGH);
+    digitalWrite(dir6, HIGH);
+
+    //Set all the speed to the pivoting speed
+    //Left motors
+    analogWrite(pin_speed1, pivot);
+    analogWrite(pin_speed2, pivot);
+    analogWrite(pin_speed3, pivot);
+    //Right motors
+    analogWrite(pin_speed4, pivot);
+    analogWrite(pin_speed5, pivot);
+    analogWrite(pin_speed6, pivot);
 }
 //Pivot right
 void pivotR(int pivot){
-    analogWrite(inB1, pivot);
-    analogWrite(inA1, 0);
-    analogWrite(inB2, 0);
-    analogWrite(inA2, pivot);
+    //Stop the motors first
+    stop();
 
-    //Middle motors
-    analogWrite(inB3, 0);
-    analogWrite(inA3, pivot);
-    analogWrite(inB4, 0);
-    analogWrite(inA4, pivot);
+    //Set all the left motor dirs to forwards
+    digitalWrite(dir1, HIGH);
+    digitalWrite(dir2, HIGH);
+    digitalWrite(dir3, HIGH);
+
+    //Set all the right motor dirs to backwards
+    digitalWrite(dir4, LOW);
+    digitalWrite(dir5, LOW);
+    digitalWrite(dir6, LOW);
+
+    //Set all the speed to the pivoting speed
+    //Left motors
+    analogWrite(pin_speed1, pivot);
+    analogWrite(pin_speed2, pivot);
+    analogWrite(pin_speed3, pivot);
+    //Right motors
+    analogWrite(pin_speed4, pivot);
+    analogWrite(pin_speed5, pivot);
+    analogWrite(pin_speed6, pivot);
 }
 
 void forward(int speedl, int speedr){
-    analogWrite(inB1, speedl);
-    analogWrite(inA1, 0);
-    analogWrite(inB2, speedl);
-    analogWrite(inA2, 0);
+    //Stop the motors first
+    stop();
 
-    //Middle motors
-    analogWrite(inB3, speedl);
-    analogWrite(inA3, 0);
-    analogWrite(inB4, 0);
-    analogWrite(inA4, speedl);
+    //Set all the dir to forward
+    digitalWrite(dir1, HIGH);
+    digitalWrite(dir2, HIGH);
+    digitalWrite(dir3, HIGH);
+    digitalWrite(dir4, HIGH);
+    digitalWrite(dir5, HIGH);
+    digitalWrite(dir6, HIGH);
+
+    //Set all the speed
+    //Left motors
+    analogWrite(pin_speed1, speedl);
+    analogWrite(pin_speed2, speedl);
+    analogWrite(pin_speed3, speedl);
+    //Right motors
+    analogWrite(pin_speed4, speedr);
+    analogWrite(pin_speed5, speedr);
+    analogWrite(pin_speed6, speedr);
+    
 }
 void backward(int speedl, int speedr){
-    analogWrite(inA1, speedl);
-    analogWrite(inB1, 0);
+    //Stop the motors first
+    stop();
 
-    analogWrite(inA2, speedl);
-    analogWrite(inB2, 0);
+    //Set all the dir to backwards
+    digitalWrite(dir1, LOW);
+    digitalWrite(dir2, LOW);
+    digitalWrite(dir3, LOW);
+    digitalWrite(dir4, LOW);
+    digitalWrite(dir5, LOW);
+    digitalWrite(dir6, LOW);
 
-    //Middle motors
-    analogWrite(inB3, 0);
-    analogWrite(inA3, speedl);
-
-    analogWrite(inB4, speedl);
-    analogWrite(inA4, 0);
+    //Set all the speed
+    //Left motors
+    analogWrite(pin_speed1, speedl);
+    analogWrite(pin_speed2, speedl);
+    analogWrite(pin_speed3, speedl);
+    //Right motors
+    analogWrite(pin_speed4, speedr);
+    analogWrite(pin_speed5, speedr);
+    analogWrite(pin_speed6, speedr);
 }
 
 
