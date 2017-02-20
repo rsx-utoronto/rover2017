@@ -17,14 +17,14 @@
 
 ### Connections
 
-                                               wheels
-                                                |
-                                                V
-laptop (server and python) ----> router ----> arduino <---- lidar
-                ^           wifi       ethernet   |
-                |                                 |
-                -----------------------------------
-                              serial
+                                                   wheels
+                                                    |
+                                                    V
+    laptop (server and python) ----> router ----> arduino <---- lidar
+                    ^           wifi       ethernet   |
+                    |                                 |
+                    -----------------------------------
+                                  serial
 
 ### Procedure
 
