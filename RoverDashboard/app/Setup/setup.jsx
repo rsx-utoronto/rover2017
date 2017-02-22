@@ -137,7 +137,7 @@ export default class Setup extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {['drive', 'arm', 'sensor', 'auxiliary'].map(this.createConnectRow)}
+              {['drive', 'arm', 'sensor', 'aux'].map(this.createConnectRow)}
             </tbody>
           </table>
         </div>

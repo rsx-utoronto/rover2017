@@ -195,6 +195,7 @@ void loop() {
   else if(baseClient) {
     processData(&baseClient, &baseConn);
   }
+  delay(10); 
 }
 
 
