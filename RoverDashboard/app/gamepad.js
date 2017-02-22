@@ -33,11 +33,11 @@ function scangamepads() {
     // console.log('game controller', fbSpeed, pivotSpeed, gamepads[2].axes)
 
     if(Math.abs(fbSpeed) > Math.abs(pivotSpeed))
-      fetch("http://localhost:8080/drive/speed/"+fbSpeed+"/",{
+      fetch("http://"+ServerAddress+":8080/drive/speed/"+fbSpeed+"/",{
         method: 'put'
       });
     else {
-      fetch("http://localhost:8080/drive/pivot/"+pivotSpeed+"/", {
+      fetch("http://"+ServerAddress+":8080/drive/pivot/"+pivotSpeed+"/", {
         method: 'put'
       });
     }
@@ -56,22 +56,22 @@ window.onkeyup = function(e) {
 
   if(key == 38) {  // up key
   	console.log('speed to ', speed)
-    fetch("http://localhost:8080/drive/speed/"+(speed)+"/",{
+    fetch("http://"+ServerAddress+":8080/drive/speed/"+(speed)+"/",{
       method: 'put'
     });
   }
   else if (key == 40) { // down key
-   fetch("http://localhost:8080/drive/speed/"+(-speed)+"/",{
+   fetch("http://"+ServerAddress+":8080/drive/speed/"+(-speed)+"/",{
       method: 'put'
     });
   }
   else if(key == 37) {  // left key
-    fetch("http://localhost:8080/drive/pivot/"+(speed)+"/",{
+    fetch("http://"+ServerAddress+":8080/drive/pivot/"+(speed)+"/",{
       method: 'put'
     });
   }
   else if (key == 39) { // down key
-   fetch("http://localhost:8080/drive/pivot/"+(-speed)+"/",{
+   fetch("http://"+ServerAddress+":8080/drive/pivot/"+(-speed)+"/",{
       method: 'put'
     });
   }

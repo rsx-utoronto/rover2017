@@ -7,6 +7,7 @@ import RoverArm from './components/rover_arm.jsx'
 import Map from './components/Map.jsx'
 import KeepAlive from '../KeepAlive/KeepAlive.jsx'
 import { Panel } from 'react-bootstrap'
+import ConfigModal from './components/ConfigModal.jsx'
 
 require('./stylesheets/HomeView.sass')
 
@@ -30,7 +31,7 @@ export default class HomeView extends React.Component {
 	}
 
 	updateData() {
-		fetch('http://localhost:8080/drive').then((response) => {
+		fetch("http://"+ServerAddress+":8080/drive").then((response) => {
 			if(response.ok){
 				response.json().then((myJSON) => {
 					this.setState({
@@ -47,7 +48,7 @@ export default class HomeView extends React.Component {
 			console.log("Cannot Reach Server")
 		})
 
-		fetch('http://localhost:8080/aux').then((response) => {
+		fetch("http://"+ServerAddress+":8080/aux").then((response) => {
 			if(response.ok){
 				response.json().then((myJSON) => {
 					this.setState({
@@ -89,6 +90,7 @@ export default class HomeView extends React.Component {
 			<div className="ViewContainer">
 				<Map />
 				<Panel className="panelTest" header={<h3>Rover Info</h3>} bsStyle="primary">
+					<ConfigModal/>
 					{wheel}
 					<RoverBody pivot = {this.state.drive.pivot} drive_mode = {this.state.drive.drive_mode}/>
 				</Panel>

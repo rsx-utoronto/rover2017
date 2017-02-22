@@ -695,10 +695,6 @@ base64id@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/base64id/-/base64id-1.0.0.tgz#47688cb99bb6804f0e06d3e763b1c32e57d8e6b6"
 
-batch-processor@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/batch-processor/-/batch-processor-1.0.0.tgz#75c95c32b748e0850d10c2b168f6bdbe9891ace8"
-
 batch@0.5.3:
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/batch/-/batch-0.5.3.tgz#3f3414f380321743bfc1042f9a83ff1d5824d464"
@@ -942,7 +938,7 @@ clap@^1.0.9:
   dependencies:
     chalk "^1.1.3"
 
-classnames@2.2.5, classnames@^2.2.5:
+classnames@^2.2.5:
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.5.tgz#fb3801d453467649ef3603c7d61a02bd129bde6d"
 
@@ -1117,13 +1113,13 @@ cookie@0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.3.1.tgz#e7e0a1f9ef43b4c8ba925c5c5a96e806d16873bb"
 
-core-js@2.4.1, core-js@^2.4.0:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.4.1.tgz#4de911e667b0eae9124e34254b53aea6fc618d3e"
-
 core-js@^1.0.0:
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-1.2.7.tgz#652294c14651db28fa93bd2d5ff2983a4f08c636"
+
+core-js@^2.4.0:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.4.1.tgz#4de911e667b0eae9124e34254b53aea6fc618d3e"
 
 core-util-is@~1.0.0:
   version "1.0.2"
@@ -1271,60 +1267,6 @@ currently-unhandled@^0.4.1:
   dependencies:
     array-find-index "^1.0.1"
 
-d3-array@1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-1.0.2.tgz#174237bf356a852fadd6af87743d928631de7655"
-
-d3-collection@1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/d3-collection/-/d3-collection-1.0.2.tgz#df5acb5400443e9eabe9c1379896c67e52426b39"
-
-d3-color@1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/d3-color/-/d3-color-1.0.2.tgz#83cb4b3a9474e40795f009d97e97a15649830bbc"
-
-d3-format@1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/d3-format/-/d3-format-1.0.2.tgz#138618320b4bbeb43b5c0ff30519079fbbd7375e"
-
-d3-interpolate@1:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/d3-interpolate/-/d3-interpolate-1.1.3.tgz#e119c91b6be4941e581675ca3e1279bb92bd2c9b"
-  dependencies:
-    d3-color "1"
-
-d3-path@1:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/d3-path/-/d3-path-1.0.3.tgz#60103d0dea9a6cd6ca58de86c6d56724002d3fde"
-
-d3-scale@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/d3-scale/-/d3-scale-1.0.3.tgz#4f9e8f0cc2ea0f3925ff04ac27adc09045fa4c90"
-  dependencies:
-    d3-array "1"
-    d3-collection "1"
-    d3-color "1"
-    d3-format "1"
-    d3-interpolate "1"
-    d3-time "1"
-    d3-time-format "2"
-
-d3-shape@1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/d3-shape/-/d3-shape-1.0.3.tgz#bf685dcfc192ed1d35a39ff69826a409a9385034"
-  dependencies:
-    d3-path "1"
-
-d3-time-format@2:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/d3-time-format/-/d3-time-format-2.0.3.tgz#3241569b74ddc9c42e0689c0e8a903579fd6280a"
-  dependencies:
-    d3-time "1"
-
-d3-time@1:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/d3-time/-/d3-time-1.0.4.tgz#2ceba09a76b7450c992a1ded4e10fc6195e69649"
-
 d3@~3.5.0:
   version "3.5.17"
   resolved "https://registry.yarnpkg.com/d3/-/d3-3.5.17.tgz#bc46748004378b21a360c9fc7cf5231790762fb8"
@@ -1429,12 +1371,6 @@ ee-first@1.1.1:
 electron-to-chromium@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.2.2.tgz#e41bc9488c88e3cfa1e94bde28e8420d7d47c47c"
-
-element-resize-detector@^1.1.5:
-  version "1.1.10"
-  resolved "https://registry.yarnpkg.com/element-resize-detector/-/element-resize-detector-1.1.10.tgz#512ca38e1a27b3f6582a83ea0dfed1ba1abab56d"
-  dependencies:
-    batch-processor "^1.0.0"
 
 elliptic@^6.0.0:
   version "6.3.3"
@@ -2386,17 +2322,13 @@ lodash.uniq@^4.3.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
 
-lodash@4.16.4, lodash@^4.0.0, lodash@^4.14.0, lodash@^4.2.0, lodash@~4.16.4:
+lodash@^4.0.0, lodash@^4.14.0, lodash@^4.2.0, lodash@~4.16.4:
   version "4.16.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.16.4.tgz#01ce306b9bad1319f2a5528674f88297aeb70127"
 
 lodash@^4.17.2:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
-
-lodash@~4.13.1:
-  version "4.13.1"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.13.1.tgz#83e4b10913f48496d4d16fec4a560af2ee744b68"
 
 longest@^1.0.1:
   version "1.0.1"
@@ -2867,10 +2799,6 @@ pbkdf2@^3.0.3:
   dependencies:
     create-hmac "^1.1.2"
 
-performance-now@~0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-0.2.0.tgz#33ef30c5c77d4ea21c5a53869d91b56d8f2555e5"
-
 pify@^2.0.0, pify@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"
@@ -3227,12 +3155,6 @@ querystringify@0.0.x:
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-0.0.4.tgz#0cf7f84f9463ff0ae51c4c4b142d95be37724d9c"
 
-raf@^3.2.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/raf/-/raf-3.3.0.tgz#93845eeffc773f8129039f677f80a36044eee2c3"
-  dependencies:
-    performance-now "~0.2.0"
-
 randomatic@^1.1.3:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/randomatic/-/randomatic-1.1.6.tgz#110dcabff397e9dcff7c0789ccc0a49adf1ec5bb"
@@ -3257,13 +3179,6 @@ rc@~1.1.6:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-"react-addons-transition-group@^0.14.0 || ^15.0.0":
-  version "15.4.2"
-  resolved "https://registry.yarnpkg.com/react-addons-transition-group/-/react-addons-transition-group-15.4.2.tgz#4c42fa1c2ce024acab2924316c0f11268ded1af3"
-  dependencies:
-    fbjs "^0.8.4"
-    object-assign "^4.1.0"
-
 react-bootstrap@^0.30.7:
   version "0.30.7"
   resolved "https://registry.yarnpkg.com/react-bootstrap/-/react-bootstrap-0.30.7.tgz#39da80088693ecb71e8e63b5bdc313571fd993d1"
@@ -3277,13 +3192,6 @@ react-bootstrap@^0.30.7:
     react-prop-types "^0.4.0"
     uncontrollable "^4.0.1"
     warning "^3.0.0"
-
-react-container-dimensions@1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/react-container-dimensions/-/react-container-dimensions-1.3.0.tgz#8c4adf94a8f519f5280671689752c3e96b2bf992"
-  dependencies:
-    element-resize-detector "^1.1.5"
-    invariant "^2.2.1"
 
 react-dom@^15.3.2:
   version "15.4.2"
@@ -3308,6 +3216,10 @@ react-prop-types@^0.4.0:
   dependencies:
     warning "^3.0.0"
 
+react-router-bootstrap@^0.23.1:
+  version "0.23.1"
+  resolved "https://registry.yarnpkg.com/react-router-bootstrap/-/react-router-bootstrap-0.23.1.tgz#a1e0b82f49d25a6083c72202ad16aaa64bba0e0c"
+
 react-router@^3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/react-router/-/react-router-3.0.2.tgz#5a19156678810e01d81901f9c0fef63284b8a514"
@@ -3326,14 +3238,6 @@ react-rt-chart@^1.3.0:
     c3 "^0.4.10"
     deepmerge "^0.2.10"
     filter-react-dom-props "0.0.2"
-
-react-smooth@0.1.11:
-  version "0.1.11"
-  resolved "https://registry.yarnpkg.com/react-smooth/-/react-smooth-0.1.11.tgz#f389f8e58cbb546abb4921ca0cbe7b079bc51a0d"
-  dependencies:
-    lodash "~4.13.1"
-    raf "^3.2.0"
-    react-addons-transition-group "^0.14.0 || ^15.0.0"
 
 react@^15.3.2:
   version "15.4.2"
@@ -3391,24 +3295,6 @@ readdirp@^2.0.0:
     readable-stream "^2.0.2"
     set-immediate-shim "^1.0.1"
 
-recharts-scale@0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/recharts-scale/-/recharts-scale-0.2.1.tgz#378f543ed17c3245e4d9afb10aaf6298240d2fcb"
-
-recharts@^0.15.3:
-  version "0.15.3"
-  resolved "https://registry.yarnpkg.com/recharts/-/recharts-0.15.3.tgz#c6ba0c940aa9726693ce669ed4be8c668bab903f"
-  dependencies:
-    classnames "2.2.5"
-    core-js "2.4.1"
-    d3-scale "1.0.3"
-    d3-shape "1.0.3"
-    lodash "4.16.4"
-    react-container-dimensions "1.3.0"
-    react-smooth "0.1.11"
-    recharts-scale "0.2.1"
-    reduce-css-calc "^1.3.0"
-
 redent@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/redent/-/redent-1.0.0.tgz#cf916ab1fd5f1f16dfb20822dd6ec7f730c2afde"
@@ -3416,7 +3302,7 @@ redent@^1.0.0:
     indent-string "^2.1.0"
     strip-indent "^1.0.1"
 
-reduce-css-calc@^1.2.6, reduce-css-calc@^1.3.0:
+reduce-css-calc@^1.2.6:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/reduce-css-calc/-/reduce-css-calc-1.3.0.tgz#747c914e049614a4c9cfbba629871ad1d2927716"
   dependencies:

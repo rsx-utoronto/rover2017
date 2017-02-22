@@ -19,7 +19,7 @@ class MotorRelay extends React.Component {
 
   updateServer() {
 
-    fetch("http://localhost:8080/aux/relay/"+this.props.index+"/"+!this.props.status, {
+    fetch("http://"+ServerAddress+":8080/aux/relay/"+this.props.index+"/"+!this.props.status, {
       method: 'put'
     }).then((response) => {
       if(response.ok){

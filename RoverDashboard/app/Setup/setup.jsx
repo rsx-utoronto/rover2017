@@ -98,12 +98,12 @@ export default class Setup extends React.Component {
       let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[5] * -255)
 
       if(Math.abs(fbSpeed) > Math.abs(pivotSpeed)) {
-        fetch("http://localhost:8080/drive/speed/"+fbSpeed+"/",{
+        fetch("http://"+ServerAddress+":8080/drive/speed/"+fbSpeed+"/",{
           method: 'put'
         })
       }
       else {
-        fetch("http://localhost:8080/drive/pivot/"+pivotSpeed+"/", {
+        fetch("http://"+ServerAddress+":8080/drive/pivot/"+pivotSpeed+"/", {
           method: 'put'
         })
       }
@@ -117,7 +117,7 @@ export default class Setup extends React.Component {
         <td className='tcp-connect-btn'>
           <button className='btn btn-sm btn-primary'
           onClick={() => {
-            fetch(`http://localhost:8080/${systemName}/tcp`)
+            fetch("http://"+ServerAddress+":8080/${systemName}/tcp")
           }}
           > Connect! </button>
         </td>
