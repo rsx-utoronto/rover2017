@@ -5,6 +5,7 @@ window.$ = $
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap/dist/css/bootstrap-theme.css'
 import './css/style.css'
+import './css/c3.css'
 
 require('bootstrap')
 

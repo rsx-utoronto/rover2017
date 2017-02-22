@@ -92,9 +92,6 @@ export default class HomeView extends React.Component {
 					{wheel}
 					<RoverBody pivot = {this.state.drive.pivot} drive_mode = {this.state.drive.drive_mode}/>
 				</Panel>
-				<Panel className="panelTest" header={<h3>Rover Arm</h3>} bsStyle="primary">
-					<RoverArm/>
-				</Panel>
 			</div>
 		)
 	}
