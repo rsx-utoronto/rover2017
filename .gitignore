@@ -41,3 +41,6 @@ jspm_packages
 
 # webpack bundle because I don't want to merge diffs along bundle.js
 bundle.js
+
+# python
+.py[cod]
