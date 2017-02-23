@@ -6,7 +6,6 @@ var net = require('net');
 var client = undefined; // arduino tcp client
 
 function init(model, config) {
-<<<<<<< HEAD
     model.drive = {
         speed: [
             0, 0
@@ -47,6 +46,7 @@ function init(model, config) {
 
     router.put('/stop', (req, res) => {
         model.drive.speed[0] = model.drive.speed[1] = 0;
+        model.drive.pivot = 0;
         res.json(model.drive);
     });
 

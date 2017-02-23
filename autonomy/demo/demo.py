@@ -7,7 +7,7 @@ import serial
 
 
 SERIAL_PORT = 'COM3'   # may need to change the port
-SAFE_DISTANCE = 1 # meters, don't go too low b/c the lidar just reports 0 at less than ~25cm
+SAFE_DISTANCE = .75 # meters, don't go too low b/c the lidar just reports 0 at less than ~25cm
 DEBUG_MODE = True
 ROVER_WIDTH = 0.3 # meters
 IP = 'localhost:8080'
@@ -28,18 +28,18 @@ def main():
     while True:
         print("State: {}".format(state))
         update_state(sweep_results, lidar)
-        print np.mean(sweep_results[75:105])
+        print np.mean(sweep_results[100:130])
 
 
         if state == 'drive':
-            rover.drive(200)    # quick ramp
-            rover.drive(100) # some slow speed so it doesn't crash
+            rover.drive(100)    # quick ramp
+            rover.drive(50) # some slow speed so it doesn't crash
             # find the minimum distance
-            if np.mean(sweep_results[75:105]) < SAFE_DISTANCE:
+            if np.mean(sweep_results[100:130]) < SAFE_DISTANCE:
                 print('switching state')
                 state = 'pivot'
         elif state == 'pivot':
-            rover.pivot(100)
+            rover.pivot(170)
             time.sleep(0.5)
             rover.pivot(0)
             # flush points collected while turning
@@ -48,7 +48,7 @@ def main():
             time.sleep(1)
             points = lidar.get_buffer()
 
-            if np.mean(sweep_results[75:105]) > SAFE_DISTANCE:
+            if np.mean(sweep_results[100:130]) > SAFE_DISTANCE:
                 print('switching state')
                 state = 'drive'
 

@@ -16,8 +16,8 @@ const int SERVO_PIN1 = 6;     // left and right
 const int ULTRA_TRG = 2;      // ultrasonic pins
 const int ULTRA_ECHO = 3; 
 
-const int ONE_LOW = 70;       // 124 is middle
-const int ONE_HIGH = 160;
+const int ONE_LOW = 90;       // 124 is middle
+const int ONE_HIGH = 140;
 const int TWO_LOW = 40;       // not used for demo
 const int TWO_HIGH = 120;
 

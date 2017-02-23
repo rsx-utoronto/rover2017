@@ -28,24 +28,23 @@ EthernetServer autoSysConn(autoSysPort);
 
 //L293D
 //Joint Motor 1
-int inA1  = 2;
-int inB1  = 3;
+int inA1  = 3;
+int inB1  = 5; 
 
 //Joint Motor 2
-int inA2  = 4;
-int inB2  = 5;
+int inA2  = 6;
+int inB2  = 9;
 
 //Middle Motor 3
-int inA3  = 6;
-int inB3  = 7;
+int inA3  = 1; // these won't work on the uno because they're not pwm, but we haven't even connected it so it's fine
+int inB3  = 2;
 
 //Middle Motor 4
-int inA4  = 8;
-int inB4  = 9;
+int inA4  = 4;
+int inB4  = 7;
 
 //Motor speed
 int mSpeed = 150;
-
 
 void setup() {
   //Set pins as outputs
@@ -57,7 +56,7 @@ void setup() {
   pinMode(inB2, OUTPUT);
   pinMode(inB3, OUTPUT);
   pinMode(inB4, OUTPUT);
-
+  
   // initialize the ethernet device
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
   // start listening for clients
@@ -102,16 +101,16 @@ void pivotL(int pivot){
 }
 //Pivot right
 void pivotR(int pivot){
-    analogWrite(inB1, pivot);
-    analogWrite(inA1, 0);
-    analogWrite(inB2, 0);
-    analogWrite(inA2, pivot);
+    analogWrite(inB1, 0);
+    analogWrite(inA1, pivot);
+    analogWrite(inB2, pivot);
+    analogWrite(inA2, 0);
 
     //Middle motors
-    analogWrite(inB3, 0);
-    analogWrite(inA3, pivot);
-    analogWrite(inB4, 0);
-    analogWrite(inA4, pivot);
+    analogWrite(inB3, pivot);
+    analogWrite(inA3, 0);
+    analogWrite(inB4, pivot);
+    analogWrite(inA4, 0);
 }
 
 void forward(int speedl, int speedr){
@@ -154,8 +153,6 @@ void processData(EthernetClient * client, EthernetServer * server){
   if(buff.length() != 15) {
     Serial.print("bad buffer: ");
   }
-    Serial.println(buff);
-
 
   Serial.println(buff);
 
@@ -163,21 +160,25 @@ void processData(EthernetClient * client, EthernetServer * server){
   int speedr = buff.substring(5, 10).toInt();
   int pivot = buff.substring(10, 14).toInt();
   boolean driveMode = buff.charAt(14) == '1';
-  Serial.print(speedl);
-  Serial.print(speedr);
-  Serial.println(pivot);
-
-
+  Serial.print(speedl); 
+  Serial.print(speedr); 
+  Serial.println(pivot); 
+  
+  
   if(driveMode && speedl > 0) {
+    Serial.println("going forward"); 
     forward(speedl, speedr);
   }
   else if (driveMode && speedl < 0) {
+    Serial.println("going backward"); 
     backward(-speedl, -speedr);
   }
-  else if (pivot < 0) {
+  else if (!driveMode && pivot < 0) {
+    Serial.println("Pivoting left"); 
     pivotL(-pivot);
   }
-  else if (pivot > 0) {
+  else if (!driveMode && pivot > 0) {
+    Serial.println("Pivoting right"); 
     pivotR(pivot);
   }
   else {
@@ -197,14 +198,14 @@ void loop() {
   else if(baseClient) {
     processData(&baseClient, &baseConn);
   }
-  delay(10);
+  delay(10); 
 }
 
 
 /*
   Read sensors and print to console
   Format: ```
-  Temperatures 1 2 3 4 5 6
+  Temperatures 1 2 3 4 5 6  
   Currents 1 2 3 4 5 6
   ```
 void readSensors() {
