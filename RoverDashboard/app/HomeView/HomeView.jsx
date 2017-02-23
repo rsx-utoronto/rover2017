@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Panel, Grid, Row, Col, Table } from 'react-bootstrap'
+import { Panel, Grid, Row, Col, Table, Button } from 'react-bootstrap'
 import Wheel from './components/Wheel/Wheel.jsx'
 import RoverBody from './components/rover_body.jsx'
 import Speed from './components/speed.jsx'

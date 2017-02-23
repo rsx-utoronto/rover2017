@@ -64,27 +64,37 @@ function init(model, config) {
 
     // start the tcp connection
     router.get('/tcp', (req, res) => {
-        if (client)
-            client.destroy(); // reset the connection if applicable
-
-        console.log('--> connecting to tcp on drive arduino');
-        client = net.connect(config.drive_port, config.drive_ip, () => {
-            console.log('--> connected to tcp on drive arduino');
-        });
-        //handling ETIMEDOUT error
-        client.on('error', (e) => {
-            console.log(e.code);
-            if (e.code == 'ETIMEDOUT') {
-                console.log('--> Unable to Connect/Disconnected from drive arduino');
-            }
-        });
-
-        client.on('data', function(data) {
-            console.log('received data from client');
-        });
-
-        res.json(model.drive);
+      connectViaTCP();
+      res.json(model.drive);
     });
+
+    connectViaTCP = function() {
+      if (client)
+          client.destroy(); // reset the connection if applicable
+
+      console.log('--> connecting to tcp on drive arduino');
+      client = net.connect(config.drive_port, config.drive_ip, () => {
+          console.log('--> connected to tcp on drive arduino');
+      });
+      enableClientListeners();
+
+    }
+
+    enableClientListeners = function(){
+      //handling ETIMEDOUT error
+      client.on('error', (e) => {
+          console.log(e.code);
+          if (e.code == 'ETIMEDOUT') {
+              console.log('--> Unable to Connect/Disconnected from drive arduino');
+              connectViaTCP();
+          }
+      });
+
+      client.on('data', function(data) {
+          console.log('received data from client');
+      });
+    }
+
 
     // send the current state of the rover over tcp
     sendState = function() {

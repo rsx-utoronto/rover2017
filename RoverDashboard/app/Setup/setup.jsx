@@ -117,7 +117,7 @@ export default class Setup extends React.Component {
         <td className='tcp-connect-btn'>
           <button className='btn btn-sm btn-primary'
           onClick={() => {
-            fetch("http://"+ServerAddress+":8080/${systemName}/tcp")
+            fetch("http://"+ServerAddress+":8080/"+systemName+"/tcp")
           }}
           > Connect! </button>
         </td>
