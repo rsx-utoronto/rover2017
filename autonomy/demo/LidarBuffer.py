@@ -30,7 +30,7 @@ class LidarBuffer:
                 if measurements[0] == -1:
                     # lidar lite didn't read properly
                     continue
-                
+
                 dist = float(measurements[0]) / 100   # dist in cm, want m
                 theta = math.radians(int(measurements[1]))
                 phi = math.radians(int(measurements[2]))
@@ -45,14 +45,13 @@ class LidarBuffer:
         buffer read.
 
         Returns:
-            buff: array of (int) distance readings e.g. [121, 123, 122, ...].
-                Will eventually be an array of points [distance, theta, phi].
+            buff: array of distance readings in metres with associated theta and phi.
+                [(dist1, theta1, phi1), (dist2, theta2, phi2) etc.]
         '''
         buff = self.buffer
         self.buffer = []
 
         return buff
-
 
 
 if __name__ == '__main__':

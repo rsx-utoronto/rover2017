@@ -6,6 +6,7 @@ var net = require('net');
 var client = undefined; // arduino tcp client
 
 function init(model, config) {
+<<<<<<< HEAD
     model.drive = {
         speed: [
             0, 0
