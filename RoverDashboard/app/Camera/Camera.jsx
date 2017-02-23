@@ -1,7 +1,7 @@
 import React from 'react'
 import { Grid, Row, Col } from 'react-bootstrap'
 
-export class default Camera extends React.Component {
+export default class Camera extends React.Component {
 
   constructor(props) {
     super(props)

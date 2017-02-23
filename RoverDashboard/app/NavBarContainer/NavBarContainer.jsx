@@ -30,6 +30,9 @@ export default class NavBarContainer extends React.Component{
             <LinkContainer to={{pathname: '/science'}}>
               <NavItem><Glyphicon glyph="tasks"/> Scientific Data & Charts</NavItem>
             </LinkContainer>
+            <LinkContainer to={{pathname: '/camera'}}>
+              <NavItem><Glyphicon glyph="camera"/> Camera</NavItem>
+            </LinkContainer>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

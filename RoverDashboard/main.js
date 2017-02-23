@@ -20,6 +20,7 @@ import ScienceCharts from './app/Graphs/science_charts.jsx'
 import Setup from './app/Setup/setup.jsx'
 import NavBarContainer from './app/NavBarContainer/NavBarContainer.jsx'
 import { Router, Route, Link, hashHistory, IndexRedirect} from 'react-router'
+import Camera from './app/Camera/Camera.jsx'
 
 
 ReactDOM.render((
@@ -28,6 +29,7 @@ ReactDOM.render((
       <IndexRedirect to="/home" />
       <Route path="/home" component={HomeView}/>
       <Route path="/science" component={ScienceCharts}/>
+      <Route path="/camera" component={Camera}/>
     </Route>
   </Router>
 ), document.getElementById('app-container'))
