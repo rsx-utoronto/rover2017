@@ -29,7 +29,7 @@ export default class ConfigModal extends React.Component {
   render() {
     return(
       <div>
-          <Button bsStyle="info" onClick={this.show}><Glyphicon glyph="cog"/></Button>
+          <Button onClick={this.show}><Glyphicon glyph="cog"/></Button>
           <Modal show={this.state.showModal} onHide={this.close}>
               <Modal.Header closeButton>
                 <Modal.Title>Connection & Controller Settings</Modal.Title>

@@ -75,7 +75,7 @@ function init(model, config) {
         client.on('error', (e) => {
             console.log(e.code);
             if (e.code == 'ETIMEDOUT') {
-                console.log('--> Unable/Disconnected from drive arduino');
+                console.log('--> Unable to Connect/Disconnected from drive arduino');
             }
         });
 

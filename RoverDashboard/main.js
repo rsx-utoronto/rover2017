@@ -2,7 +2,8 @@ var $ = require('jquery')
 window.jQuery = $
 window.$ = $
 
-window.ServerAddress = "100.65.105.42"
+// window.ServerAddress = "100.65.105.42"
+window.ServerAddress = "localhost"
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap/dist/css/bootstrap-theme.css'
@@ -10,14 +11,13 @@ import './css/style.css'
 import './css/c3.css'
 
 require('bootstrap')
-
+require('./app/gamepad.js')
 import React from 'react'
 import ReactDOM from 'react-dom'
 import MainView from './app/MainView.jsx'
 import HomeView from './app/HomeView/HomeView.jsx'
 import ScienceCharts from './app/Graphs/science_charts.jsx'
 import Setup from './app/Setup/setup.jsx'
-import gamepad from './app/gamepad.js'
 import NavBarContainer from './app/NavBarContainer/NavBarContainer.jsx'
 import { Router, Route, Link, hashHistory, IndexRedirect} from 'react-router'
 

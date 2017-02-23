@@ -1,15 +1,22 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { Panel, Grid, Row, Col, Table } from 'react-bootstrap'
 import Wheel from './components/Wheel/Wheel.jsx'
 import RoverBody from './components/rover_body.jsx'
 import Speed from './components/speed.jsx'
 import RoverArm from './components/rover_arm.jsx'
 import Map from './components/Map.jsx'
 import KeepAlive from '../KeepAlive/KeepAlive.jsx'
-import { Panel } from 'react-bootstrap'
 import ConfigModal from './components/ConfigModal.jsx'
 
 require('./stylesheets/HomeView.sass')
+
+const RoverStatusPanel = (
+	<div className="RoverStatusPanelTitle">
+		<h4>Rover Info</h4>
+		<ConfigModal/>
+	</div>
+)
 
 
 export default class HomeView extends React.Component {
@@ -89,9 +96,29 @@ export default class HomeView extends React.Component {
 		return(
 			<div className="ViewContainer">
 				<Map />
-				<Panel className="panelTest" header={<h3>Rover Info</h3>} bsStyle="primary">
-					<ConfigModal/>
-					{wheel}
+				<Panel className="panelTest" header={RoverStatusPanel} >
+					<Table bordered>
+				    <thead>
+				      <tr>
+				        <th>Left</th>
+				        <th>Right</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				      <tr>
+								<td><Col md={3}>{wheel[0]}</Col></td>
+								<td><Col md={3}>{wheel[3]}</Col></td>
+				      </tr>
+				      <tr>
+				        <td><Col md={3}>{wheel[1]}</Col></td>
+				        <td><Col md={3}>{wheel[4]}</Col></td>
+				      </tr>
+							<tr>
+				        <td><Col md={3}>{wheel[2]}</Col></td>
+				        <td><Col md={3}>{wheel[5]}</Col></td>
+				      </tr>
+				    </tbody>
+				  </Table>
 					<RoverBody pivot = {this.state.drive.pivot} drive_mode = {this.state.drive.drive_mode}/>
 				</Panel>
 			</div>

@@ -30,7 +30,7 @@ function scangamepads() {
 
     fbSpeed = Math.floor(gamepads[activeGamepad].axes[1] * -255);
     pivotSpeed = Math.floor(gamepads[activeGamepad].axes[5] * -255);
-    // console.log('game controller', fbSpeed, pivotSpeed, gamepads[2].axes)
+    console.log('game controller', fbSpeed, pivotSpeed, gamepads[2].axes)
 
     if(Math.abs(fbSpeed) > Math.abs(pivotSpeed))
       fetch("http://"+ServerAddress+":8080/drive/speed/"+fbSpeed+"/",{
@@ -90,5 +90,5 @@ window.onkeyup = function(e) {
 }
 
 if (controller == null) {
-  setInterval(scangamepads, 50);
+  setInterval(scangamepads, 100);
 }
