@@ -94,6 +94,8 @@ window.onkeyup = function(e) {
   }
 }
 
+/*
 if (controller == null) {
   setInterval(scangamepads, 100);
 }
+*/

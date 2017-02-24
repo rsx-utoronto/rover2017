@@ -94,10 +94,21 @@ export default class Setup extends React.Component {
 
     clearInterval(this.interval)
     this.interval = setInterval(() => {
-      let fbSpeed = Math.floor(gamepads[driveGamepad].axes[1] * -255)
-      let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[5] * -255)
+      let fbSpeed = Math.floor(gamepads[driveGamepad].axes[1] * -100)
+      let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[5] * 100)
 
-      if(Math.abs(fbSpeed) > Math.abs(pivotSpeed)) {
+      /* if(gamepads[driveGamepad].buttons[8]) {
+        console.log("ludicrous mode")
+        fetch(`http://${ServerAddress}:8080/drive/speed/255`, {
+          method: 'put'
+        })
+      }
+      else */ if(Math.abs(fbSpeed) < 10 && Math.abs(pivotSpeed) < 10) {
+        fetch(`http://${ServerAddress}:8080/drive/stop`, {
+          method: 'put'
+        })
+      }
+      else if(Math.abs(fbSpeed) > Math.abs(pivotSpeed)) {
         fetch("http://"+ServerAddress+":8080/drive/speed/"+fbSpeed+"/",{
           method: 'put'
         })
