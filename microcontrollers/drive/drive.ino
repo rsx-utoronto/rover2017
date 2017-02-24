@@ -28,35 +28,16 @@ EthernetServer autoSysConn(autoSysPort);
 
 //L293D
 //Joint Motor 1
-int inA1  = 3;
-int inB1  = 5; 
-
-//Joint Motor 2
-int inA2  = 6;
-int inB2  = 9;
-
-//Middle Motor 3
-int inA3  = 1; // these won't work on the uno because they're not pwm, but we haven't even connected it so it's fine
-int inB3  = 2;
-
-//Middle Motor 4
-int inA4  = 4;
-int inB4  = 7;
-
-//Motor speed
-int mSpeed = 150;
+int speedPins[] = {3, 5, 7, 9, 11, 13} ; 
+int directionPins[] = {2, 26, 6, 8, 28, 12}; 
 
 void setup() {
   //Set pins as outputs
-  pinMode(inA1, OUTPUT);
-  pinMode(inA2, OUTPUT);
-  pinMode(inA3, OUTPUT);
-  pinMode(inA4, OUTPUT);
-  pinMode(inB1, OUTPUT);
-  pinMode(inB2, OUTPUT);
-  pinMode(inB3, OUTPUT);
-  pinMode(inB4, OUTPUT);
-  
+  int(for i=0; i<6; i++) {
+    pinMode(speedPins[i], OUTPUT); 
+    pinMode(directionPins[i], OUTPUT); 
+  }
+    
   // initialize the ethernet device
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
   // start listening for clients
@@ -72,74 +53,54 @@ void setup() {
   Serial.println(Ethernet.localIP());
 }
 
-//Stop the motor
+// Helper functions
+void setLeftSpd(int spd) { 
+    if(spd < 0) { 
+        for(int i=0; i<3; i++) {
+            digitalWrite(directionPins[i], LOW); 
+            analogWrite(speedPins[i], -spd); 
+        }
+    }
+    else { 
+        for(int i=0; i<3; i++) {
+            digitalWrite(directionPins[i], HIGH); 
+            analogWrite(spedPins[i], spd;  
+        }    
+    }
+}
+
+void setRightSpd(int spd) { 
+    if(spd < 0) { 
+        for(int i=3; i<6; i++) {
+            digitalWrite(directionPins[i], LOW); 
+            analogWrite(speedPins[i], -spd); 
+        }
+    }
+    else { 
+        for(int i=3; i<6; i++) {
+            digitalWrite(directionPins[i], HIGH); 
+            analogWrite(spedPins[i], spd;  
+        }    
+    }
+}
+
+// Stop the motor
 void stop(){
-    analogWrite(inB1, 0);
-    analogWrite(inA1, 0);
-    analogWrite(inB2, 0);
-    analogWrite(inA2, 0);
-
-    //Middle motors
-    analogWrite(inB3, 0);
-    analogWrite(inA3, 0);
-    analogWrite(inB4, 0);
-    analogWrite(inA4, 0);
+    setLeftSpd(0); 
+    setRightSpd(0); 
 }
 
-//Pivot left
-void pivotL(int pivot){
-    analogWrite(inB1, pivot);
-    analogWrite(inA1, 0);
-    analogWrite(inB2, 0);
-    analogWrite(inA2, pivot);
-
-    //Middle motors
-    analogWrite(inB3, 0);
-    analogWrite(inA3, pivot);
-    analogWrite(inB4, 0);
-    analogWrite(inA4, pivot);
-}
-//Pivot right
-void pivotR(int pivot){
-    analogWrite(inB1, 0);
-    analogWrite(inA1, pivot);
-    analogWrite(inB2, pivot);
-    analogWrite(inA2, 0);
-
-    //Middle motors
-    analogWrite(inB3, pivot);
-    analogWrite(inA3, 0);
-    analogWrite(inB4, pivot);
-    analogWrite(inA4, 0);
+// Pivot either direction
+void pivot(int pivot){
+    setLeftSpd(pivot); 
+    setRightSpd(-pivot); 
 }
 
+// Drive forward or backward 
 void forward(int speedl, int speedr){
-    analogWrite(inB1, speedl);
-    analogWrite(inA1, 0);
-    analogWrite(inB2, speedl);
-    analogWrite(inA2, 0);
-
-    //Middle motors
-    analogWrite(inB3, speedl);
-    analogWrite(inA3, 0);
-    analogWrite(inB4, 0);
-    analogWrite(inA4, speedl);
+    setLeftSpd(speedl); 
+    setRightSpd(speedr); 
 }
-void backward(int speedl, int speedr){
-    analogWrite(inA1, speedl);
-    analogWrite(inB1, 0);
-
-    analogWrite(inA2, speedl);
-    analogWrite(inB2, 0);
-
-    //Middle motors
-    analogWrite(inB3, 0);
-    analogWrite(inA3, speedl);
-
-    analogWrite(inB4, speedl);
-    analogWrite(inA4, 0);
-}
-
 
 // Ethernet helper function
 void processData(EthernetClient * client, EthernetServer * server){
@@ -160,29 +121,14 @@ void processData(EthernetClient * client, EthernetServer * server){
   int speedr = buff.substring(5, 10).toInt();
   int pivot = buff.substring(10, 14).toInt();
   boolean driveMode = buff.charAt(14) == '1';
-  Serial.print(speedl); 
-  Serial.print(speedr); 
-  Serial.println(pivot); 
-  
-  
-  if(driveMode && speedl > 0) {
+
+  if(driveMode) {
     Serial.println("going forward"); 
     forward(speedl, speedr);
   }
-  else if (driveMode && speedl < 0) {
-    Serial.println("going backward"); 
-    backward(-speedl, -speedr);
-  }
-  else if (!driveMode && pivot < 0) {
+  else if (!driveMode) {
     Serial.println("Pivoting left"); 
     pivotL(-pivot);
-  }
-  else if (!driveMode && pivot > 0) {
-    Serial.println("Pivoting right"); 
-    pivotR(pivot);
-  }
-  else {
-    stop();
   }
 }
 
@@ -200,27 +146,3 @@ void loop() {
   }
   delay(10); 
 }
-
-
-/*
-  Read sensors and print to console
-  Format: ```
-  Temperatures 1 2 3 4 5 6  
-  Currents 1 2 3 4 5 6
-  ```
-void readSensors() {
-  float Vout = analogRead(photocellPin);
-  float Temp = (Vout / 1024.0) * 5000; //convert to millivolts
-  float cel = Temp / 10; //get temperature in celcius (1Cel/10mv ratio)
-  String toPrint = "temperatures ";
-  for (int i = 0; i<6; i++){
-    toPrint += String(cel + i) + " ";  // change me when we get actual sensors!
-  }
-  Serial.println(toPrint);
-  toPrint = "currents ";
-  for (int j = 0; j<6; j++){
-    toPrint += String(10.0 + j) + " ";  // change me when we get actual sensors!
-  }
-  Serial.println(toPrint);
-}
-*/

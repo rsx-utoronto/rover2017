@@ -5,7 +5,6 @@ import numpy as np
 import transforms
 import serial
 
-
 SERIAL_PORT = 'COM5'   # may need to change the port
 SAFE_DISTANCE = .75 # meters, don't go too low b/c the lidar just reports 0 at less than ~25cm
 DEBUG_MODE = True

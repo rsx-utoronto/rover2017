@@ -24,8 +24,12 @@ class LidarBuffer:
     def listen(self):
         while self.running:
             try:
-                measurements = self.ser.readline().strip()
+                print('a')
+                measurements = self.ser.readline().strip().decode()
+                print('b')
                 measurements = measurements.split()
+                print(measurements)
+                print('c')
 
                 if measurements[0] == -1:
                     # lidar lite didn't read properly
