@@ -31,9 +31,10 @@ EthernetServer autoSysConn(autoSysPort);
 int speedPins[] = {3, 5, 7, 9, 11, 13} ; 
 int directionPins[] = {2, 26, 6, 8, 28, 12}; 
 
+
 void setup() {
   //Set pins as outputs
-  int(for i=0; i<6; i++) {
+  for (int i=0; i<6; i++) {
     pinMode(speedPins[i], OUTPUT); 
     pinMode(directionPins[i], OUTPUT); 
   }
@@ -55,7 +56,7 @@ void setup() {
 
 // Helper functions
 void setLeftSpd(int spd) { 
-    if(spd < 0) { 
+    if(spd < 0) {
         for(int i=0; i<3; i++) {
             digitalWrite(directionPins[i], LOW); 
             analogWrite(speedPins[i], -spd); 
@@ -64,7 +65,7 @@ void setLeftSpd(int spd) {
     else { 
         for(int i=0; i<3; i++) {
             digitalWrite(directionPins[i], HIGH); 
-            analogWrite(spedPins[i], spd;  
+            analogWrite(speedPins[i], spd);  
         }    
     }
 }
@@ -75,12 +76,16 @@ void setRightSpd(int spd) {
             digitalWrite(directionPins[i], LOW); 
             analogWrite(speedPins[i], -spd); 
         }
+        digitalWrite(directionPins[4], HIGH);
+        digitalWrite(directionPins[5], HIGH); 
     }
     else { 
         for(int i=3; i<6; i++) {
             digitalWrite(directionPins[i], HIGH); 
-            analogWrite(spedPins[i], spd;  
+            analogWrite(speedPins[i], spd);  
         }    
+        digitalWrite(directionPins[4], LOW); 
+        digitalWrite(directionPins[5], LOW); 
     }
 }
 
@@ -91,7 +96,7 @@ void stop(){
 }
 
 // Pivot either direction
-void pivot(int pivot){
+void doPivot(int pivot){
     setLeftSpd(pivot); 
     setRightSpd(-pivot); 
 }
@@ -128,7 +133,7 @@ void processData(EthernetClient * client, EthernetServer * server){
   }
   else if (!driveMode) {
     Serial.println("Pivoting left"); 
-    pivotL(-pivot);
+    doPivot(-pivot);
   }
 }
 
