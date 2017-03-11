@@ -10,13 +10,16 @@ Navigate to the folder where you've installed everything
 - ` $ npm install `
 - ` $ npm install -g http-server `
 - ` $ npm install -g webpack `
-- ` $ webpack ` Compile the front-end `
+- ` $ webpack ` Compile the front-end
+
 ##### Running Front-end
 - ` $ cd RoverDashboard `
 - ` $ http-server -p 3000  # runs the frontend `
 - Navigate to localhost:3000 in your browser
+
 ##### Installing Server
 - ` $ npm install `
+
 ##### Running Server
 In a new window
 - ` $ cd server `
