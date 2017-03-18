@@ -39,16 +39,22 @@ filePaths.reduce(function(promise, path) {
     console.log(`-> loaded config file from ${filename}`);
     config = _.assignIn(JSON.parse(configFile), program);
 
-    app.use(cors({
+    app
+    /* .use(cors({
         origin: [
             config.dashboard_port,
             config.drive_port,
             config.arm_port,
             config.sensor_port,
             config.aux_port,
-            config.server_port
+            config.server_port,
         ].map(x => 'http://localhost:' + x)
-    })).use('/drive/', driveServer.init(model, config)).use('/arm/', armServer.init(model, config)).use('/science/', scienceServer.init(model, config)).use('/aux/', auxServer.init(model, config)).use('/gps/', gpsServer.init(model, config))
+    }))*/
+    .use('/drive/', driveServer.init(model, config))
+    .use('/arm/', armServer.init(model, config))
+    .use('/science/', scienceServer.init(model, config))
+    .use('/aux/', auxServer.init(model, config))
+    .use('/gps/', gpsServer.init(model, config))
 
     io.on('connection', function(socket) {
         console.log('a user connected');

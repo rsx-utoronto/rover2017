@@ -21,7 +21,7 @@ function init(model, config) {
 	//set the relay_ith element in relay to relay_state
 	router.put('/relay/:relay_i/:relay_state',(req,res) =>	{
 		model.aux.relay[parseInt(req.params.relay_i)] = (req.params.relay_state !== 'false' && req.params.relay_state !== '0');
-		res.json(model.aux.relay[parseInt(req.params.relay_i)]);
+		res.json(model.aux);
 	});
 
 	// connect to the tcp client
