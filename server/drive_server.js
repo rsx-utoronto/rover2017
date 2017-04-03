@@ -11,7 +11,8 @@ function init(model, config) {
             0, 0
         ], // -255 to 255
         pivot: 0,
-        drive_mode: true // drive mode vs pivot mode
+        drive_mode: true, // drive mode vs pivot mode
+        ebrake: false
     }
 
     var router = express.Router();
@@ -23,31 +24,63 @@ function init(model, config) {
 
     // sets rover forward speed.
     router.put('/speed/:speed', (req, res) => {
-        model.drive.speed[0] = model.drive.speed[1] = parseInt(req.params.speed);
-        model.drive.drive_mode = true;
-        res.json(model.drive);
+        if(!model.drive.ebrake) {
+          model.drive.speed[0] = model.drive.speed[1] = parseInt(req.params.speed);
+          model.drive.drive_mode = true;
+          res.json(model.drive);
+        } else {
+          res.status(500).send("EBrake Enabled")
+        }
+
     });
 
     // sets rover speed on both wheels.
     router.put('/speed/:speed0/:speed1', (req, res) => {
-        model.drive.speed[0] = parseInt(req.params.speed0);
-        model.drive.speed[1] = parseInt(req.params.speed1);
-        model.drive.drive_mode = true;
-        res.json(model.drive);
+        if(!model.drive.ebrake) {
+          model.drive.speed[0] = parseInt(req.params.speed0);
+          model.drive.speed[1] = parseInt(req.params.speed1);
+          model.drive.drive_mode = true;
+          res.json(model.drive);
+        } else {
+          res.status(500).send("EBrake Enabled")
+        }
+
     });
 
     // sets the pivot speed of the rover. pivoting requires us to turn off
     // the middle wheels or the rocker bogie dies.
     router.put('/pivot/:turn_speed', (req, res) => {
+      if(!model.drive.ebrake) {
         model.drive.pivot = parseInt(req.params.turn_speed);
         model.drive.drive_mode = false;
         res.json(model.drive);
+      } else {
+        res.status(500).send("EBrake Enabled")
+      }
+
     });
 
     router.put('/stop', (req, res) => {
         model.drive.speed[0] = model.drive.speed[1] = 0;
         model.drive.pivot = 0;
         res.json(model.drive);
+    });
+
+    router.get('/ebrake', (req, res) => {
+      res.json(model.drive);
+    });
+
+    router.put('/ebrake', (req, res) => {
+      if (model.drive.ebrake) {
+        model.drive.ebrake = false;
+        model.drive.speed[0] = model.drive.speed[1] = 0;
+        model.drive.pivot = 0;
+      } else {
+        model.drive.ebrake = true;
+        model.drive.speed[0] = model.drive.speed[1] = 0;
+        model.drive.pivot = 0;
+      }
+      res.json(model.drive);
     });
 
     // start an http connection with the arduino

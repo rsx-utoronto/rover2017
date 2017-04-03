@@ -3,6 +3,8 @@ import { Navbar, Nav, NavDropdown, MenuItem, NavItem, Glyphicon } from 'react-bo
 import { LinkContainer } from 'react-router-bootstrap'
 import Logo from './logo.png';
 
+import EBrakeComponent from './components/EBrakeComponent.jsx'
+
 require('./stylesheets/NavBar.sass')
 
 export default class NavBarContainer extends React.Component{
@@ -24,6 +26,7 @@ export default class NavBarContainer extends React.Component{
         </Navbar.Header>
         <Navbar.Collapse>
           <Nav pullRight>
+            <NavItem><EBrakeComponent/></NavItem>
             <LinkContainer to={{pathname: '/home'}}>
               <NavItem><Glyphicon glyph="home"/> Home</NavItem>
             </LinkContainer>

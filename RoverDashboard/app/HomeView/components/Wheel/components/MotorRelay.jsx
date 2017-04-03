@@ -36,7 +36,7 @@ class MotorRelay extends React.Component {
   render() {
     return(
       <div>
-        {!this.state.status && <button className="btn btn-danger" onClick={this.updateServer}>Motor: Off</button>}
+        {!this.state.status && <button className="btn btn-warning" onClick={this.updateServer}>Motor: Off</button>}
         {this.state.status && <button className="btn btn-success" onClick={this.updateServer}>Motor: On</button>}
       </div>
 
