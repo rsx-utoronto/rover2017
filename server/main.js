@@ -1,7 +1,8 @@
 // command line arguments to control which systems are enabled
 var _ = require('lodash');
 var Promise = require('bluebird');
-var program = require('commander').usage('node main.js [options]').option('-d, --drive-arduino', 'Enable drive arduino connected over serial').option('-a, --arm-arduino', 'Enable arm arduino connected over serial').option('-x, --aux-arduino', 'Enable auxiliary sensor arduino connected over serial').option('-s, --science-arduino', 'Enable science sensor arduino connected over serial').option('--all-arduinos', 'Enable all arduinos').option('-v, --verbose', 'Enable verbose debugging').parse(process.argv)
+var program = require('commander').usage('node main.js [options]')
+    .option('-v, --verbose', 'Enable verbose debugging').parse(process.argv)
 var fs = Promise.promisifyAll(require('fs'));
 var cors = require('cors');
 var express = require('express');
@@ -14,9 +15,6 @@ var armServer = require('./arm_server')
 var scienceServer = require('./science_server');
 var auxServer = require('./aux_server');
 var gpsServer = require('./gps_server');
-var driveSerial = program.driveArduino || program.allArduinos
-    ? require('./drive_serial')
-    : require('./dummy_system');
 
 if (program.armArduino || program.auxArduino || program.scienceArduino) {
     console.warn("Serial connections have not all been implemented yet :(")
@@ -62,8 +60,6 @@ filePaths.reduce(function(promise, path) {
     io.on('disconnect', (socket) => {
         console.log('a user disconnect')
     });
-
-    driveSerial.init(model, config);
 
     app.listen(config.server_port);
 }).catch(function(err) {
