@@ -2,7 +2,9 @@
 var _ = require('lodash');
 var Promise = require('bluebird');
 var program = require('commander').usage('node main.js [options]')
-    .option('-v, --verbose', 'Enable verbose debugging').parse(process.argv)
+    .option('-v, --verbose', 'Enable verbose debugging')
+    .option('-g, --gps', 'Enable GPS')
+    .parse(process.argv)
 var fs = Promise.promisifyAll(require('fs'));
 var cors = require('cors');
 var express = require('express');
@@ -39,6 +41,12 @@ filePaths.reduce(function(promise, path) {
     console.log(`-> loaded config file from ${filename}`);
     config = _.assignIn(JSON.parse(configFile), program);
 
+    let logger = function(req, res, next) {
+        if (program.verbose)
+            console.log(req.originalUrl)
+        next();
+    }
+
     app
     /* .use(cors({
         origin: [
@@ -54,7 +62,11 @@ filePaths.reduce(function(promise, path) {
     .use('/arm/', armServer.init(model, config))
     .use('/science/', scienceServer.init(model, config))
     .use('/aux/', auxServer.init(model, config))
-    .use('/gps/', gpsServer.init(model, config))
+    .use(logger)
+
+    if (program.gps)
+        app.use('/gps/', gpsServer.init(model, config));
+
 
     io.on('connection', function(socket) {
         console.log('a user connected');

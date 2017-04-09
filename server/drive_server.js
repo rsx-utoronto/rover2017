@@ -1,5 +1,4 @@
 var express = require('express');
-var fetch = require('node-fetch');
 var _ = require('lodash');
 var net = require('net');
 
@@ -81,19 +80,6 @@ function init(model, config) {
         model.drive.pivot = 0;
       }
       res.json(model.drive);
-    });
-
-    // start an http connection with the arduino
-    router.get('/ethernet', (req, res) => {
-        fetch('http://192.168.0.177').then((response) => {
-            if (response.ok) {
-                console.log('Get Ethernet');
-                res.json(response);
-            }
-            res.json({error: "ethernet request failed"});
-        }).catch(function(err) {
-            console.log('error', err);
-        });
     });
 
     // start the tcp connection

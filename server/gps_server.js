@@ -1,21 +1,86 @@
-/*
-Server for the GPS
+// GPS Server
+// This needs to be enabled with the --gps flag on the server.
+// The GPS is run from the IP webcam app, which also provides information on heading and pitch.
+// https://play.google.com/store/apps/details?id=com.pas.webcam&hl=en
+// In the app's "Data Logging" tab, enable data logging, and ensure that at least battery percent
+// sensor, accelerometer and magnetic field are enabled
 
-- Install the GPSLogger App for Android
-- Run the node server
-- Set the app to log to *your IP address*:8080/gps/log?lat=%LAT&lon=%LON&time=%TIME
--> ([Hamburger button] > Logging details > Enable log to custom URL, and set the fields)
-- Start data collection
--> You can check if the server is receiving data by running it with the --verbose option
--> You can also check if the data is being sent by going to the Log view
--> You may want to play with the frequency of sending data. For now, it's not that accurate
-*/
-
+var fetch = require('node-fetch');
+var _ = require('lodash');
 var express = require('express');
+
+var phoneURL;
+
+const SMOOTHING = 5; // number of readings to average over
+
+function toDegrees(x) {
+	return x * 180 / Math.PI;
+}
+
+function update(model) {
+	// get the phone's gps coordinates
+	fetch(`${phoneURL}/gps.json`)
+	.then(response => response.json())
+	.then(body => {
+		if (body.gps.latitude)
+			model.gps.latitude = body.gps.latitude;
+		if (body.gps.longitude)
+			model.gps.longitude = body.gps.longitude;
+		if (body.gps.accuracy)
+			model.gps.accuracy = body.gps.accuracy; // useful for kalman filtering
+	})
+	.catch(err => {
+		console.error('Could not get data from gps', err);
+	})
+
+	// get the sensor readings (acceleration, heading, battery)
+	fetch(`${phoneURL}/sensors.json`)
+	.then(response => response.json())
+	.then(body => {
+		// Calculate pitch of the rover using the accelerometer, measured in degrees from horizontal.
+		// Assume that the phone is in landscape mode and mounted facing forward
+		// Acceleration is averaged over the last SMOOTHING iterations
+		let accelHist = _(body.accel.data)
+						.slice(-SMOOTHING)	// pop the last few elements
+						.map(x => x[1]) 	// read data
+						.unzip()			// transpose so we can calculate the mean
+						.map(_.mean)
+						.value()
+		let accel = _.zipObject(body.accel.desc, accelHist);
+		let pitchRad = Math.atan2(accel.Az, accel.Ax);
+		model.gps.pitch = toDegrees(pitchRad);
+
+		let batteryLevel = _.last(body.battery_level.data)[1];  // battery level of the phone
+		model.gps.battery = batteryLevel;
+
+		// Calculate the orientation of the rover in degrees from north.
+		// This is calculated from the magnetometer in a similar fashion to pitch.
+		let magHist = _(body.mag.data)
+						.slice(-SMOOTHING)
+						.map(x => x[1])
+						.unzip()
+						.map(_.mean)
+						.value()
+		let mag = _.zipObject(body.mag.desc, magHist);
+		let magZ = mag.Mz * Math.cos(pitchRad) + mag.Mx * Math.sin(pitchRad); // apply a rotation matrix about y to correct for pitch
+		model.gps.heading = toDegrees(Math.atan2(mag.My, magZ));
+	})
+	.catch(err => {
+		console.log("Could not get data from sensors", err)
+	})
+}
 
 function init(model, config) {
 	model.gps = config.initial_position;
+	phoneURL = config.phone_url;
+	fetch(`${phoneURL}/settings/gps_active?set=on`)
+	.then(response => {
+		if (response.ok)
+			setInterval(() => update(model), 1000);
+	})
+	.catch(err => console.error('Could not start the gps'));
 
+	// create the server interface
 	var router = express.Router();
 	router.get('/', (req, res) => {
 		if(config.verbose) {
@@ -24,20 +89,20 @@ function init(model, config) {
 		res.json(model.gps);
 	});
 
+	// This function is provided for compatibility with the GPS logger app, which lets you write
+	// to a server. The app isn't super reliable, but the code is here as a backup.
 	router.get('/log', (req, res) => {
-		// we can implement filtering/ sensor fusion later
 		model.gps.latitude = req.query.lat || req.query.latitude;
 		model.gps.longitude = req.query.lon || req.query.longitude;
 		model.gps.time = req.query.time;
 
 		if (config.verbose)
 			console.log("Updating GPS coordinates: ", model.gps);
-
 		res.json(model.gps);
 	})
 
-	console.log('-> gps server started');
+	console.log(`-> gps server started at ${phoneURL}`);
 	return router;
 }
 
-module.exports = {init};
+module.exports = { init };
