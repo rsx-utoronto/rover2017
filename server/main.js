@@ -48,6 +48,7 @@ filePaths.reduce(function(promise, path) {
     }
 
     app
+    .use(cors()) // enable all requests. not great security, but oh well
     /* .use(cors({
         origin: [
             config.dashboard_port,
