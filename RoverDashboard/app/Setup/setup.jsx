@@ -14,6 +14,7 @@ export default class Setup extends React.Component {
 
     this.joystickSystems = ['drive', 'arm']
 
+    this.componentDidMount = this.componentDidMount.bind(this); 
     this.gamepadRow = this.gamepadRow.bind(this)
     this.bindGamepad = this.bindGamepad.bind(this)
     this.updateDriveGamepadPoller = this.updateDriveGamepadPoller.bind(this)
@@ -83,19 +84,19 @@ export default class Setup extends React.Component {
   }
 
   updateDriveGamepadPoller() {
-    let driveGamepad = this.state.joystickMapping.indexOf('drive')
-    if (driveGamepad === -1)  // nothing listening to drive
-      return
-    let gamepads = navigator.getGamepads()
-    if (!gamepads[driveGamepad]) {
-      console.error(`No game pad connected to port ${driveGamepad}`)
-      return
-    }
-
     clearInterval(this.interval)
     this.interval = setInterval(() => {
+      let driveGamepad = this.state.joystickMapping.indexOf('drive')
+      if (driveGamepad === -1)  // nothing listening to drive
+        return
+      let gamepads = navigator.getGamepads()
+      if (!gamepads[driveGamepad]) {
+        console.error(`No game pad connected to port ${driveGamepad}`)
+        return
+      }
+
       let fbSpeed = Math.floor(gamepads[driveGamepad].axes[1] * -100)
-      let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[5] * 100)
+      let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[5] * 100) // change this back! 
 
       /* if(gamepads[driveGamepad].buttons[8]) {
         console.log("ludicrous mode")

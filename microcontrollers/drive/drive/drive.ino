@@ -28,18 +28,12 @@ EthernetServer autoSysConn(autoSysPort);
 
 //L293D
 //Joint Motor 1
-int speedPins[] = {3, 5, 6, 9}; 
-//int directionPins[] = {2, 26, 6, 8, 28, 12}; 
+int speedPins[] = {3, 5, 7, 9, 11, 13} ; 
+int directionPins[] = {2, 26, 6, 8, 28, 12}; 
 
-int speedl;
-int speedr;
-boolean driveMode;
-int pivot; 
-int speedf = -255;
-int speedp = -255;
 const int max_speed = 128;
 const int min_speed = 50;
-const int joyDead = 8; //Range of joystick movement that is accidental
+const int joydead = 8; //Range of joystick movement that is accidental
 const int joy_max = 255;
 float drive_exp = 1.4;  // Exponential speed (1= linear, 2= squared)
 
@@ -47,7 +41,7 @@ void setup() {
   //Set pins as outputs
   for (int i=0; i<6; i++) {
     pinMode(speedPins[i], OUTPUT); 
-    //pinMode(directionPins[i], OUTPUT); 
+    pinMode(directionPins[i], OUTPUT); 
   }
     
   // initialize the ethernet device
@@ -67,25 +61,37 @@ void setup() {
 
 // Helper functions
 void setLeftSpd(int spd) { 
-      if (spd > 0){
-        analogWrite(speedPins[0], spd);
-        analogWrite(speedPins[1], 0);
+      if(spd < 0) {
+          for(int i=0; i<3; i++) {
+              digitalWrite(directionPins[i], LOW); 
+              analogWrite(speedPins[i], -spd); 
+          }
       }
-      else{
-        analogWrite(speedPins[0], 0);
-        analogWrite(speedPins[1], -spd);
+      else { 
+          for(int i=0; i<3; i++) {
+              digitalWrite(directionPins[i], HIGH); 
+              analogWrite(speedPins[i], spd);  
+          }    
       }
 }
 
 void setRightSpd(int spd) { 
-      if (spd > 0){
-        analogWrite(speedPins[2], spd);
-        analogWrite(speedPins[3], 0);
-      }
-      else{
-        analogWrite(speedPins[2], 0);
-        analogWrite(speedPins[3], -spd);
-      }
+    if(spd < 0) { 
+        for(int i=3; i<6; i++) {
+            digitalWrite(directionPins[i], LOW); 
+            analogWrite(speedPins[i], -spd); 
+        }
+        digitalWrite(directionPins[4], HIGH);
+        digitalWrite(directionPins[5], HIGH); 
+    }
+    else { 
+        for(int i=3; i<6; i++) {
+            digitalWrite(directionPins[i], HIGH); 
+            analogWrite(speedPins[i], spd);  
+        }    
+        digitalWrite(directionPins[4], LOW); 
+        digitalWrite(directionPins[5], LOW); 
+    }
 }
 
 // Stop the motor
@@ -100,22 +106,22 @@ void doPivot(int pivot){
     setRightSpd(-pivot); 
 }
 
-int sgn(int x){
-    if (x > 0) return 1;
-    if (x < 0) return -1;
-    return 0;
-}
-
 // Drive forward or backward 
 void forward(int speedl, int speedr){
     setLeftSpd(speedl); 
     setRightSpd(speedr); 
 }
 
+int sgn(int x){
+    if (x > 0) return 1;
+    if (x < 0) return -1;
+    return 0;
+}
+
 float expDrive (int joyVal){
-    int joyMax = joy_max - joyDead;
-    int joySign = sgn(joyVal);
-    int joyLive = abs(joyVal) - joyDead;
+    int joyMax = joy_max - joydead;
+    int joySign = sign(joyVal);
+    int joyLive = abs(joyVal) - joydead;
     return joySign * (min_speed + ((max_speed - min_speed) * pow(joyLive, drive_exp) / pow(joyMax, drive_exp)));
 }
 
@@ -139,67 +145,29 @@ void processData(EthernetClient * client, EthernetServer * server){
   int pivot = buff.substring(10, 14).toInt();
   boolean driveMode = buff.charAt(14) == '1';
   
-  Serial.println("Speed values");
-  Serial.println(speedl); 
-  float exp_speedl = expDrive(speedl);
-  Serial.println(exp_speedl); 
-  Serial.println(speedr); 
-  float exp_speedr = expDrive(speedr);
-  Serial.println(exp_speedr); 
-  Serial.println("Pivot value");
-  Serial.println(pivot); 
-  float exp_pivot = expDrive(pivot);
-  Serial.println(exp_pivot);
+  exp_speedl = expDrive(speedl); 
+  exp_speedr = expDrive(speedr);
+  exp_pivot = expDrive(pivot);
 
   if(driveMode) {
-    Serial.println("going forward"); 
     forward(exp_speedl, exp_speedr);
   }
   else if (!driveMode) {
-    Serial.println("Pivoting left"); 
     doPivot(-exp_pivot);
   }
 }
 
 void loop() {
-  
-  if (speedf<255){
-    int speedl = speedf;
-    int speedr = speedf;
-    boolean driveMode = true;
-    speedf++;
-  }
-  if (speedf>255){
-    delay(3000);
-    boolean driveMode = false;
-    int pivot = speedp;
-    speedp++;
+  // wait for a new client:
+  EthernetClient baseClient = baseConn.available();
+  EthernetClient autoSysClient = autoSysConn.available();
+
+  if(autoSysClient){
+     processData(&autoSysClient, &autoSysConn);
   }
 
-  if (speedp > 255){
-    stop();
+  else if(baseClient) {
+    processData(&baseClient, &baseConn);
   }
-
-  Serial.println("Speed values");
-  Serial.println(speedl); 
-  float exp_speedl = expDrive(speedl);
-  Serial.println(exp_speedl); 
-  Serial.println(speedr); 
-  float exp_speedr = expDrive(speedr);
-  Serial.println(exp_speedr); 
-  Serial.println("Pivot value");
-  Serial.println(pivot); 
-  float exp_pivot = expDrive(pivot);
-  Serial.println(exp_pivot);
-  
-  if(driveMode) {
-    Serial.println("going forward"); 
-    forward(exp_speedl, exp_speedr);
-  }
-  else if (!driveMode) {
-    Serial.println("Pivoting left"); 
-    doPivot(-exp_pivot);
-  }
-
+  delay(10); 
 }
-

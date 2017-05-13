@@ -29,8 +29,8 @@ function scangamepads() {
 	  controller = gamepads[activeGamepad];
 
     fbSpeed = Math.floor(gamepads[activeGamepad].axes[1] * -100); // rover is too fast rn
-    pivotSpeed = Math.floor(gamepads[activeGamepad].axes[5] * 100);
-    console.log('game controller', fbSpeed, pivotSpeed, gamepads[2].axes)
+    pivotSpeed = Math.floor(gamepads[activeGamepad].axes[5] * 100); 
+    console.log('game controller', fbSpeed, pivotSpeed, gamepads[0].axes)
 
     if(Math.abs(fbSpeed) < 10 && Math.abs(pivotSpeed) < 10) {
       fetch("http://" + ServerAddress + ":8080/drive/stop", {
