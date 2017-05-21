@@ -58,7 +58,7 @@ void processData(EthernetClient * client) {
   if(buff.length() != 6) {
     Serial.print("Bad buffer: "); 
   }
-  Serial.print(buff); 
+  Serial.println(buff); 
 
   for(int i=0; i<6; i++) {
     setRelay(i, buff.charAt(i) == '1'); 
