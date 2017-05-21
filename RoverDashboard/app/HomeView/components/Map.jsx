@@ -19,13 +19,20 @@ export default class Map extends React.Component {
 		// demonstrate placement of a pin
 		var marker = L.marker({lat:0, lon:0}).addTo(map);
 
-
-		setInterval(
+		setInterval(() => {
 			fetch("http://"+ServerAddress+":8080/gps")
-			.then(response => response.json())
+			.then(response => {
+				if (response.ok)
+					return response.json();
+				else {
+					throw new Error('GPS not received')
+				}
+			})
 			.then(json => {
 				marker.setLatLng({lat: json.latitude, lng: json.longitude}).update()
 			})
+			.catch(err => console.warn(err)) // gps isn't connected
+		}
 		, 2000);
 	}
 
