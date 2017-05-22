@@ -6,6 +6,8 @@
  * Ethernet shield attached to pins 10, 11, 12, 13
  */
 
+#define MINI_ROVER    0  // whether we're using the mini rover
+
 #include <SPI.h>
 #include <Ethernet.h>
 
@@ -28,28 +30,28 @@ EthernetServer autoSysConn(autoSysPort);
 
 //L293D
 //Joint Motor 1
-int speedPins[] = {3, 5, 6, 9}; 
-//int directionPins[] = {2, 26, 6, 8, 28, 12}; 
+int speedPins[] = {3, 5, 7, 9, 11, 13} ;
+int directionPins[] = {2, 26, 6, 8, 28, 12};
 
 int speedl;
 int speedr;
 boolean driveMode;
-int pivot; 
+int pivot;
 int speedf = -255;
 int speedp = -255;
 const int max_speed = 128;
 const int min_speed = 50;
-const int joyDead = 8; //Range of joystick movement that is accidental
+const int joyDead = 8; // Range of joystick movement that is accidental
 const int joy_max = 255;
 float drive_exp = 1.4;  // Exponential speed (1= linear, 2= squared)
 
 void setup() {
   //Set pins as outputs
   for (int i=0; i<6; i++) {
-    pinMode(speedPins[i], OUTPUT); 
-    //pinMode(directionPins[i], OUTPUT); 
+    pinMode(speedPins[i], OUTPUT);
+    pinMode(directionPins[i], OUTPUT);
   }
-    
+
   // initialize the ethernet device
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
   // start listening for clients
@@ -66,7 +68,9 @@ void setup() {
 }
 
 // Helper functions
-void setLeftSpd(int spd) { 
+#if MINI_ROVER
+#pragma message ("using mini rover") 
+void setLeftSpd(int spd) {
       if (spd > 0){
         analogWrite(speedPins[0], spd);
         analogWrite(speedPins[1], 0);
@@ -77,7 +81,7 @@ void setLeftSpd(int spd) {
       }
 }
 
-void setRightSpd(int spd) { 
+void setRightSpd(int spd) {
       if (spd > 0){
         analogWrite(speedPins[2], spd);
         analogWrite(speedPins[3], 0);
@@ -87,17 +91,49 @@ void setRightSpd(int spd) {
         analogWrite(speedPins[3], -spd);
       }
 }
+#else // not mini rover
+#pragma message ("using big rover") 
+void setLeftSpd(int spd) {
+      if(spd < 0) {
+          for(int i=0; i<3; i++) {
+              digitalWrite(directionPins[i], LOW);
+              analogWrite(speedPins[i], -spd);
+          }
+      }
+      else {
+          for(int i=0; i<3; i++) {
+              digitalWrite(directionPins[i], HIGH);
+              analogWrite(speedPins[i], spd);
+          }
+      }
+}
+
+void setRightSpd(int spd) {
+    if(spd < 0) {
+        for(int i=3; i<6; i++) {
+            digitalWrite(directionPins[i], LOW);
+            analogWrite(speedPins[i], -spd);
+        }
+    }
+    else {
+        for(int i=3; i<6; i++) {
+            digitalWrite(directionPins[i], HIGH);
+            analogWrite(speedPins[i], spd);
+        }
+    }
+}
+#endif // mini rover
 
 // Stop the motor
 void stop(){
-    setLeftSpd(0); 
-    setRightSpd(0); 
+    setLeftSpd(0);
+    setRightSpd(0);
 }
 
 // Pivot either direction
 void doPivot(int pivot){
-    setLeftSpd(pivot); 
-    setRightSpd(-pivot); 
+    setLeftSpd(pivot);
+    setRightSpd(-pivot);
 }
 
 int sgn(int x){
@@ -106,10 +142,10 @@ int sgn(int x){
     return 0;
 }
 
-// Drive forward or backward 
+// Drive forward or backward
 void forward(int speedl, int speedr){
-    setLeftSpd(speedl); 
-    setRightSpd(speedr); 
+    setLeftSpd(speedl);
+    setRightSpd(speedr);
 }
 
 float expDrive (int joyVal){
@@ -130,38 +166,38 @@ void processData(EthernetClient * client, EthernetServer * server){
 
   if(buff.length() % 15 != 0) {
     Serial.print("bad buffer: ");
-    Serial.print(buff.length()); 
+    Serial.print(buff.length());
   }
   Serial.println(buff);
   int frameshift = buff.length() - 15; // if we have more than one buffer, take the last one
-  
+
   int speedl = buff.substring(0 + frameshift, 5 + frameshift).toInt();
   int speedr = buff.substring(5 + frameshift, 10 + frameshift).toInt();
   int pivot = buff.substring(10 + frameshift, 14 + frameshift).toInt();
   boolean driveMode = (buff.charAt(14 + frameshift) == '1');
-  
+
   Serial.print("Speed values: L ");
   // Serial.print(speedl); raw speed
   float exp_speedl = expDrive(speedl);
-  Serial.print(exp_speedl); 
-  Serial.print(" R "); 
-  // Serial.println(speedr); 
+  Serial.print(exp_speedl);
+  Serial.print(" R ");
+  // Serial.println(speedr);
   float exp_speedr = expDrive(speedr);
-  Serial.println(exp_speedr); 
+  Serial.println(exp_speedr);
   Serial.print("Pivot value: ");
-  // Serial.println(pivot); 
+  // Serial.println(pivot);
   float exp_pivot = expDrive(pivot);
   Serial.println(exp_pivot);
-  Serial.print("Drive mode: "); 
-  Serial.print(buff.charAt(14 + frameshift) == '1'); 
-  Serial.println(driveMode); 
+  Serial.print("Drive mode: ");
+  Serial.print(buff.charAt(14 + frameshift) == '1');
+  Serial.println(driveMode);
 
   if(driveMode) {
-    Serial.println("going forward"); 
+    Serial.println("going forward");
     forward(exp_speedl, exp_speedr);
   }
   else {
-    Serial.println("Pivoting left"); 
+    Serial.println("Pivoting left");
     doPivot(-exp_pivot);
   }
 }
@@ -178,6 +214,6 @@ void loop() {
   else if(baseClient) {
     processData(&baseClient, &baseConn);
   }
-  delay(10); 
+  delay(10);
 
 }
