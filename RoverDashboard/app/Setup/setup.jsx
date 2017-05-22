@@ -4,6 +4,7 @@ import _ from 'lodash'
 // for the playstation gamepads, use 1, 0 respectively.
 // for the big joystick, use 1, 5.
 const AXIS_FB = 1; // which axes control the gamepad
+const AXIS_LR = 0;
 const AXIS_PIVOT = 0;
 
 let state; // save state on dismount
@@ -103,6 +104,7 @@ export default class Setup extends React.Component {
       }
 
       let fbSpeed = Math.floor(gamepads[driveGamepad].axes[AXIS_FB] * -100)
+      let lrSpeed = Math.floor(gamepads[driveGamepad].axes[AXIS_LR] * 100)
       let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[AXIS_PIVOT] * 100)
 
       if(gamepads[driveGamepad].buttons[8].pressed) {
@@ -111,20 +113,95 @@ export default class Setup extends React.Component {
           method: 'put'
         })
       }
-      else if(Math.abs(fbSpeed) < 10 && Math.abs(pivotSpeed) < 10) {
+      
+      else if(gamepads[driveGamepad].buttons[1].pressed || (Math.abs(fbSpeed) < 10 && Math.abs(pivotSpeed) < 10 && Math.abs(lrSpeed) < 10)){
+        //Stoping mode
         fetch(`http://${ServerAddress}:8080/drive/stop`, {
           method: 'put'
         })
       }
-      else if(Math.abs(fbSpeed) > Math.abs(pivotSpeed)) {
-        fetch("http://"+ServerAddress+":8080/drive/speed/"+fbSpeed+"/",{
-          method: 'put'
-        })
-      }
-      else {
+
+      
+      else if(gamepads[driveGamepad].buttons[0].pressed){
+        //Pivoting mode
         fetch("http://"+ServerAddress+":8080/drive/pivot/"+pivotSpeed+"/", {
           method: 'put'
         })
+      }
+      
+
+      else {
+        //Driving mode
+        if(lrSpeed > 10 && fbSpeed > 10){
+          //Steering forward/right
+          if(fbSpeed >= lrSpeed){
+            let lSpeed = fbSpeed;
+            let rSpeed = fbSpeed - lrSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+          else{
+            let lSpeed = lrSpeed;
+            let rSpeed = -100 + fbSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+        }
+        else if(lrSpeed > 10 && fbSpeed < 10){
+          //Steering backwards right
+          if(-fbSpeed >= lrSpeed){
+            let lSpeed = fbSpeed;
+            let rSpeed = fbSpeed + lrSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+          else{
+            let lSpeed = -lrSpeed;
+            let rSpeed = -100 - fbSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+        }
+        else if(lrSpeed < 10 && fbSpeed < 10){
+          //Steering backwards left
+          if(-fbSpeed >= -lrSpeed){
+            let lSpeed = fbSpeed - lrSpeed;
+            let rSpeed = fbSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+          else{
+            let lSpeed = 100 + fbSpeed;
+            let rSpeed = lrSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+          
+        }
+        else if(lrSpeed < 10 && fbSpeed > 10){
+          //Steering forward left
+          if(fbSpeed >= -lrSpeed){
+            let lSpeed = fbSpeed + lrSpeed;
+            let rSpeed = fbSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+          else{
+            let lSpeed = -100 + fbSpeed;
+            let rSpeed = -lrSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+        }
+        
       }
     }, 50)
   }

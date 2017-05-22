@@ -177,29 +177,29 @@ void processData(EthernetClient * client, EthernetServer * server){
   int pivot = buff.substring(10 + frameshift, 14 + frameshift).toInt();
   boolean driveMode = (buff.charAt(14 + frameshift) == '1');
 
-  Serial.print("Speed values: L ");
+  //Serial.print("Speed values: L ");
   // Serial.print(speedl); raw speed
   float exp_speedl = expDrive(speedl);
-  Serial.print(exp_speedl);
-  Serial.print(" R ");
+  //Serial.print(exp_speedl);
+  //Serial.print(" R ");
   // Serial.println(speedr);
   float exp_speedr = expDrive(speedr);
-  Serial.println(exp_speedr);
-  Serial.print("Pivot value: ");
+  //Serial.println(exp_speedr);
+  //Serial.print("Pivot value: ");
   // Serial.println(pivot);
   float exp_pivot = expDrive(pivot);
-  Serial.println(exp_pivot);
-  Serial.print("Drive mode: ");
-  Serial.print(buff.charAt(14 + frameshift) == '1');
-  Serial.println(driveMode);
+  //Serial.println(exp_pivot);
+  //Serial.print("Drive mode: ");
+  //Serial.print(buff.charAt(14 + frameshift) == '1');
+  //Serial.println(driveMode);
 
   if(driveMode) {
-    Serial.println("going forward");
-    forward(exp_speedl, exp_speedr);
+    //Serial.println("going forward");
+    forward(-exp_speedl, -exp_speedr);
   }
   else {
-    Serial.println("Pivoting left");
-    doPivot(-exp_pivot);
+    //Serial.println("Pivoting left");
+    doPivot(exp_pivot);
   }
 }
 
