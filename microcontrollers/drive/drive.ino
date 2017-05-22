@@ -128,80 +128,45 @@ void processData(EthernetClient * client, EthernetServer * server){
       buff += thisChar;
   }
 
-  if(buff.length() != 15) {
+  if(buff.length() % 15 != 0) {
     Serial.print("bad buffer: ");
+    Serial.print(buff.length()); 
   }
-
   Serial.println(buff);
+  int frameshift = buff.length() - 15; // if we have more than one buffer, take the last one
   
-  int speedl = buff.substring(0, 5).toInt();
-  int speedr = buff.substring(5, 10).toInt();
-  int pivot = buff.substring(10, 14).toInt();
-  boolean driveMode = buff.charAt(14) == '1';
+  int speedl = buff.substring(0 + frameshift, 5 + frameshift).toInt();
+  int speedr = buff.substring(5 + frameshift, 10 + frameshift).toInt();
+  int pivot = buff.substring(10 + frameshift, 14 + frameshift).toInt();
+  boolean driveMode = (buff.charAt(14 + frameshift) == '1');
   
-  Serial.println("Speed values");
-  Serial.println(speedl); 
+  Serial.print("Speed values: L ");
+  // Serial.print(speedl); raw speed
   float exp_speedl = expDrive(speedl);
-  Serial.println(exp_speedl); 
-  Serial.println(speedr); 
+  Serial.print(exp_speedl); 
+  Serial.print(" R "); 
+  // Serial.println(speedr); 
   float exp_speedr = expDrive(speedr);
   Serial.println(exp_speedr); 
-  Serial.println("Pivot value");
-  Serial.println(pivot); 
+  Serial.print("Pivot value: ");
+  // Serial.println(pivot); 
   float exp_pivot = expDrive(pivot);
   Serial.println(exp_pivot);
+  Serial.print("Drive mode: "); 
+  Serial.print(buff.charAt(14 + frameshift) == '1'); 
+  Serial.println(driveMode); 
 
   if(driveMode) {
     Serial.println("going forward"); 
     forward(exp_speedl, exp_speedr);
   }
-  else if (!driveMode) {
+  else {
     Serial.println("Pivoting left"); 
     doPivot(-exp_pivot);
   }
 }
 
 void loop() {
-  /*
-  Serial.println(speedf); 
-  Serial.println(speedp); 
-  if (speedf<255){
-    speedl = speedf;
-    speedr = speedf;
-    driveMode = true;
-    speedf++;
-  }
-  if (speedf>=255){
-    delay(3000);
-    driveMode = false;
-    pivot = speedp;
-    speedp++;
-  }
-
-  if (speedp > 255){
-    stop();
-  }
-  Serial.println("Speed values");
-  Serial.println(speedl); 
-  float exp_speedl = expDrive(speedl);
-  Serial.println(exp_speedl); 
-  Serial.println(speedr); 
-  float exp_speedr = expDrive(speedr);
-  Serial.println(exp_speedr); 
-  Serial.println("Pivot value");
-  Serial.println(pivot); 
-  float exp_pivot = expDrive(pivot);
-  Serial.println(exp_pivot);
-  
-  if(driveMode) {
-    Serial.println("going forward"); 
-    forward(exp_speedl, exp_speedr);
-  }
-  else if (!driveMode) {
-    Serial.println("Pivoting left"); 
-    doPivot(-exp_pivot);
-  }
-  */
     // wait for a new client:
   EthernetClient baseClient = baseConn.available();
   EthernetClient autoSysClient = autoSysConn.available();

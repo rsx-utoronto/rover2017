@@ -88,7 +88,7 @@ function init(model, config) {
       res.json(model.drive);
     });
 
-    connectViaTCP = function() {
+    let connectViaTCP = function() {
       if (client)
           client.destroy(); // reset the connection if applicable
 
@@ -99,7 +99,7 @@ function init(model, config) {
       enableClientListeners();
     }
 
-    enableClientListeners = function(){
+    let enableClientListeners = function(){
       //handling ETIMEDOUT error
       client.on('error', (e) => {
           console.log(e.code);
@@ -116,7 +116,7 @@ function init(model, config) {
     }
 
     // send the current state of the rover over tcp
-    sendState = function() {
+    let sendState = function() {
         if (client && client.writable) {
             client.write(`${_.padStart(model.drive.speed[0], 5)}${_.padStart(model.drive.speed[1], 5)}${_.padStart(model.drive.pivot, 4)}${_.toNumber(model.drive.drive_mode)}`);
         }

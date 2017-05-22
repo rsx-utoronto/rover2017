@@ -1,5 +1,6 @@
 var express = require('express');
 var _ = require('lodash');
+var net = require('net');
 
 const sensorNames = ['humidity', 'outer_temp', 'gas', 'sens1', 'sens2', 'sens3', 'sens4', 'sens5', 'sens6'];
 var client;
@@ -27,7 +28,7 @@ function init(model, config) {
       res.json(model.science);
     });
 
-    connectViaTCP = function() {
+    let connectViaTCP = function() {
       if (client)
           client.destroy(); // reset the connection if applicable
 
@@ -38,7 +39,7 @@ function init(model, config) {
       enableClientListeners();
     }
 
-    enableClientListeners = function(){
+    let enableClientListeners = function(){
       //handling ETIMEDOUT error
       client.on('error', (e) => {
           console.log(e.code);
@@ -55,7 +56,7 @@ function init(model, config) {
     }
 
     // send the current state of the rover over tcp
-    sendState = function() {
+    let sendState = function() {
         if (client && client.writable) {
         	client.write(`${model.science.carousel}${model.science.drill}`);
         }
