@@ -44,3 +44,11 @@ bundle.js
 
 # python
 .py[cod]
+
+# more binaries
+*.woff
+*.woff2
+*.svg
+*.png
+*.ttf
+*.eot

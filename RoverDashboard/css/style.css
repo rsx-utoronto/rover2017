@@ -48,3 +48,8 @@ body {
 	background-image: url('mars.jpg');
 	background-position: center;
 }*/
+
+
+.hidden {
+	display: none !important;
+}

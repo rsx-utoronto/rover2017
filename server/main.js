@@ -3,7 +3,6 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var program = require('commander').usage('node main.js [options]')
     .option('-v, --verbose', 'Enable verbose debugging')
-    .option('-g, --gps', 'Enable GPS')
     .parse(process.argv)
 var fs = Promise.promisifyAll(require('fs'));
 var cors = require('cors');
@@ -63,11 +62,11 @@ filePaths.reduce(function(promise, path) {
     .use('/arm/', armServer.init(model, config))
     .use('/science/', scienceServer.init(model, config))
     .use('/aux/', auxServer.init(model, config))
+    .use('/gps/', gpsServer.init(model, config))
     .use(logger)
-
-    if (program.gps)
-        app.use('/gps/', gpsServer.init(model, config));
-
+    .get('/', (req, res) => {
+        res.json(model);
+    })
 
     io.on('connection', function(socket) {
         console.log('a user connected');
