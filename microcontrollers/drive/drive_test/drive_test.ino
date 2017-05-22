@@ -40,7 +40,7 @@ int speedp = -255;
 const int max_speed = 128;
 const int min_speed = 50;
 const int joyDead = 8; //Range of joystick movement that is accidental
-const int joy_max = 255;
+const int joy_max = 100;
 float drive_exp = 1.4;  // Exponential speed (1= linear, 2= squared)
 
 void setup() {
@@ -139,7 +139,7 @@ void processData(EthernetClient * client, EthernetServer * server){
   int pivot = buff.substring(10, 14).toInt();
   boolean driveMode = buff.charAt(14) == '1';
   
-  Serial.println("Speed values");
+  Serial.println("Nominal Speed values");
   Serial.println(speedl); 
   float exp_speedl = expDrive(speedl);
   Serial.println(exp_speedl); 
@@ -156,7 +156,7 @@ void processData(EthernetClient * client, EthernetServer * server){
     forward(exp_speedl, exp_speedr);
   }
   else if (!driveMode) {
-    Serial.println("Pivoting left"); 
+    Serial.println("Pivoting"); 
     doPivot(-exp_pivot);
   }
 }

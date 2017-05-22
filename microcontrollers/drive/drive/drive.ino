@@ -149,6 +149,16 @@ void processData(EthernetClient * client, EthernetServer * server){
   exp_speedr = expDrive(speedr);
   exp_pivot = expDrive(pivot);
 
+  if(speedl == 0){
+    exp_speedl = 0;
+  }
+  if(speedr == 0){
+    exp_speedr = 0;
+  }
+  if(pivot == 0){
+    exp_pivot = 0;
+  }
+
   if(driveMode) {
     forward(exp_speedl, exp_speedr);
   }
