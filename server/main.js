@@ -64,6 +64,9 @@ filePaths.reduce(function(promise, path) {
     .use('/aux/', auxServer.init(model, config))
     .use('/gps/', gpsServer.init(model, config))
     .use(logger)
+    .get('/', (req, res) => {
+        res.json(model);
+    })
 
     io.on('connection', function(socket) {
         console.log('a user connected');
