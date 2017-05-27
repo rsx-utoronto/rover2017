@@ -346,12 +346,15 @@ def getJointAngles():
     q5Steps = 5493
     q6Steps = 5493
 
-    # get values from serial
+    # get values
     
     
     return qVect
     
 
+def getOperationMode():
+    return None
+    
 
 def manual():
     # get the direction value to move in
@@ -507,7 +510,7 @@ def fullIK():
     #print(joystickDirection)
     # get the current joint angles of the arm
     #jointAngles = getJointAngles() # TODO TEMPORARY REPLACED
-    global savedQ6 # needed specifically because we want to ignore roll of the end effector in IK
+    #global savedQ6 # needed specifically because we want to ignore roll of the end effector in IK
     global savedJointAngles
     jointAngles = copy.deepcopy(savedJointAngles)
     #print("Current joint angles: {}".format(jointAngles))
@@ -567,18 +570,23 @@ def fullIK():
         #savedQ6 += uq6 # needed specifically because we want to ignore roll of the end effector but being able to set end effector how necessary
         jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
         #print("Updated joint angles: {}".format(jointAngles))
-        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        
         #jointAngles[5] = 0
         savedJointAngles = copy.deepcopy(jointAngles)
-        visualizeArm(jointAngles)
+        
+        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        
+        visualizeArm(savedJointAngles)
         print(savedJointAngles)
     except:
         print("Exception encountered")
         jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
         #print("Updated joint angles: {}".format(jointAngles))
-        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         savedJointAngles = copy.deepcopy(jointAngles)
-        visualizeArm(jointAngles)
+        
+        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        
+        visualizeArm(savedJointAngles)
         print(savedJointAngles)
         
 
@@ -586,16 +594,20 @@ def fullIK():
 def main():
     # TODO GET THE MODE OF OPERATION
     # modes: '1'-manual, '2'-positional IK (first 3 joints), '3'-full IK
-    modeOfOperation = 3#GET THE MODE OF OPERATION FROM SOMEWHERE
+    
+    modeOfOperation = 3#getOperationMode()#GET THE MODE OF OPERATION FROM SOMEWHERE
     if modeOfOperation == 1:
         manual()
     elif modeOfOperation == 2:
         positionalIK()
     elif modeOfOperation == 3:
         fullIK()
+        
     # frequency in Hz
     frequency = 100
-    time.sleep(1/frequency)
+    timeDelay =  1.0/frequency
+    #print(timeDelay)
+    time.sleep(timeDelay)
 
     
 
