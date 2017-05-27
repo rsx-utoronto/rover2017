@@ -3,6 +3,7 @@ var _ = require('lodash');
 var Promise = require('bluebird');
 var program = require('commander').usage('node main.js [options]')
     .option('-v, --verbose', 'Enable verbose debugging')
+    .option('-l, --lidar', 'Enable lidar')
     .parse(process.argv)
 var fs = Promise.promisifyAll(require('fs'));
 var cors = require('cors');
@@ -16,10 +17,7 @@ var armServer = require('./arm_server')
 var scienceServer = require('./science_server');
 var auxServer = require('./aux_server');
 var gpsServer = require('./gps_server');
-
-if (program.armArduino || program.auxArduino || program.scienceArduino) {
-    console.warn("Serial connections have not all been implemented yet :(")
-}
+var lidarServer = require('./lidar_server')
 
 let model = {
     drive: {},
@@ -38,7 +36,7 @@ filePaths.reduce(function(promise, path) {
     });
 }, Promise.reject()).then(function([configFile, filename]) {
     console.log(`-> loaded config file from ${filename}`);
-    config = _.assignIn(JSON.parse(configFile), program);
+    config = _.assignIn(JSON.parse(configFile), program); // all the command line flags are available through config
 
     let logger = function(req, res, next) {
         if (program.verbose)
@@ -63,6 +61,7 @@ filePaths.reduce(function(promise, path) {
     .use('/science/', scienceServer.init(model, config))
     .use('/aux/', auxServer.init(model, config))
     .use('/gps/', gpsServer.init(model, config))
+    .use('/lidar/', lidarServer.init(model, config))
     .use(logger)
     .get('/', (req, res) => {
         res.json(model);

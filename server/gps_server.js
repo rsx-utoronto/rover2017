@@ -92,8 +92,11 @@ function init(model, config) {
 	phoneURL = config.phone_url;
 	fetch(`${phoneURL}/settings/gps_active?set=on`)
 	.then(response => {
-		if (response.ok)
+		if (response.ok){
 			setInterval(() => update(model), 1000);
+			console.log(`-> gps server started at ${phoneURL}`);
+		}
+		throw Error('gps response not okay')
 	})
 	.catch(err => console.error('Could not start the gps sensors'));
 
@@ -117,8 +120,7 @@ function init(model, config) {
 			console.log("Updating GPS coordinates: ", model.gps);
 		res.json(model.gps);
 	})
-
-	console.log(`-> gps server started at ${phoneURL}`);
+	
 	return router;
 }
 
