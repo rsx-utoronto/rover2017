@@ -1,38 +1,47 @@
 import React from 'react'
 import _ from 'lodash'
 
+// for the playstation gamepads, use 1, 0 respectively.
+// for the big joystick, use 1, 5.
+const AXIS_FB = 1; // which axes control the gamepad
+const AXIS_LR = 0;
+const AXIS_PIVOT = 0;
+
+let state; // save state on dismount
+let interval; // handles drive
+
 export default class Setup extends React.Component {
   constructor(props) {
     super(props)
 
-    var joystickMapping = _.map(navigator.getGamepads(), () => 'n/a') // {joystick: system} mapping.
+    this.state = state ? state : {
+      joystickMapping: _.map(navigator.getGamepads(), () => 'n/a'), // {joystick: system} mapping.
+      joystickPositions: navigator.getGamepads(),
+      interval: undefined
+    };
 
-    this.state = {
-      joystickMapping: joystickMapping,
-      joystickPositions: navigator.getGamepads()
-    }
+    this.joystickSystems = ['drive', 'arm'];
 
-    this.joystickSystems = ['drive', 'arm']
-
-    this.gamepadRow = this.gamepadRow.bind(this)
-    this.bindGamepad = this.bindGamepad.bind(this)
-    this.updateDriveGamepadPoller = this.updateDriveGamepadPoller.bind(this)
-    this.summarizeGamepad = this.summarizeGamepad.bind(this)
-    this.updateJoystickPosition = this.updateJoystickPosition.bind(this)
-
+    this.componentDidMount = this.componentDidMount.bind(this);
+    this.gamepadRow = this.gamepadRow.bind(this);
+    this.bindGamepad = this.bindGamepad.bind(this);
+    this.updateDriveGamepadPoller = this.updateDriveGamepadPoller.bind(this);
+    this.summarizeGamepad = this.summarizeGamepad.bind(this);
+    this.updateJoystickPosition = this.updateJoystickPosition.bind(this);
   }
 
   componentDidMount() {
     // update the ui element to see joystick positions
-    this.interval = setInterval(() => this.updateJoystickPosition(), 100)
+    this.interval = setInterval(() => this.updateJoystickPosition(), 100);
   }
 
   componentWillUnmount() {
-		clearInterval(this.interval)
+    state = this.state;
+    clearInterval(this.interval);
 	}
 
   updateJoystickPosition() {
-    this.setState({joystickPositions: navigator.getGamepads()})
+    this.setState({joystickPositions: navigator.getGamepads()});
   }
 
   bindGamepad(index, system) {
@@ -53,8 +62,8 @@ export default class Setup extends React.Component {
 
     let gp = this.state.joystickPositions[index]
     return <div>
-      forward: {gp.axes[1]} <br/>
-      pivot: {gp.axes[5]}
+      forward: {gp.axes[AXIS_FB].toFixed(4)} <br/>
+      pivot: {gp.axes[AXIS_PIVOT].toFixed(4)}
     </div>
   }
 
@@ -67,13 +76,13 @@ export default class Setup extends React.Component {
         </td>
         <td>
           <div className='dropdown'>
-            <button data-toggle='dropdown'>
+            <button className='btn btn-sm' data-toggle='dropdown'>
               {this.state.joystickMapping[index]}
               <span className='caret'> </span>
             </button>
             <ul className='dropdown-menu'>
               {this.joystickSystems.map((sys) => (
-                <li key={sys} onClick={() => this.bindGamepad(index, sys)}> {sys} </li>
+                <li key={sys} onClick={() => this.bindGamepad(index, sys)}> <a> {sys} </a> </li>
               ))}
             </ul>
           </div>
@@ -83,40 +92,116 @@ export default class Setup extends React.Component {
   }
 
   updateDriveGamepadPoller() {
-    let driveGamepad = this.state.joystickMapping.indexOf('drive')
-    if (driveGamepad === -1)  // nothing listening to drive
-      return
-    let gamepads = navigator.getGamepads()
-    if (!gamepads[driveGamepad]) {
-      console.error(`No game pad connected to port ${driveGamepad}`)
-      return
-    }
+    clearInterval(interval);
+    interval = setInterval(() => {
+      let driveGamepad = this.state.joystickMapping.indexOf('drive');
+      if (driveGamepad === -1)  // nothing listening to drive
+        return
+      let gamepads = navigator.getGamepads()
+      if (!gamepads[driveGamepad]) {
+        console.error(`No game pad connected to port ${driveGamepad}`)
+        return
+      }
 
-    clearInterval(this.interval)
-    this.interval = setInterval(() => {
-      let fbSpeed = Math.floor(gamepads[driveGamepad].axes[1] * -100)
-      let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[5] * 100)
+      let fbSpeed = Math.floor(gamepads[driveGamepad].axes[AXIS_FB] * -100)
+      let lrSpeed = Math.floor(gamepads[driveGamepad].axes[AXIS_LR] * 100)
+      let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[AXIS_PIVOT] * 100)
 
-      /* if(gamepads[driveGamepad].buttons[8]) {
+      if(gamepads[driveGamepad].buttons[8].pressed) {
         console.log("ludicrous mode")
         fetch(`http://${ServerAddress}:8080/drive/speed/255`, {
           method: 'put'
         })
       }
-      else */ if(Math.abs(fbSpeed) < 10 && Math.abs(pivotSpeed) < 10) {
+      
+      else if(gamepads[driveGamepad].buttons[1].pressed || (Math.abs(fbSpeed) < 10 && Math.abs(pivotSpeed) < 10 && Math.abs(lrSpeed) < 10)){
+        //Stoping mode
         fetch(`http://${ServerAddress}:8080/drive/stop`, {
           method: 'put'
         })
       }
-      else if(Math.abs(fbSpeed) > Math.abs(pivotSpeed)) {
-        fetch("http://"+ServerAddress+":8080/drive/speed/"+fbSpeed+"/",{
-          method: 'put'
-        })
-      }
-      else {
+
+      
+      else if(gamepads[driveGamepad].buttons[0].pressed){
+        //Pivoting mode
         fetch("http://"+ServerAddress+":8080/drive/pivot/"+pivotSpeed+"/", {
           method: 'put'
         })
+      }
+      
+
+      else {
+        //Driving mode
+        if(lrSpeed > 10 && fbSpeed > 10){
+          //Steering forward/right
+          if(fbSpeed >= lrSpeed){
+            let lSpeed = fbSpeed;
+            let rSpeed = fbSpeed - lrSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+          else{
+            let lSpeed = lrSpeed;
+            let rSpeed = -100 + fbSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+        }
+        else if(lrSpeed > 10 && fbSpeed < 10){
+          //Steering backwards right
+          if(-fbSpeed >= lrSpeed){
+            let lSpeed = fbSpeed;
+            let rSpeed = fbSpeed + lrSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+          else{
+            let lSpeed = -lrSpeed;
+            let rSpeed = -100 - fbSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+        }
+        else if(lrSpeed < 10 && fbSpeed < 10){
+          //Steering backwards left
+          if(-fbSpeed >= -lrSpeed){
+            let lSpeed = fbSpeed - lrSpeed;
+            let rSpeed = fbSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+          else{
+            let lSpeed = 100 + fbSpeed;
+            let rSpeed = lrSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+          
+        }
+        else if(lrSpeed < 10 && fbSpeed > 10){
+          //Steering forward left
+          if(fbSpeed >= -lrSpeed){
+            let lSpeed = fbSpeed + lrSpeed;
+            let rSpeed = fbSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+          else{
+            let lSpeed = -100 + fbSpeed;
+            let rSpeed = -lrSpeed;
+            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+            method: 'put'
+            })
+          }
+        }
+        
       }
     }, 50)
   }

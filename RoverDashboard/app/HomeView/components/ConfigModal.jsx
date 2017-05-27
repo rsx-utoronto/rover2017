@@ -10,8 +10,8 @@ export default class ConfigModal extends React.Component {
       showModal: this.props.showModal
     }
 
-    this.show = this.show.bind(this)
-    this.close = this.close.bind(this)
+    this.show = this.show.bind(this);
+    this.close = this.close.bind(this);
   }
 
   show() {
@@ -24,7 +24,6 @@ export default class ConfigModal extends React.Component {
       {showModal: false}
     )
   }
-
 
   render() {
     return(

@@ -1,5 +1,4 @@
 var express = require('express');
-var fetch = require('node-fetch');
 var _ = require('lodash');
 var net = require('net');
 
@@ -83,26 +82,13 @@ function init(model, config) {
       res.json(model.drive);
     });
 
-    // start an http connection with the arduino
-    router.get('/ethernet', (req, res) => {
-        fetch('http://192.168.0.177').then((response) => {
-            if (response.ok) {
-                console.log('Get Ethernet');
-                res.json(response);
-            }
-            res.json({error: "ethernet request failed"});
-        }).catch(function(err) {
-            console.log('error', err);
-        });
-    });
-
     // start the tcp connection
     router.get('/tcp', (req, res) => {
       connectViaTCP();
       res.json(model.drive);
     });
 
-    connectViaTCP = function() {
+    let connectViaTCP = function() {
       if (client)
           client.destroy(); // reset the connection if applicable
 
@@ -111,10 +97,9 @@ function init(model, config) {
           console.log('--> connected to tcp on drive arduino');
       });
       enableClientListeners();
-
     }
 
-    enableClientListeners = function(){
+    let enableClientListeners = function(){
       //handling ETIMEDOUT error
       client.on('error', (e) => {
           console.log(e.code);
@@ -125,18 +110,18 @@ function init(model, config) {
       });
 
       client.on('data', function(data) {
-          console.log('received data from client');
+          // drive arduino never sends data back.
+          console.log('received drive data from client');
       });
     }
 
-
     // send the current state of the rover over tcp
-    sendState = function() {
+    let sendState = function() {
         if (client && client.writable) {
             client.write(`${_.padStart(model.drive.speed[0], 5)}${_.padStart(model.drive.speed[1], 5)}${_.padStart(model.drive.pivot, 4)}${_.toNumber(model.drive.drive_mode)}`);
         }
     }
-    setInterval(sendState, 200);
+    setInterval(sendState, 100);
 
     console.log('-> drive server started');
     return router;

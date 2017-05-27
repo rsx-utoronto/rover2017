@@ -11,6 +11,7 @@ Navigate to the folder where you've installed everything
 - ` $ npm install -g http-server `
 - ` $ npm install -g webpack `
 - ` $ webpack ` Compile the front-end
+Can also use `webpack --watch & http-server -p 3000` for hot reload
 
 ##### Running Front-end
 - ` $ cd RoverDashboard `
@@ -24,6 +25,7 @@ Navigate to the folder where you've installed everything
 In a new window
 - ` $ cd server `
 - ` $ node main.js # runs the server `
+Can also use `nodemon main.js` for hot reloading.
 
 ### Starting Drive
 - Connect computer to the router

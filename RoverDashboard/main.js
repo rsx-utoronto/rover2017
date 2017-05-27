@@ -11,7 +11,6 @@ import './css/style.css'
 import './css/c3.css'
 
 require('bootstrap')
-require('./app/gamepad.js')
 import React from 'react'
 import ReactDOM from 'react-dom'
 import MainView from './app/MainView.jsx'
