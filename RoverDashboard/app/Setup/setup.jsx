@@ -4,7 +4,7 @@ import _ from 'lodash'
 // for the playstation gamepads, use 1, 0 respectively.
 // for the big joystick, use 1, 5.
 const AXIS_FB = 1; // which axes control the gamepad
-const AXIS_LR = 0;
+const AXIS_LR = 5;
 const AXIS_PIVOT = 0;
 
 let state; // save state on dismount

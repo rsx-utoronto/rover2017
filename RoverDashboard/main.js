@@ -2,7 +2,7 @@ var $ = require('jquery')
 window.jQuery = $
 window.$ = $
 
-// window.ServerAddress = "100.65.105.42"
+// window.ServerAddress = "192.168.0.106"
 window.ServerAddress = "localhost"
 
 import 'bootstrap/dist/css/bootstrap.css'
