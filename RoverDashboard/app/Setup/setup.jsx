@@ -5,7 +5,7 @@ import _ from 'lodash'
 // for the big joystick, use 1, 5.
 const AXIS_FB = 1; // which axes control the gamepad
 const AXIS_LR = 0;
-const AXIS_PIVOT = 0;
+const AXIS_PIVOT = 5;
 
 let state; // save state on dismount
 let interval; // handles drive
@@ -114,7 +114,7 @@ export default class Setup extends React.Component {
         })
       }
       
-      else if(gamepads[driveGamepad].buttons[1].pressed || (Math.abs(fbSpeed) < 10 && Math.abs(pivotSpeed) < 10 && Math.abs(lrSpeed) < 10)){
+      else if(gamepads[driveGamepad].buttons[0].pressed || (Math.abs(fbSpeed) < 20 && Math.abs(pivotSpeed) < 20 && Math.abs(lrSpeed) < 20)){
         //Stoping mode
         fetch(`http://${ServerAddress}:8080/drive/stop`, {
           method: 'put'
@@ -122,7 +122,7 @@ export default class Setup extends React.Component {
       }
 
       
-      else if(gamepads[driveGamepad].buttons[0].pressed){
+      else if(Math.abs(pivotSpeed)>20){
         //Pivoting mode
         fetch("http://"+ServerAddress+":8080/drive/pivot/"+pivotSpeed+"/", {
           method: 'put'

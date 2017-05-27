@@ -41,9 +41,9 @@ int speedf = -255;
 int speedp = -255;
 const int max_speed = 128;
 const int min_speed = 50;
-const int joyDead = 8; //Range of joystick movement that is accidental
+const int joyDead = 0; //Range of joystick movement that is accidental
 const int joy_max = 100;
-float drive_exp = 1.4;  // Exponential speed (1= linear, 2= squared)
+float drive_exp = 2;  // Exponential speed (1= linear, 2= squared)
 
 void setup() {
   //Set pins as outputs
