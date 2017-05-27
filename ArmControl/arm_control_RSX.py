@@ -9,6 +9,7 @@ import numpy as np
 #    from numpy import *
 import pygame
 import math
+import socket
 
 
 def homogenousTransform(dhVector):
@@ -161,7 +162,6 @@ def inverseKinematicsPositional(dhTable, homTransMatrix):
     return updatedDHTable
 
 
-#TODO IMPLEMENT
 def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVector):
     updatedHomTransMatrix = copy.deepcopy( homTransMatrix )
     # update translation part
@@ -206,11 +206,9 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
     H06[1][3] += translationVector[1]
     H06[2][3] += translationVector[2]
     
-    
     return H06
 
 
-#TODO IMPLEMENT
 def updateHomTransMatrixPositional(homTransMatrix, DHTable, translationVector, rotationVector):
     updatedHomTransMatrix = copy.deepcopy( homTransMatrix )
     # update translation part
@@ -257,7 +255,66 @@ def setupVisualEnv():
         
     robot.SetActiveDOFValues(setupAngles)
     #print( robot.GetActiveDOFValues() )
+
+
+# TODO IMPLEMENT
+def sendAngleValues(qVect):
+    global s
     
+    arduino1IP = '127.0.0.1'
+    arduino1Port = 5050
+    arduino2IP = '127.0.0.1'
+    arduino2Port = 5050
+
+    # stepper steps per 2*pi rotation
+    q1Steps = 21973
+    q2Steps = 191102
+    q3Steps = 6484
+    q4Steps = 5493
+    q5Steps = 5493
+    q6Steps = 5493
+    # gripperRange = 0 - 1024
+    # generate messages from qVect
+    q1String = str( '%10d' %(int(qVect[0] * q1Steps)) ).replace(' ','0')
+    q2String = str( '%10d' %(int(qVect[1] * q2Steps)) ).replace(' ','0')
+    q3String = str( '%10d' %(int(qVect[2] * q3Steps)) ).replace(' ','0')
+    q4String = str( '%10d' %(int(qVect[3] * q4Steps)) ).replace(' ','0')
+    q5String = str( '%10d' %(int(qVect[4] * q5Steps)) ).replace(' ','0')
+    q6String = str( '%10d' %(int(qVect[5] * q6Steps)) ).replace(' ','0')
+    q7String = '0000009990'
+    message1 = q1String+q2String+q3String+q4String+'p'
+    message2 = q5String+q6String+q7String+'p'
+    #print(message1)
+    #print(message2)
+
+    s.connect( (arduino1IP, arduino1Port) )
+    s.send(message1)
+
+    s.connect( (arduino2IP, arduino2Port) )
+    s.send(message2)
+
+    s.close() # ??????????? HERE OR AT THE END ??????
+
+
+    
+# TODO IMPLEMENT
+def getAngleValues():
+    global s
+
+    arduino1IP = '127.0.0.1'
+    arduino1Port = 5050
+    arduino2IP = '127.0.0.1'
+    arduino2Port = 5050
+    BUFFER_SIZE = 1024
+
+    s.connect( (arduino1IP, arduino1Port) )
+    message1 = s.recv(BUFFER_SIZE)
+    s.connect( (arduino2IP, arduino2Port) )
+    message2 = s.recv(BUFFER_SIZE)
+
+    s.close() # ????????? HERE OR AT THE END ???????
+    
+    return [message1,message2]
 
 
 def getJoystickAxes():
@@ -296,7 +353,6 @@ def getJoystickDirection():
     return directionVector
     
 
-# TODO IMPLEMENT
 def visualizeArm(jointAngles):
     copyJointAngles = copy.deepcopy(jointAngles)
     #print("Values on visualization: {}".format(copyJointAngles))
@@ -314,37 +370,15 @@ def visualizeArm(jointAngles):
 
 # TODO IMPLEMENT
 def setJointAngles(qVector):
-    # SET JOINT ANGLES
-    return
-
-
-# TODO IMPLEMENT gets them from the arm
-def getJointAngles():
-    #global currentJointAngles
-
-    #initialJointAngles = [0,0,0,0,0,0]
-    #if justStarted:
-    #    currentJointAngles = initialJointAngles
-    #    justStarted = False
-    jointAngles = [0.1,0.1,0.1,0.1,0.1,0.1] # IMPLEMENT GETTING THEM CORRECTLY
-    visualizeArm(jointAngles)
-    return jointAngles
-
-
-# TODO IMPLEMENT
-def setJointAngles(qVector):
     jointAngles = qVector
     # DO IT SOMEHOW
     visualizeArm(jointAngles)
 
+
+# TODO IMPLEMENT
 def getJointAngles():
-    # steps per 2 PI rotation for each joint
-    q1Steps = 21973
-    q2Steps = 191102
-    q3Steps = 6484
-    q4Steps = 5493
-    q5Steps = 5493
-    q6Steps = 5493
+    # stepper steps per 2 PI rotation for each joint
+    
 
     # get values
     
@@ -584,7 +618,7 @@ def fullIK():
         #print("Updated joint angles: {}".format(jointAngles))
         savedJointAngles = copy.deepcopy(jointAngles)
         
-        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!! or just do nothing
         
         visualizeArm(savedJointAngles)
         print(savedJointAngles)
@@ -623,6 +657,10 @@ if __name__ == "__main__":
     savedJointAngles = [0,0,0,0,0,0]
     setupVisualEnv()
     initializeJoystick()
+    initializeConnection()
+    global s
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
     
     
     #time.sleep(0.5)
