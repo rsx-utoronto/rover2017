@@ -23,10 +23,15 @@ function init(model, config) {
 
     // sets rover forward speed.
     router.put('/speed/:speed', (req, res) => {
+
         if(!model.drive.ebrake) {
           model.drive.speed[0] = model.drive.speed[1] = parseInt(req.params.speed);
           model.drive.drive_mode = true;
           res.json(model.drive);
+          
+          if(model.verbose) { 
+            console.log("Sending speed ", req.params.speed); 
+          }
         } else {
           res.status(500).send("EBrake Enabled")
         }
@@ -118,6 +123,7 @@ function init(model, config) {
     // send the current state of the rover over tcp
     let sendState = function() {
         if (client && client.writable) {
+
             client.write(`${_.padStart(model.drive.speed[0], 5)}${_.padStart(model.drive.speed[1], 5)}${_.padStart(model.drive.pivot, 4)}${_.toNumber(model.drive.drive_mode)}`);
         }
     }
