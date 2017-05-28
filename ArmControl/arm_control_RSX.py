@@ -462,7 +462,7 @@ def positionalIK():
     joystickDirection = getJoystickDirection()
     #print("Current joystick direction:")
     #print(joystickDirection)
-    # get the current joint angles of the arm
+    # get the current joint angles of  the arm
     #jointAngles = getJointAngles() # TODO TEMPORARY REPLACED
     global savedJointAngles
     jointAngles = copy.deepcopy(savedJointAngles) # TODO TEMPORARY REPLACEMENT?
