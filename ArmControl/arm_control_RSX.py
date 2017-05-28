@@ -302,9 +302,9 @@ def getAngleValues():
     global s
 
     arduino1IP = '127.0.0.1'
-    arduino1Port = 5050
+    arduino1Port = 6000
     arduino2IP = '127.0.0.1'
-    arduino2Port = 5050
+    arduino2Port = 6000
     BUFFER_SIZE = 1024
 
     s.connect( (arduino1IP, arduino1Port) )
