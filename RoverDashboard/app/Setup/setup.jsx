@@ -6,8 +6,8 @@ import _ from 'lodash'
 const AXIS_FB = 1; // which axes control the gamepad
 const AXIS_LR = 0;
 const AXIS_PIVOT = 5;
-const min_speed = 50;
-const max_speed = 128;
+const min_speed = 20;
+const max_speed = 100;
 const joyDead = 0;
 const joy_max = 100;
 const drive_exp = 2;

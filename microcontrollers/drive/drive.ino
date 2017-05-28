@@ -30,8 +30,8 @@ EthernetServer autoSysConn(autoSysPort);
 
 //L293D
 //Joint Motor 1
-int speedPins[] = {3, 5, 7, 9, 11, 13} ;
-int directionPins[] = {2, 26, 6, 8, 28, 12};
+int speedPins[] = {9, 11, 13, 3, 5, 7 } ;
+int directionPins[] = {8, 28, 12, 2, 26, 6 };
 
 int speedl;
 int speedr;
@@ -163,6 +163,7 @@ void processData(EthernetClient * client, EthernetServer * server){
   while (client->available() > 0) {
       // read the bytes incoming from the client:
       char thisChar = client->read();
+      
       buff += thisChar;
   }
 
