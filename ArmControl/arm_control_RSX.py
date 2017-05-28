@@ -259,12 +259,12 @@ def setupVisualEnv():
 
 # TODO IMPLEMENT
 def sendAngleValues(qVect):
-    global s
+    #global s
     
-    arduino1IP = '127.0.0.1'
-    arduino1Port = 5050
-    arduino2IP = '127.0.0.1'
-    arduino2Port = 5050
+    arduino1IP = '192.168.0.181'
+    arduino1Port = 6000
+    arduino2IP = '192.168.0.182'
+    arduino2Port = 6000
 
     # stepper steps per 2*pi rotation
     q1Steps = 21973
@@ -275,13 +275,13 @@ def sendAngleValues(qVect):
     q6Steps = 5493
     # gripperRange = 0 - 1024
     # generate messages from qVect
-    q1String = str( '%10d' %(int(qVect[0] * q1Steps)) ).replace(' ','0')
-    q2String = str( '%10d' %(int(qVect[1] * q2Steps)) ).replace(' ','0')
-    q3String = str( '%10d' %(int(qVect[2] * q3Steps)) ).replace(' ','0')
-    q4String = str( '%10d' %(int(qVect[3] * q4Steps)) ).replace(' ','0')
-    q5String = str( '%10d' %(int(qVect[4] * q5Steps)) ).replace(' ','0')
-    q6String = str( '%10d' %(int(qVect[5] * q6Steps)) ).replace(' ','0')
-    q7String = '0000009990'
+    q1String = str( '%10d' %(int(qVect[4] * q1Steps)) ).replace(' ','0')
+    q2String = str( '%10d' %(int(qVect[5] * q2Steps)) ).replace(' ','0')
+    q3String = str( '%10d' %(int(qVect[3] * q3Steps)) ).replace(' ','0')
+    q4String = str( '%10d' %(int(qVect[0] * q4Steps)) ).replace(' ','0')
+    q5String = str( '%10d' %(int(qVect[2] * q5Steps)) ).replace(' ','0')
+    q6String = str( '%10d' %(int(qVect[1] * q6Steps)) ).replace(' ','0')
+    q7String = '0000000999'
     message1 = q1String+q2String+q3String+q4String+'p'
     message2 = q5String+q6String+q7String+'p'
     #print(message1)
@@ -293,7 +293,7 @@ def sendAngleValues(qVect):
     s.connect( (arduino2IP, arduino2Port) )
     s.send(message2)
 
-    s.close() # ??????????? HERE OR AT THE END ??????
+    #s.close() # ??????????? HERE OR AT THE END ??????
 
 
     
@@ -307,12 +307,12 @@ def getAngleValues():
     arduino2Port = 6000
     BUFFER_SIZE = 1024
 
-    s.connect( (arduino1IP, arduino1Port) )
-    message1 = s.recv(BUFFER_SIZE)
-    s.connect( (arduino2IP, arduino2Port) )
-    message2 = s.recv(BUFFER_SIZE)
+    #s.connect( (arduino1IP, arduino1Port) )
+    #message1 = s.recv(BUFFER_SIZE)
+    #s.connect( (arduino2IP, arduino2Port) )
+    #message2 = s.recv(BUFFER_SIZE)
 
-    s.close() # ????????? HERE OR AT THE END ???????
+    #s.close() # ????????? HERE OR AT THE END ???????
     
     return [message1,message2]
 
@@ -659,10 +659,8 @@ if __name__ == "__main__":
     savedJointAngles = [0,0,0,0,0,0]
     setupVisualEnv()
     initializeJoystick()
-    initializeConnection()
-    global s
+    #global s
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    
     
     
     #time.sleep(0.5)
@@ -680,5 +678,8 @@ if __name__ == "__main__":
                 main()
         else:
             continue
+
+    s.close()
+    
     print("Shutting the operations down")
     
