@@ -260,12 +260,12 @@ def setupVisualEnv():
 
 # TODO IMPLEMENT
 def sendAngleValues(qVect):
-    #global s
+    global conn
 
-    serverIP = '127.0.0.1'
-    serverHttpPort = '8080'
+    #serverIP = '127.0.0.1'
+    #serverHttpPort = '8080'
     
-    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
     
     #arduino1IP = '192.168.0.181'
     #arduino1Port = 6000
@@ -281,12 +281,12 @@ def sendAngleValues(qVect):
     q6Steps = 5493
     # gripperRange = 0 - 1024
     # generate messages from qVect
-    q1String = str( int(qVect[4] * q1Steps) )#str( '%10d' %(int(qVect[4] * q1Steps)) ).replace(' ','0')
-    q2String = str( int(qVect[5] * q2Steps) )#str( '%10d' %(int(qVect[5] * q2Steps)) ).replace(' ','0')
-    q3String = str( int(qVect[3] * q3Steps) )#str( '%10d' %(int(qVect[3] * q3Steps)) ).replace(' ','0')
-    q4String = str( int(qVect[0] * q4Steps) )#str( '%10d' %(int(qVect[0] * q4Steps)) ).replace(' ','0')
-    q5String = str( int(qVect[2] * q5Steps) )#str( '%10d' %(int(qVect[2] * q5Steps)) ).replace(' ','0')
-    q6String = str( int(qVect[1] * q6Steps) )#str( '%10d' %(int(qVect[1] * q6Steps)) ).replace(' ','0')
+    q1String = str( int(qVect[4] * q5Steps) )#str( '%10d' %(int(qVect[4] * q1Steps)) ).replace(' ','0')
+    q2String = str( int(qVect[5] * q6Steps) )#str( '%10d' %(int(qVect[5] * q2Steps)) ).replace(' ','0')
+    q3String = str( int(qVect[3] * q4Steps) )#str( '%10d' %(int(qVect[3] * q3Steps)) ).replace(' ','0')
+    q4String = str( int(qVect[0] * q1Steps) )#str( '%10d' %(int(qVect[0] * q4Steps)) ).replace(' ','0')
+    q5String = str( int(qVect[2] * q3Steps) )#str( '%10d' %(int(qVect[2] * q5Steps)) ).replace(' ','0')
+    q6String = str( int(qVect[1] * q2Steps) )#str( '%10d' %(int(qVect[1] * q6Steps)) ).replace(' ','0')
     q7String = '999'
     #message1 = q1String+q2String+q3String+q4String+'p'
     #message2 = q5String+q6String+q7String+'p'
@@ -308,14 +308,7 @@ def sendAngleValues(qVect):
     data2 = r2.read()
     print data2
 
-    # conn.close() HERE OR AT THE VERY END???
-
-    #s.connect( (arduino1IP, arduino1Port) )
-    #s.send(message1)
-    #s.connect( (arduino2IP, arduino2Port) )
-    #s.send(message2)
-    #s.close() # ??????????? HERE OR AT THE END ??????
-
+    #conn.close() #HERE OR AT THE VERY END???
 
     
 # TODO IMPLEMENT
@@ -465,7 +458,10 @@ def manual():
         #print("Updated joint angles: {}".format(jointAngles))
         #print(jointAngles)
         savedJointAngles = copy.deepcopy(jointAngles)
+        
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        sendAngleValues(savedJointAngles)
+        
         visualizeArm(jointAngles)
         print(savedJointAngles)
     except:
@@ -473,7 +469,10 @@ def manual():
         jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
         #print("Updated joint angles: {}".format(jointAngles)) 
         savedJointAngles = copy.deepcopy(jointAngles)
+        
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        sendAngleValues(savedJointAngles)
+        
         visualizeArm(jointAngles)
         print(savedJointAngles)
 
@@ -544,7 +543,10 @@ def positionalIK():
         jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
         #print("Updated joint angles: {}".format(jointAngles))
         #print(jointAngles)
+        
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        sendAngleValues(savedJointAngles)
+        
         savedJointAngles = copy.deepcopy(jointAngles)
         visualizeArm(jointAngles)
         print(savedJointAngles)
@@ -552,7 +554,10 @@ def positionalIK():
         print("Exception encountered")
         jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
         #print("Updated joint angles: {}".format(jointAngles))
+        
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        sendAngleValues(savedJointAngles)
+        
         savedJointAngles = copy.deepcopy(jointAngles)
         visualizeArm(jointAngles)
         print(savedJointAngles)
@@ -652,7 +657,7 @@ def main():
     # TODO GET THE MODE OF OPERATION
     # modes: '1'-manual, '2'-positional IK (first 3 joints), '3'-full IK
     
-    modeOfOperation = 3#getOperationMode()#GET THE MODE OF OPERATION FROM SOMEWHERE
+    modeOfOperation = 2#getOperationMode()#GET THE MODE OF OPERATION FROM SOMEWHERE
     if modeOfOperation == 1:
         manual()
     elif modeOfOperation == 2:
@@ -661,7 +666,7 @@ def main():
         fullIK()
         
     # frequency in Hz
-    frequency = 100
+    frequency = 10
     timeDelay =  1.0/frequency
     #print(timeDelay)
     time.sleep(timeDelay)
@@ -682,9 +687,11 @@ if __name__ == "__main__":
     initializeJoystick()
     #global s
     #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    #global conn
-    #conn = httplib.HTTPConnection("127.0.0.1")
+    global conn
+    serverIP = '127.0.0.1'
+    serverHttpPort = '8080'
+    
+    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
     
     
     #time.sleep(0.5)
@@ -703,7 +710,7 @@ if __name__ == "__main__":
         else:
             continue
 
-    #s.close()
+    conn.close()
     
-    print("Shutting the operations down")
+    print("Shut the operations down")
     
