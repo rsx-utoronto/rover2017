@@ -609,6 +609,7 @@ def fullIK():
         savedJointAngles = copy.deepcopy(jointAngles)
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        sendAngleValues(savedJointAngles)
         
         visualizeArm(savedJointAngles)
         print(savedJointAngles)
@@ -618,7 +619,8 @@ def fullIK():
         #print("Updated joint angles: {}".format(jointAngles))
         savedJointAngles = copy.deepcopy(jointAngles)
         
-        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!! or just do nothing
+        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!! or just do nothing?
+        sendAngleValues(savedJointAngles)
         
         visualizeArm(savedJointAngles)
         print(savedJointAngles)
