@@ -159,6 +159,7 @@ float expDrive (int joyVal){
 */
 // Ethernet helper function
 void processData(EthernetClient * client, EthernetServer * server){
+  start=millis();
   String buff = "";
   while (client->available() > 0) {
       // read the bytes incoming from the client:
@@ -179,7 +180,8 @@ void processData(EthernetClient * client, EthernetServer * server){
   int speedr = buff.substring(5 + frameshift, 10 + frameshift).toInt();
   int pivot = buff.substring(10 + frameshift, 14 + frameshift).toInt();
   boolean driveMode = (buff.charAt(14 + frameshift) == '1');
-  
+  ending=millis();
+  elapsed = ending-start;
   if(driveMode) {
     forward(-speedl, -speedr);
   }
