@@ -53,18 +53,34 @@ function update(model) {
 		let batteryLevel = _.last(body.battery_level.data)[1];  // battery level of the phone
 		model.gps.battery = batteryLevel;
 
-		// Calculate the orientation of the rover in degrees from north.
-		// Calculated as a compass bearing from north. Outputs from -180 to 180. 
-		// This is calculated from the magnetometer in a similar fashion to pitch.
-		let magHist = _(body.mag.data)
+		// rot_vector is calculated with sensor fusion, prefer this
+		if (body.rot_vector) {
+			// x is pitch 
+			// y is heading 
+			let rotHist = _(body.rot_vector.data)
 						.slice(-SMOOTHING)
 						.map(x => x[1])
 						.unzip()
 						.map(_.mean)
 						.value()
-		let mag = _.zipObject(body.mag.desc, magHist);
-		let correctedMagZ = mag.Mz * Math.cos(pitchRad) + mag.My * Math.sin(pitchRad); // apply a rotation matrix about x to correct for pitch
-		model.gps.heading = toDegrees(Math.atan2(-mag.Mx, -correctedMagZ)); 
+			let rot = _.zipObject(body.rot_vector.desc.map(x => x[0]), rotHist); 
+			model.gps.heading = -720 * Math.asin(rot.y) / Math.PI; 
+			// could probably also calculate pitch, but it requires some trig. 
+		}
+		else { 
+			// Calculate the orientation of the rover in degrees from north.
+			// Calculated as a compass bearing from north. Outputs from -180 to 180. 
+			// This is calculated from the magnetometer in a similar fashion to pitch.
+			let magHist = _(body.mag.data)
+							.slice(-SMOOTHING)
+							.map(x => x[1])
+							.unzip()
+							.map(_.mean)
+							.value()
+			let mag = _.zipObject(body.mag.desc, magHist);
+			let correctedMagZ = mag.Mz * Math.cos(pitchRad) + mag.My * Math.sin(pitchRad); // apply a rotation matrix about x to correct for pitch
+			model.gps.heading = toDegrees(Math.atan2(-mag.Mx, -correctedMagZ)); 
+		}
 	})
 	.catch(err => {
 		console.log("Could not get data from sensors", err)
