@@ -465,7 +465,7 @@ def positionalIK():
     # get the current joint angles of  the arm
     #jointAngles = getJointAngles() # TODO TEMPORARY REPLACED
     global savedJointAngles
-    jointAngles = copy.deepcopy(savedJointAngles) # TODO TEMPORARY REPLACEMENT?
+    jointAngles = copy.deepcopy(savedJointAngles) # TODO TEMPORARY REPLACEMENT ?
     #print("Current joint angles: {}".format(jointAngles))
     #print(jointAngles)
     
