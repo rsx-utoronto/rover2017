@@ -6,8 +6,8 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 qVect = [ 0.1234, 5.2234, 0.3234, 0.4234, 0.5234, 0.6234 ]
 
-arduino1IP = '192.168.0.181'
-arduino1Port = 6000
+arduino1IP = '192.168.0.101'
+arduino1Port = 45
 arduino2IP = '192.168.0.182'
 arduino2Port = 6000
 

@@ -11,8 +11,8 @@ import socket
 #arduino2IP = '192.168.0.182'
 #arduino2Port = 6000
 
-TCP_IP = '172.16.92.2'
-TCP_PORT = 6000
+TCP_IP = '100.65.90.91'
+TCP_PORT = 45
 BUFFER_SIZE = 20  # Normally 1024, but we want fast response
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
