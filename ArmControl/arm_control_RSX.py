@@ -450,7 +450,7 @@ def manual():
     except:
         print("Exception encountered")
         jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
-        #print("Updated joint angles: {}".format(jointAngles))
+        #print("Updated joint angles: {}".format(jointAngles)) 
         savedJointAngles = copy.deepcopy(jointAngles)
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         visualizeArm(jointAngles)
