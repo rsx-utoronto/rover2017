@@ -5,7 +5,7 @@ import httplib
 
 qVect = [ 0.1234, 5.2234, 0.3234, 0.4234, 0.5234, 0.6234 ]
 
-serverIP = '127.0.0.1'
+serverIP = '100.64.79.183'
 serverHttpPort = '8080'
     
 conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)

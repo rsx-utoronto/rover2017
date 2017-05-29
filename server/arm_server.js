@@ -11,7 +11,12 @@ function init(model, config) {
 	}
 
 	var router = express.Router();
-	var port = new SerialPort('/dev/tty-usbserial1')
+	var port = new SerialPort('/dev/tty-usbserial1');
+	var portOpen = false; 
+
+	port.on('open', function() {
+		portOpen = true; 
+	})
 
 	// gets arm position
 	router.get('/', (req, res) => {
@@ -21,22 +26,17 @@ function init(model, config) {
 	// sets desired arm position
 	router.put('/:message', (req, res) => {
 		model.arm.desired = _.merge(model.arm.desired, req.params)
-		res.json(model.arm)
+		res.json(model.arm);
 
-		port.on('open', function() {
-  			port.write(model.arm.desired, function(err) {
-  				console.log(model.arm.desired)
-    			if (err) {
-      				return console.log('Error on write: ', err.message);
-   				}
-    			console.log('message written');
-			});
-		})
-		// open errors will be emitted as an error event 
-		port.on('error', function(err) {
-  			console.log('Error: ', err.message);
-		})
-
+		if (portOpen)
+			port.write(model.arm.desired.message, (err) => {
+				if (err) { 
+					console.error("Serial port didn't write correctly"); 
+				}
+				else { 
+					console.log("Serial port written"); 
+				}
+			})
 	})
 
 	

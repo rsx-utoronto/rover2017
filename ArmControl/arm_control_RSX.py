@@ -260,12 +260,12 @@ def setupVisualEnv():
 
 # TODO IMPLEMENT
 def sendAngleValues(qVect):
-    global conn
+    #global conn
 
-    #serverIP = '127.0.0.1'
-    #serverHttpPort = '8080'
+    serverIP = '100.64.79.183'
+    serverHttpPort = '8080'
     
-    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
     
     #arduino1IP = '192.168.0.181'
     #arduino1Port = 6000
@@ -308,7 +308,7 @@ def sendAngleValues(qVect):
     data2 = r2.read()
     print data2
 
-    #conn.close() #HERE OR AT THE VERY END???
+    conn.close() #HERE OR AT THE VERY END???
 
     
 # TODO IMPLEMENT
@@ -536,8 +536,8 @@ def positionalIK():
     uq1 = updatedDHTable[0][3]
     uq2 = updatedDHTable[1][3]
     uq3 = updatedDHTable[2][3]
-    uq4 = DHTable[3][3] + rotationVector[0]#updatedDHTable[3][3]
-    uq5 = DHTable[4][3] + rotationVector[1]#updatedDHTable[4][3]
+    uq4 = DHTable[3][3] + rotationVector[1]#updatedDHTable[3][3]
+    uq5 = DHTable[4][3] + rotationVector[0]#updatedDHTable[4][3]
     uq6 = DHTable[5][3] + rotationVector[2]#updatedDHTable[5][3]
     try:
         jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
@@ -687,11 +687,11 @@ if __name__ == "__main__":
     initializeJoystick()
     #global s
     #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    global conn
-    serverIP = '127.0.0.1'
-    serverHttpPort = '8080'
+    #global conn
+    #serverIP = '100.64.79.183'
+    #serverHttpPort = '8081'
     
-    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
     
     
     #time.sleep(0.5)
@@ -710,7 +710,7 @@ if __name__ == "__main__":
         else:
             continue
 
-    conn.close()
+    #conn.close()
     
     print("Shut the operations down")
     
