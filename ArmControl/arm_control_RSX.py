@@ -166,8 +166,8 @@ def inverseKinematicsPositional(dhTable, homTransMatrix):
 def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVector):
     updatedHomTransMatrix = copy.deepcopy( homTransMatrix )
     # update translation part
-    k = 1 # amplification coefficient translational motion
-    t = 0.05 # amplification coefficient rotational motion
+    k = 0.1 # amplification coefficient translational motion
+    t = 0.01 # amplification coefficient rotational motion
     for ind in range(3):
         translationVector[ind] = k * translationVector[ind]
         rotationVector[ind] = t * rotationVector[ind]
@@ -213,8 +213,8 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
 def updateHomTransMatrixPositional(homTransMatrix, DHTable, translationVector, rotationVector):
     updatedHomTransMatrix = copy.deepcopy( homTransMatrix )
     # update translation part
-    k = 1 # amplification coefficient translational motion
-    t = 0.05 # amplification coefficient rotational motion
+    k = 0.1 # amplification coefficient translational motion
+    t = 0.01 # amplification coefficient rotational motion
     for ind in range(3):
         translationVector[ind] = k * translationVector[ind]
         rotationVector[ind] = t * rotationVector[ind]
@@ -343,22 +343,35 @@ def getJoystickAxes():
 
 def getJoystickDirection():
     joystickValues = getJoystickAxes()
+    #print(joystickValues)
 
-    #directionVector = copy.deepcopy(joystickValues)
+    # mode for all joints being controlled at once
+    beforeDirectionVector = copy.deepcopy(joystickValues)
+    #print(beforeDirectionVector)
+    directionVector = [0,0,0,0,0,0] #beforeDirectionVector
+    index = -1
+    for thing in beforeDirectionVector:
+        index += 1
+        if abs(thing) > 0.2: # sensitivity "gap", to avoid random movements
+            directionVector[index] = thing
+    #print(directionVector)
     
+
+    # mode for only one joint at once rotation
     # determine direction
-    directionVector = [0,0,0,0,0,0]
-    storedVal = 0
-    storedInd = 0
-    ind = -1
-    for value in joystickValues:
-        ind += 1
-        if abs(value) > abs(storedVal):
-            storedVal = value
-            storedInd = ind
+    #directionVector = [0,0,0,0,0,0]
+    #storedVal = 0
+    #storedInd = 0
+    #ind = -1
+    #for value in joystickValues:
+    #    ind += 1
+    #    if abs(value) > abs(storedVal):
+    #        storedVal = value
+    #        storedInd = ind
     # introduce some "sensitivity gap" to avoid random movement
-    if abs(storedVal) > 0.2:
-        directionVector[storedInd] = storedVal
+    #if abs(storedVal) > 0.2:
+    #    directionVector[storedInd] = storedVal
+    #print(directionVector)
         
     # needed specifically to make thigs coincide with our arm
     for i in range( len(directionVector) ):
@@ -460,7 +473,7 @@ def manual():
     #print([ homTransMatrix[0][3], homTransMatrix[1][3], homTransMatrix[2][3] ])
     visualizeArm(jointAngles)
     
-    k = 0.05
+    k = 0.01
     uq1 = DHTable[0][3] + k * joystickDirection[0]#updatedDHTable[0][3]
     uq2 = DHTable[1][3] + k * joystickDirection[1]#updatedDHTable[1][3]
     uq3 = DHTable[2][3] + k * joystickDirection[2]#updatedDHTable[2][3]
@@ -559,7 +572,7 @@ def positionalIK():
         #print(jointAngles)
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        sendAngleValues(savedJointAngles)
+        #sendAngleValues(savedJointAngles)
         
         savedJointAngles = copy.deepcopy(jointAngles)
         visualizeArm(savedJointAngles)
@@ -570,7 +583,7 @@ def positionalIK():
         #print("Updated joint angles: {}".format(jointAngles))
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        sendAngleValues(savedJointAngles)
+        #sendAngleValues(savedJointAngles)
         
         savedJointAngles = copy.deepcopy(jointAngles)
         visualizeArm(savedJointAngles)
@@ -680,7 +693,7 @@ def main():
         fullIK()
         
     # frequency in Hz
-    frequency = 10
+    frequency = 100
     timeDelay =  1.0/frequency
     #print(timeDelay)
     time.sleep(timeDelay)
