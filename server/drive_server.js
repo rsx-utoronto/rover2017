@@ -11,7 +11,8 @@ function init(model, config) {
         ], // -255 to 255
         pivot: 0,
         drive_mode: true, // drive mode vs pivot mode
-        ebrake: false
+        ebrake: false,
+        connected: false
     }
 
     var router = express.Router();
@@ -94,12 +95,15 @@ function init(model, config) {
     });
 
     let connectViaTCP = function() {
-      if (client)
+      if (client) {
           client.destroy(); // reset the connection if applicable
-
+          //model.drive.connected = false; 
+      }
       console.log('--> connecting to tcp on drive arduino');
       client = net.connect(config.drive_port, config.drive_ip, () => {
           console.log('--> connected to tcp on drive arduino');
+          model.drive.connected = true;
+          //client.setTimeout(500); 
       });
       enableClientListeners();
     }
@@ -107,11 +111,13 @@ function init(model, config) {
     let enableClientListeners = function(){
       //handling ETIMEDOUT error
       client.on('error', (e) => {
-          console.log(e.code);
+          console.log("got an error", e.code);
+          model.drive.connected = false;
           if (e.code == 'ETIMEDOUT') {
               console.log('--> Unable to Connect/Disconnected from drive arduino');
               connectViaTCP();
           }
+
       });
 
       client.on('data', function(data) {
@@ -123,7 +129,6 @@ function init(model, config) {
     // send the current state of the rover over tcp
     let sendState = function() {
         if (client && client.writable) {
-
             client.write(`${_.padStart(model.drive.speed[0], 5)}${_.padStart(model.drive.speed[1], 5)}${_.padStart(model.drive.pivot, 4)}${_.toNumber(model.drive.drive_mode)}`);
         }
     }

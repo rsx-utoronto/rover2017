@@ -27,7 +27,8 @@ export default class HomeView extends React.Component {
 			drive: {
 				speed: [5,5],
 				pivot: 500,
-				drive_mode: true
+				drive_mode: true,
+				connected: false
 			},
 			aux: {
 				current: [0, 0, 0, 0, 0, 0],
@@ -119,7 +120,7 @@ export default class HomeView extends React.Component {
 				      </tr>
 				    </tbody>
 				  </Table>
-					<RoverBody pivot = {this.state.drive.pivot} drive_mode = {this.state.drive.drive_mode}/>
+					<RoverBody pivot = {this.state.drive.pivot} drive_mode = {this.state.drive.drive_mode} connected = {this.state.drive.connected}/>
 				</Panel>
 			</div>
 		)

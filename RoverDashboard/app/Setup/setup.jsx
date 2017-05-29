@@ -7,7 +7,10 @@ const AXIS_FB = 1; // which axes control the gamepad
 const AXIS_LR = 0;
 const AXIS_PIVOT = 5;
 const min_speed = 20; //min analog write to the motor drivers
-const max_speed = 70;
+const mmax_speed = 128; //suggested maximum (255 is the physical max)
+const lmax_speed = 70; //For the best control
+const hmax_speed = 180; // For very fast rover
+
 const joyDead = 0; //Range in wich the joy stick movement is accidental
 const joy_max = 100; //Maximum joy stick input
 const drive_exp = 1.4; //Relationship between the joystick input and the output (power)
@@ -110,8 +113,20 @@ export default class Setup extends React.Component {
     let joySign = this.sgn(joyVal); 
     let joyLive = Math.abs(joyVal) - joyDead
 
+    if (Math.floor(gamepads[driveGamepad].axes[6] == -1)) {
+      //Extreme fast mode
+      maxSpeed = hmax_speed;
+    }
+    else if (Math.floor(gamepads[driveGamepad].axes[6] == 1)){
+      //Slow mode
+      maxSpeed = lmax_speed;
+    }
+    else{
+      //Normal mode
+      maxSpeed = mmax_speed;
+    }
     //((proportion of the joystick value)^1.4) * range of desired speed + minimum speed
-    return (joySign * (min_speed + (max_speed-min_speed) * Math.pow(joyLive / joyMax,drive_exp))); 
+    return (joySign * (min_speed + (maxSpeed-min_speed) * Math.pow(joyLive / joyMax,drive_exp))); 
 
   }
 
@@ -133,13 +148,20 @@ export default class Setup extends React.Component {
       let lrSpeed = Math.floor(gamepads[driveGamepad].axes[AXIS_LR] * 100)
       let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[AXIS_PIVOT] * 100)
 
-      if(gamepads[driveGamepad].buttons[8].pressed) {
-        console.log("ludicrous mode")
+      if(gamepads[driveGamepad].buttons[9].pressed) {
+        console.log("ludicrous mode forward")
         fetch(`http://${ServerAddress}:8080/drive/speed/255`, {
           method: 'put'
         })
       }
       
+      else if(gamepads[driveGamepad].buttons[8].pressed) {
+        console.log("ludicrous mode backward")
+        fetch(`http://${ServerAddress}:8080/drive/speed/-255`, {
+          method: 'put'
+        })
+      }
+
       else if(gamepads[driveGamepad].buttons[0].pressed || (Math.abs(fbSpeed) < 10 && Math.abs(pivotSpeed) < 10 && Math.abs(lrSpeed) < 10)){
         //Stoping mode
         console.log('stopping');
@@ -158,37 +180,6 @@ export default class Setup extends React.Component {
         }); 
       }
       
-      /*
-      Easier way to do it, but haven't got it to work yet
-      else{
-        //Driving mode
-        if(fbSpeed >= 0){
-          //Forward
-          lSpeed = (lrSpeed>=0)? 100.0 : (100.0 + lrSpeed)
-          rSpeed = (lrSpeed >=0)? (100.0 - lrSpeed) : 100.0
-        }
-        else{
-          //Reverse
-          lSpeed = (lrSpeed>=0)? (100.0 - lrSpeed) : 100.0
-          rSpeed = (lrSpeed>=0)? 100.0 : (100.0 + lrSpeed)
-        }
-
-        //Scale Drive output to fbSpeed input
-        lSpeed = lSpeed * fbSpeed/100.0
-        rSpeed = rSpeed * fbSpeed/100.0
-
-        lSpeed = Math.floor(this.expdrive(lSpeed))
-        rSpeed = Math.floor(this.expdrive(rSpeed))
-        
-        
-        fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
-          method: 'put'
-        })
-
-      }
-      */
-
-      
       else {
         console.log('driving mode')
         let lSpeed, rSpeed; 
@@ -204,15 +195,6 @@ export default class Setup extends React.Component {
             lSpeed = fbSpeed;
             rSpeed = 0;
           }
-
-
-          /*
-          For pivoting in the turning joystick region
-          else{
-            lSpeed = lrSpeed;
-            rSpeed = -100 + fbSpeed;
-          }
-          */
           
         }
         else if(lrSpeed > 10 && fbSpeed < 10){
@@ -225,14 +207,7 @@ export default class Setup extends React.Component {
             lSpeed = fbSpeed;
             rSpeed = 0;
           }
-          /*
-          else{
-            lSpeed = -lrSpeed;
-            rSpeed = -100 - fbSpeed;
 
-            
-          }
-          */
         }
         else if(lrSpeed < 10 && fbSpeed < 10){
           //Steering backwards left
@@ -245,14 +220,7 @@ export default class Setup extends React.Component {
             lSpeed = 0;
             rSpeed = fbSpeed;
           }
-          /*
-          else{
-            lSpeed = 100 + fbSpeed;
-            rSpeed = lrSpeed;
-            
-          }
-          */
-          
+
         }
         else if(lrSpeed < 10 && fbSpeed > 10){
           //Steering forward left
@@ -265,13 +233,6 @@ export default class Setup extends React.Component {
             lSpeed = 0;
             rSpeed = fbSpeed;
           }
-          /*
-          else{
-            lSpeed = -100 + fbSpeed;
-            rSpeed = -lrSpeed;
-            
-          }
-          */
         }
         
         lSpeed = Math.floor(this.expdrive(lSpeed))
