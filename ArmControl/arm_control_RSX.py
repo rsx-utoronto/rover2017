@@ -376,7 +376,7 @@ def getJoystickDirection():
     directionVector[0] = -directionVector[0]
     # rotations swap. Remember for positionalIK mode it's rotations above yxz order
     directionVector[3] = -directionVector[3]
-    directionVector[4] = -directionVector[4]
+    #directionVector[4] = -directionVector[4]
     directionVector[5] = -directionVector[5]
     return directionVector
     
@@ -680,7 +680,7 @@ def main():
         fullIK()
         
     # frequency in Hz
-    frequency = 50
+    frequency = 10
     timeDelay =  1.0/frequency
     #print(timeDelay)
     time.sleep(timeDelay)
