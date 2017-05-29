@@ -572,7 +572,7 @@ def positionalIK():
         #print(jointAngles)
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        #sendAngleValues(savedJointAngles)
+        sendAngleValues(savedJointAngles)
         
         savedJointAngles = copy.deepcopy(jointAngles)
         visualizeArm(savedJointAngles)
@@ -583,7 +583,7 @@ def positionalIK():
         #print("Updated joint angles: {}".format(jointAngles))
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        #sendAngleValues(savedJointAngles)
+        sendAngleValues(savedJointAngles)
         
         savedJointAngles = copy.deepcopy(jointAngles)
         visualizeArm(savedJointAngles)
