@@ -4,8 +4,8 @@
 		<contributor>
 			<authoring_tool>URDF Collada Writer</authoring_tool>
 		</contributor>
-		<created>2017-05-24T19:12:31.000000</created>
-		<modified>2017-05-24T19:12:31.000000</modified>
+		<created>2017-05-28T23:24:45.000000</created>
+		<modified>2017-05-28T23:24:45.000000</modified>
 		<unit/>
 		<up_axis>Z_UP</up_axis>
 	</asset>
@@ -55,7 +55,7 @@
 							<node id="vkmodel0_node3" name="link3_elbow" sid="node3">
 								<translate>-0 -0 -0</translate>
 								<rotate>1 0 0 0</rotate>
-								<translate>36.5 0 0</translate>
+								<translate>36 0 0</translate>
 								<rotate>1 0 0 0</rotate>
 								<rotate sid="node_joint2_elbow_axis0">0 0 1 0</rotate>
 								<translate>0 0 0</translate>
@@ -70,7 +70,7 @@
 								<node id="vkmodel0_node4" name="link4_wrist1" sid="node4">
 									<translate>-0 -0 -0</translate>
 									<rotate>1 0 0 0</rotate>
-									<translate>33 0 0</translate>
+									<translate>32 0 0</translate>
 									<rotate>0 1 0 89.99999846476554</rotate>
 									<rotate sid="node_joint3_wrist1_axis0">0 0 1 0</rotate>
 									<translate>0 0 0</translate>
@@ -168,7 +168,7 @@
 		<geometry id="gkmodel0_link2_shoulder_geom0">
 			<mesh>
 				<source id="gkmodel0_link2_shoulder_geom0_positions">
-					<float_array id="gkmodel0_link2_shoulder_geom0_positions-array" count="24" digits="2490374">0 -1 -1 36.5 -1 -1 36.5 -1 1 0 -1 1 0 1 1 0 -1 1 36.5 -1 1 36.5 1 1 36.5 1 -1 36.5 1 1 36.5 -1 1 36.5 -1 -1 0 -1 1 0 1 1 0 1 -1 0 -1 -1 0 -1 -1 0 1 -1 36.5 1 -1 36.5 -1 -1 36.5 1 -1 0 1 -1 0 1 1 36.5 1 1</float_array>
+					<float_array id="gkmodel0_link2_shoulder_geom0_positions-array" count="24" digits="2490374">0 -1 -1 36 -1 -1 36 -1 1 0 -1 1 0 1 1 0 -1 1 36 -1 1 36 1 1 36 1 -1 36 1 1 36 -1 1 36 -1 -1 0 -1 1 0 1 1 0 1 -1 0 -1 -1 0 -1 -1 0 1 -1 36 1 -1 36 -1 -1 36 1 -1 0 1 -1 0 1 1 36 1 1</float_array>
 					<technique_common>
 						<accessor count="24" source="#gkmodel0_link2_shoulder_geom0_positions-array" stride="3">
 							<param name="X" type="float"/>
@@ -189,7 +189,7 @@
 		<geometry id="gkmodel0_link3_elbow_geom0">
 			<mesh>
 				<source id="gkmodel0_link3_elbow_geom0_positions">
-					<float_array id="gkmodel0_link3_elbow_geom0_positions-array" count="24" digits="2490374">0 -1 -1 33 -1 -1 33 -1 1 0 -1 1 0 1 1 0 -1 1 33 -1 1 33 1 1 33 1 -1 33 1 1 33 -1 1 33 -1 -1 0 -1 1 0 1 1 0 1 -1 0 -1 -1 0 -1 -1 0 1 -1 33 1 -1 33 -1 -1 33 1 -1 0 1 -1 0 1 1 33 1 1</float_array>
+					<float_array id="gkmodel0_link3_elbow_geom0_positions-array" count="24" digits="2490374">0 -1 -1 32 -1 -1 32 -1 1 0 -1 1 0 1 1 0 -1 1 32 -1 1 32 1 1 32 1 -1 32 1 1 32 -1 1 32 -1 -1 0 -1 1 0 1 1 0 1 -1 0 -1 -1 0 -1 -1 0 1 -1 32 1 -1 32 -1 -1 32 1 -1 0 1 -1 0 1 1 32 1 1</float_array>
 					<technique_common>
 						<accessor count="24" source="#gkmodel0_link3_elbow_geom0_positions-array" stride="3">
 							<param name="X" type="float"/>
@@ -556,11 +556,11 @@
 								<rotate>1 0 0 89.99999846476554</rotate>
 								<link sid="link2_shoulder" name="link2_shoulder">
 									<attachment_full joint="kmodel0/joint2_elbow">
-										<translate>36.5 0 0</translate>
+										<translate>36 0 0</translate>
 										<rotate>1 0 0 0</rotate>
 										<link sid="link3_elbow" name="link3_elbow">
 											<attachment_full joint="kmodel0/joint3_wrist1">
-												<translate>33 0 0</translate>
+												<translate>32 0 0</translate>
 												<rotate>0 1 0 89.99999846476554</rotate>
 												<link sid="link4_wrist1" name="link4_wrist1">
 													<attachment_full joint="kmodel0/joint4_wrist2">

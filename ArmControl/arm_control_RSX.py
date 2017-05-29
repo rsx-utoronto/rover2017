@@ -246,8 +246,8 @@ def setupVisualEnv():
     # needed specifically for visualizer
     global savedJointAngles
     copySavedJointAngles = savedJointAngles[:]
-    copySavedJointAngles[3] = -copySavedJointAngles[3]
-    copySavedJointAngles[5] = -copySavedJointAngles[5]
+    #copySavedJointAngles[3] = -copySavedJointAngles[3]
+    #copySavedJointAngles[5] = -copySavedJointAngles[5]
     initAngles = [0,0,-math.pi/2,0,0,0]
 
     setupAngles = []
@@ -275,25 +275,25 @@ def sendAngleValues(qVect):
     # stepper steps per 2*pi rotation
     q1Steps = 21973
     q2Steps = 191102
-    q3Steps = 6484
+    q3Steps = 65921
     q4Steps = 5493
     q5Steps = 5493
     q6Steps = 5493
     # gripperRange = 0 - 1024
-    # generate messages from qVect
+    # generate messages from qVect here q1String etc correspond to order in message, not exactly in qVect
     q1String = str( int(qVect[4] * q5Steps) )#str( '%10d' %(int(qVect[4] * q1Steps)) ).replace(' ','0')
     q2String = str( int(qVect[5] * q6Steps) )#str( '%10d' %(int(qVect[5] * q2Steps)) ).replace(' ','0')
     q3String = str( int(qVect[3] * q4Steps) )#str( '%10d' %(int(qVect[3] * q3Steps)) ).replace(' ','0')
-    q4String = str( int(qVect[0] * q1Steps) )#str( '%10d' %(int(qVect[0] * q4Steps)) ).replace(' ','0')
-    q5String = str( int(qVect[2] * q3Steps) )#str( '%10d' %(int(qVect[2] * q5Steps)) ).replace(' ','0')
-    q6String = str( int(qVect[1] * q2Steps) )#str( '%10d' %(int(qVect[1] * q6Steps)) ).replace(' ','0')
-    q7String = '999'
+    q4String = str( int(qVect[2] * q3Steps) )#str( '%10d' %(int(qVect[0] * q4Steps)) ).replace(' ','0')
+    q5String = str( int(qVect[1] * q2Steps) )#str( '%10d' %(int(qVect[2] * q5Steps)) ).replace(' ','0')
+    q6String = str( int(qVect[0] * q1Steps) )#str( '%10d' %(int(qVect[1] * q6Steps)) ).replace(' ','0')
+    #q7String = '999'
     #message1 = q1String+q2String+q3String+q4String+'p'
     #message2 = q5String+q6String+q7String+'p'
     #print(message1)
     #print(message2)
     command = 'p'
-    message = command+'_'+q1String+'_'+q2String+'_'+q3String+'_'+q4String+'_'+q5String+'_'+q6String+'_'+q7String
+    message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String#+"%20"+q7String
 
     conn.request("PUT","/arm/"+message+"/")
 
@@ -343,6 +343,9 @@ def getJoystickAxes():
 
 def getJoystickDirection():
     joystickValues = getJoystickAxes()
+
+    #directionVector = copy.deepcopy(joystickValues)
+    
     # determine direction
     directionVector = [0,0,0,0,0,0]
     storedVal = 0
@@ -356,14 +359,25 @@ def getJoystickDirection():
     # introduce some "sensitivity gap" to avoid random movement
     if abs(storedVal) > 0.2:
         directionVector[storedInd] = storedVal
+        
     # needed specifically to make thigs coincide with our arm
     for i in range( len(directionVector) ):
         directionVector[i] = -directionVector[i]
-    tempval = directionVector[0]
-    directionVector[0] = directionVector[1]
+    #xyz > yxz > zxy
+    # swap x with y
+    tempval = copy.deepcopy( directionVector[0] )
+    directionVector[0] = copy.deepcopy( directionVector[1] )
     directionVector[1] = tempval
+    # in new translation swap z and y
+    tempval2 = copy.deepcopy( directionVector[2] )
+    directionVector[2] = copy.deepcopy( directionVector[0] )
+    directionVector[0] = tempval2
+    # swap the z direction
+    directionVector[0] = -directionVector[0]
+    # rotations swap. Remember for positionalIK mode it's rotations above yxz order
     directionVector[3] = -directionVector[3]
     directionVector[4] = -directionVector[4]
+    directionVector[5] = -directionVector[5]
     return directionVector
     
 
@@ -373,8 +387,8 @@ def visualizeArm(jointAngles):
     global robot
     global initAngles
     # invert signs of q4 and q6. Needed specifically for visualizer
-    copyJointAngles[3] = -copyJointAngles[3]
-    copyJointAngles[5] = -copyJointAngles[5]
+    #copyJointAngles[3] = -copyJointAngles[3]
+    #copyJointAngles[5] = -copyJointAngles[5]
     
     for i in range(len(copyJointAngles)):
         copyJointAngles[i] += initAngles[i]
@@ -433,9 +447,9 @@ def manual():
     # DH Table with entries in the format: [a, alpha, d, theta]
     # First links are first entries
     DHTable = [ [0, math.pi/2, 5.5, q1],
-                [36.5, 0, 0, q2],
+                [36, 0, 0, q2],
                 [0, math.pi/2, 0, q3],
-                [0, -math.pi/2, 33, q4],
+                [0, -math.pi/2, 32, q4],
                 [0, math.pi/2, 0, q5],
                 [0, 0, 15, q6] ]
 
@@ -462,7 +476,7 @@ def manual():
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         sendAngleValues(savedJointAngles)
         
-        visualizeArm(jointAngles)
+        visualizeArm(savedJointAngles)
         print(savedJointAngles)
     except:
         print("Exception encountered")
@@ -473,7 +487,7 @@ def manual():
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         sendAngleValues(savedJointAngles)
         
-        visualizeArm(jointAngles)
+        visualizeArm(savedJointAngles)
         print(savedJointAngles)
 
 
@@ -506,9 +520,9 @@ def positionalIK():
     # DH Table with entries in the format: [a, alpha, d, theta]
     # First links are first entries
     DHTable = [ [0, math.pi/2, 5.5, q1],
-                [36.5, 0, 0, q2],
+                [36, 0, 0, q2],
                 [0, math.pi/2, 0, q3],
-                [0, -math.pi/2, 33, q4],
+                [0, -math.pi/2, 32, q4],
                 [0, math.pi/2, 0, q5],
                 [0, 0, 15, q6] ]
 
@@ -548,7 +562,7 @@ def positionalIK():
         sendAngleValues(savedJointAngles)
         
         savedJointAngles = copy.deepcopy(jointAngles)
-        visualizeArm(jointAngles)
+        visualizeArm(savedJointAngles)
         print(savedJointAngles)
     except:
         print("Exception encountered")
@@ -559,7 +573,7 @@ def positionalIK():
         sendAngleValues(savedJointAngles)
         
         savedJointAngles = copy.deepcopy(jointAngles)
-        visualizeArm(jointAngles)
+        visualizeArm(savedJointAngles)
         print(savedJointAngles)
     
 
@@ -593,9 +607,9 @@ def fullIK():
     # DH Table with entries in the format: [a, alpha, d, theta]
     # First links are first entries
     DHTable = [ [0, math.pi/2, 5.5, q1],
-                [36.5, 0, 0, q2],
+                [36, 0, 0, q2],
                 [0, math.pi/2, 0, q3],
-                [0, -math.pi/2, 33, q4],
+                [0, -math.pi/2, 32, q4],
                 [0, math.pi/2, 0, q5],
                 [0, 0, 15, q6] ]
 
@@ -666,7 +680,7 @@ def main():
         fullIK()
         
     # frequency in Hz
-    frequency = 10
+    frequency = 50
     timeDelay =  1.0/frequency
     #print(timeDelay)
     time.sleep(timeDelay)
@@ -707,6 +721,7 @@ if __name__ == "__main__":
                 break
             else:
                 main()
+                #continue
         else:
             continue
 

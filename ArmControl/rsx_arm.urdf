@@ -27,7 +27,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <box size="36.5 2 2" />
+        <box size="36 2 2" />
       </geometry>
       <material name="Red">
         <color rgba="1.0 0 0 0.5"/>
@@ -39,7 +39,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <box size="33 2 2" />
+        <box size="32 2 2" />
       </geometry>
       <material name="Red">
         <color rgba="1.0 0 0 0.5"/>
@@ -102,14 +102,14 @@
   <joint name="joint2_elbow" type="continuous">
     <parent link="link2_shoulder"/>
     <child link="link3_elbow"/>
-    <origin xyz="36.5 0 0" rpy="0 0 0" />
+    <origin xyz="36 0 0" rpy="0 0 0" />
     <axis xyz="0 0 1" />
   </joint>
 
   <joint name="joint3_wrist1" type="continuous">
     <parent link="link3_elbow"/>
     <child link="link4_wrist1"/>
-    <origin xyz="33 0 0" rpy="0 1.5707963 0" />
+    <origin xyz="32 0 0" rpy="0 1.5707963 0" />
     <axis xyz="0 0 1" />
   </joint>
 
