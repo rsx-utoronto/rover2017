@@ -4,9 +4,6 @@ import copy
 import time
 import openravepy
 import numpy as np
-#if not __openravepy_build_doc__:
-#    from openravepy import *
-#    from numpy import *
 import pygame
 import math
 #import socket
@@ -258,7 +255,6 @@ def setupVisualEnv():
     #print( robot.GetActiveDOFValues() )
 
 
-# TODO IMPLEMENT
 def sendAngleValues(qVect):
     #global conn
 
@@ -281,12 +277,12 @@ def sendAngleValues(qVect):
     q6Steps = 5493
     # gripperRange = 0 - 1024
     # generate messages from qVect here q1String etc correspond to order in message, not exactly in qVect
-    q1String = str( int(qVect[4] * q5Steps) )#str( '%10d' %(int(qVect[4] * q1Steps)) ).replace(' ','0')
-    q2String = str( int(qVect[5] * q6Steps) )#str( '%10d' %(int(qVect[5] * q2Steps)) ).replace(' ','0')
-    q3String = str( int(qVect[3] * q4Steps) )#str( '%10d' %(int(qVect[3] * q3Steps)) ).replace(' ','0')
-    q4String = str( int(qVect[2] * q3Steps) )#str( '%10d' %(int(qVect[0] * q4Steps)) ).replace(' ','0')
-    q5String = str( int(qVect[1] * q2Steps) )#str( '%10d' %(int(qVect[2] * q5Steps)) ).replace(' ','0')
-    q6String = str( int(qVect[0] * q1Steps) )#str( '%10d' %(int(qVect[1] * q6Steps)) ).replace(' ','0')
+    q1String = str( int(qVect[4] * q5Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[4] * q1Steps)) ).replace(' ','0')
+    q2String = str( int(qVect[5] * q6Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[5] * q2Steps)) ).replace(' ','0')
+    q3String = str( int(qVect[3] * q4Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[3] * q3Steps)) ).replace(' ','0')
+    q4String = str( int(qVect[2] * q3Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[0] * q4Steps)) ).replace(' ','0')
+    q5String = str( int(qVect[1] * q2Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[2] * q5Steps)) ).replace(' ','0')
+    q6String = str( int(qVect[0] * q1Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[1] * q6Steps)) ).replace(' ','0')
     #q7String = '999'
     #message1 = q1String+q2String+q3String+q4String+'p'
     #message2 = q5String+q6String+q7String+'p'
@@ -308,27 +304,7 @@ def sendAngleValues(qVect):
     data2 = r2.read()
     print data2
 
-    conn.close() #HERE OR AT THE VERY END???
-
-    
-# TODO IMPLEMENT
-def getAngleValues():
-    global s
-
-    arduino1IP = '127.0.0.1'
-    arduino1Port = 6000
-    arduino2IP = '127.0.0.1'
-    arduino2Port = 6000
-    BUFFER_SIZE = 1024
-
-    #s.connect( (arduino1IP, arduino1Port) )
-    #message1 = s.recv(BUFFER_SIZE)
-    #s.connect( (arduino2IP, arduino2Port) )
-    #message2 = s.recv(BUFFER_SIZE)
-
-    #s.close() # ????????? HERE OR AT THE END ???????
-    
-    return None#[message1,message2]
+    conn.close()
 
 
 def getJoystickAxes():
@@ -352,7 +328,7 @@ def getJoystickDirection():
     index = -1
     for thing in beforeDirectionVector:
         index += 1
-        if abs(thing) > 0.2: # sensitivity "gap", to avoid random movements
+        if abs(thing) > 0.05: # sensitivity "gap", to avoid random movements
             directionVector[index] = thing
     #print(directionVector)
     
@@ -369,7 +345,7 @@ def getJoystickDirection():
     #        storedVal = value
     #        storedInd = ind
     # introduce some "sensitivity gap" to avoid random movement
-    #if abs(storedVal) > 0.2:
+    #if abs(storedVal) > 0.05:
     #    directionVector[storedInd] = storedVal
     #print(directionVector)
         
@@ -403,32 +379,11 @@ def visualizeArm(jointAngles):
     #copyJointAngles[3] = -copyJointAngles[3]
     #copyJointAngles[5] = -copyJointAngles[5]
     
+    
     for i in range(len(copyJointAngles)):
         copyJointAngles[i] += initAngles[i]
     robot.SetActiveDOFValues(copyJointAngles)
     #print("Initial angles: {}".format(initAngles))
-    
-
-# TODO IMPLEMENT
-def setJointAngles(qVector):
-    jointAngles = qVector
-    # DO IT SOMEHOW
-    visualizeArm(jointAngles)
-
-
-# TODO IMPLEMENT
-def getJointAngles():
-    # stepper steps per 2 PI rotation for each joint
-    
-
-    # get values
-    
-    
-    return qVect
-    
-
-def getOperationMode():
-    return None
     
 
 def manual():
@@ -473,13 +428,13 @@ def manual():
     #print([ homTransMatrix[0][3], homTransMatrix[1][3], homTransMatrix[2][3] ])
     visualizeArm(jointAngles)
     
-    k = 0.01
-    uq1 = DHTable[0][3] + k * joystickDirection[0]#updatedDHTable[0][3]
-    uq2 = DHTable[1][3] + k * joystickDirection[1]#updatedDHTable[1][3]
-    uq3 = DHTable[2][3] + k * joystickDirection[2]#updatedDHTable[2][3]
-    uq4 = DHTable[3][3] + k * joystickDirection[3]#updatedDHTable[3][3]
-    uq5 = DHTable[4][3] + k * joystickDirection[4]#updatedDHTable[4][3]
-    uq6 = DHTable[5][3] + k * joystickDirection[5]#updatedDHTable[5][3]
+    k = 0.001 # speed value
+    uq1 = DHTable[0][3] + 0.002 * 2*math.pi * joystickDirection[1]#sr
+    uq2 = DHTable[1][3] + 0.0006 * 2*math.pi * joystickDirection[2]#sp
+    uq3 = DHTable[2][3] + 0.001 * 2*math.pi * joystickDirection[0]#eb
+    uq4 = DHTable[3][3] + 0.005 * 2*math.pi * joystickDirection[4]#w3
+    uq5 = DHTable[4][3] + 0.005 * 2*math.pi * joystickDirection[3]#w1
+    uq6 = DHTable[5][3] + 0.005 * 2*math.pi * joystickDirection[5]#w2
     try:
         jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
         #print("Updated joint angles: {}".format(jointAngles))
@@ -677,23 +632,58 @@ def fullIK():
         
         visualizeArm(savedJointAngles)
         print(savedJointAngles)
-        
+
+
+def getOperationMode():
+    mode = 2
+    #key = 
+    #if key == '1':
+    #    mode = 1
+    #elif key == '2':
+    #    mode = 2
+    return mode
+
+def resetArm():
+    serverIP = '100.64.79.183'
+    serverHttpPort = '8080'
+    
+    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+
+    message = 'x'
+
+    conn.request("PUT","/arm/"+message+"/")
+
+    r1 = conn.getresponse()
+    print r1.status, r1.reason
+    data1 = r1.read()
+    print data1
+
+    conn.request("GET", "/arm")
+    r2 = conn.getresponse()
+    print r2.status, r2.reason
+    data2 = r2.read()
+    print data2
+
+    conn.close()
 
 
 def main():
     # TODO GET THE MODE OF OPERATION
     # modes: '1'-manual, '2'-positional IK (first 3 joints), '3'-full IK
     
-    modeOfOperation = 2#getOperationMode()#GET THE MODE OF OPERATION FROM SOMEWHERE
+    modeOfOperation = getOperationMode()#getOperationMode()#GET THE MODE OF OPERATION FROM SOMEWHERE
     if modeOfOperation == 1:
+        print("Manual mode")
         manual()
     elif modeOfOperation == 2:
+        print("Positional IK mode")
         positionalIK()
     elif modeOfOperation == 3:
+        print("Full IK mode")
         fullIK()
         
     # frequency in Hz
-    frequency = 100
+    frequency = 20
     timeDelay =  1.0/frequency
     #print(timeDelay)
     time.sleep(timeDelay)
@@ -712,6 +702,7 @@ if __name__ == "__main__":
     savedJointAngles = [0,0,0,0,0,0]
     setupVisualEnv()
     initializeJoystick()
+    resetArm()
     #global s
     #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #global conn
