@@ -42,14 +42,17 @@ function init(model, config) {
         });
 
         client.on('data', function(data) {
-            console.log('received data from client');
+            model.aux.current = data.toString()
+            						.split(',')
+            						.slice(0,-1) // remove empty elemetn at end 
+            						.map(parseFloat); 
         });
 
         res.json(model.aux);
 	})
 
     // send the current state of the rover over tcp
-    sendState = function() {
+    let sendState = function() {
         if (client && client.writable) {
             client.write(model.aux.relay.map(_.toInteger).join(''));
         }

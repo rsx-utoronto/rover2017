@@ -2,7 +2,7 @@
 #include <Ethernet.h>
 
 byte mac[] = {
-  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xEE
+  0xDE, 0xAD, 0xBE, 0xEF, 0xFF, 0xEE
 };
 IPAddress ip(192, 168, 0, 180);
 IPAddress myDns(192,168,1, 1);
@@ -15,8 +15,8 @@ IPAddress subnet(255, 255, 0, 0);
 EthernetServer baseConn(baseStationPort);
 EthernetServer autoSysConn(autoSysPort);
 
-const int CURRENT_PINS[] = {A0, A1, A2, A3, A4, A5}; 
-const int RELAY_PINS[] = {2, 3, 5, 6, 7, 8}; // 4 is reserved for ethernet shields
+const int CURRENT_PINS[] = {A10, A11, A12, A13, A14, A15}; 
+const int RELAY_PINS[] = {2, 3, 8, 7, 5, 6}; // 4 is reserved for ethernet shields
 
 float lastCurrents[] = {0,0,0,0,0,0}; 
 boolean relayOn[] = {false, false, false, false, false, false}; 
@@ -40,37 +40,49 @@ void setup() {
 
 // Returns current in amps 
 float readCurrent(int index) { 
-  return (4.88/13.3)*(analogRead(CURRENT_PINS[index])-512);
+  Serial.println(analogRead(CURRENT_PINS[index]));
+  return (25./256.)*(analogRead(CURRENT_PINS[index])-523);
 }
 
 // Sets the state of a relay
 void setRelay(int index, boolean value) {
   relayOn[index] = value; 
+  digitalWrite(RELAY_PINS[index], value ? LOW : HIGH);  // LOW means relay is conducting
 }
 
-void processData(EthernetClient * client) { 
+void processData(EthernetClient * client, EthernetServer * server) { 
+  Serial.println("processing data"); 
   String buff = ""; 
   while(client->available() > 0) { 
     char thisChar = client->read(); 
     buff += thisChar; 
   }
 
-  if(buff.length() != 6) {
+  int frameshift = buff.length() - 6; 
+
+  if(buff.length() % 6 != 0) {
     Serial.print("Bad buffer: "); 
   }
   Serial.println(buff); 
 
+  String currentStr = ""; 
   for(int i=0; i<6; i++) {
-    setRelay(i, buff.charAt(i) == '1'); 
-    client->print(lastCurrents[i]); 
-    client->print(","); 
+    setRelay(i, buff.charAt(i + frameshift) == '1'); 
+    currentStr += lastCurrents[i]; 
+    currentStr += ","; 
   }
+  client->print(currentStr); 
 }
 
 void loop() {
+  EthernetClient baseClient = baseConn.available();
+
+  if(baseClient) {
+    processData(&baseClient, &baseConn);
+  }
+  
   for(int i=0; i<6; i++) {
     lastCurrents[i] = readCurrent(i); 
-    setRelay(i, relayOn[i]); 
   }
   delay(10); 
 }
