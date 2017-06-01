@@ -17,12 +17,26 @@ def getJoystickAxes():
     #Read input from the joystick       
     for i in range(0, joystick.get_numaxes()):
         out[i] = joystick.get_axis(i)
+    print(out)
     return out
+
+
+def getJoystickButtons():
+    pygame.event.pump()
+    
+    buttons = []
+    for i in range(0, joystick.get_numbuttons()):
+        button = joystick.get_button(i)
+        buttons.append(button)
+    print(buttons)
+    return buttons
 
 
 if __name__ == "__main__":
     initializeJoystick()
 
     while True:
-        print( getJoystickAxes() )
+        getJoystickAxes()
+        getJoystickButtons()
+        time.sleep(0.5)
     
