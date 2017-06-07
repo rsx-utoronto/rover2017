@@ -4,8 +4,16 @@ import _ from 'lodash'
 // for the playstation gamepads, use 1, 0 respectively.
 // for the big joystick, use 1, 5.
 const AXIS_FB = 1; // which axes control the gamepad
-const AXIS_LR = 5;
-const AXIS_PIVOT = 0;
+const AXIS_LR = 0;
+const AXIS_PIVOT = 5;
+const min_speed = 20; //min analog write to the motor drivers
+const mmax_speed = 128; //suggested maximum (255 is the physical max)
+const lmax_speed = 70; //For the best control
+const hmax_speed = 180; // For very fast rover
+
+const joyDead = 0; //Range in wich the joy stick movement is accidental
+const joy_max = 100; //Maximum joy stick input
+const drive_exp = 1.4; //Relationship between the joystick input and the output (power)
 
 let state; // save state on dismount
 let interval; // handles drive
@@ -91,10 +99,43 @@ export default class Setup extends React.Component {
     )
   }
 
+  sgn(x) {
+    if (x > 0)
+      return 1; 
+    else if (x < 0)
+      return -1; 
+    else
+      return 0; 
+  }
+
+  expdrive(joyVal) {
+    let joyMax = joy_max - joyDead; 
+    let joySign = this.sgn(joyVal); 
+    let joyLive = Math.abs(joyVal) - joyDead
+
+    if (Math.floor(gamepads[driveGamepad].axes[6] == -1)) {
+      //Extreme fast mode
+      maxSpeed = hmax_speed;
+    }
+    else if (Math.floor(gamepads[driveGamepad].axes[6] == 1)){
+      //Slow mode
+      maxSpeed = lmax_speed;
+    }
+    else{
+      //Normal mode
+      maxSpeed = mmax_speed;
+    }
+    //((proportion of the joystick value)^1.4) * range of desired speed + minimum speed
+    return (joySign * (min_speed + (maxSpeed-min_speed) * Math.pow(joyLive / joyMax,drive_exp))); 
+
+  }
+
+
   updateDriveGamepadPoller() {
     clearInterval(interval);
     interval = setInterval(() => {
       let driveGamepad = this.state.joystickMapping.indexOf('drive');
+      
       if (driveGamepad === -1)  // nothing listening to drive
         return
       let gamepads = navigator.getGamepads()
@@ -107,102 +148,105 @@ export default class Setup extends React.Component {
       let lrSpeed = Math.floor(gamepads[driveGamepad].axes[AXIS_LR] * 100)
       let pivotSpeed = Math.floor(gamepads[driveGamepad].axes[AXIS_PIVOT] * 100)
 
-      if(gamepads[driveGamepad].buttons[8].pressed) {
-        console.log("ludicrous mode")
+      if(gamepads[driveGamepad].buttons[9].pressed) {
+        console.log("ludicrous mode forward")
         fetch(`http://${ServerAddress}:8080/drive/speed/255`, {
           method: 'put'
         })
       }
       
-      else if(gamepads[driveGamepad].buttons[1].pressed || (Math.abs(fbSpeed) < 10 && Math.abs(pivotSpeed) < 10 && Math.abs(lrSpeed) < 10)){
+      else if(gamepads[driveGamepad].buttons[8].pressed) {
+        console.log("ludicrous mode backward")
+        fetch(`http://${ServerAddress}:8080/drive/speed/-255`, {
+          method: 'put'
+        })
+      }
+
+      else if(gamepads[driveGamepad].buttons[0].pressed || (Math.abs(fbSpeed) < 10 && Math.abs(pivotSpeed) < 10 && Math.abs(lrSpeed) < 10)){
         //Stoping mode
+        console.log('stopping');
         fetch(`http://${ServerAddress}:8080/drive/stop`, {
           method: 'put'
         })
       }
 
       
-      else if(gamepads[driveGamepad].buttons[0].pressed){
+      else if(gamepads[driveGamepad].buttons[1].pressed && Math.abs(pivotSpeed)>10){
+        console.log('pivoting 1 ')
+        let pSpeed = this.expdrive(pivotSpeed)
         //Pivoting mode
-        fetch("http://"+ServerAddress+":8080/drive/pivot/"+pivotSpeed+"/", {
+        fetch("http://"+ServerAddress+":8080/drive/pivot/"+ -pSpeed+"/", {
           method: 'put'
-        })
+        }); 
       }
       
-
       else {
+        console.log('driving mode')
+        let lSpeed, rSpeed; 
         //Driving mode
         if(lrSpeed > 10 && fbSpeed > 10){
           //Steering forward/right
           if(fbSpeed >= lrSpeed){
-            let lSpeed = fbSpeed;
-            let rSpeed = fbSpeed - lrSpeed;
-            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
-            method: 'put'
-            })
+            lSpeed = fbSpeed;
+            rSpeed = fbSpeed - lrSpeed;
           }
+          //So that the rover doesn't stop at the specified region
           else{
-            let lSpeed = lrSpeed;
-            let rSpeed = -100 + fbSpeed;
-            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
-            method: 'put'
-            })
+            lSpeed = fbSpeed;
+            rSpeed = 0;
           }
+          
         }
         else if(lrSpeed > 10 && fbSpeed < 10){
           //Steering backwards right
           if(-fbSpeed >= lrSpeed){
-            let lSpeed = fbSpeed;
-            let rSpeed = fbSpeed + lrSpeed;
-            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
-            method: 'put'
-            })
+            lSpeed = fbSpeed;
+            rSpeed = fbSpeed + lrSpeed;
           }
           else{
-            let lSpeed = -lrSpeed;
-            let rSpeed = -100 - fbSpeed;
-            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
-            method: 'put'
-            })
+            lSpeed = fbSpeed;
+            rSpeed = 0;
           }
+
         }
         else if(lrSpeed < 10 && fbSpeed < 10){
           //Steering backwards left
           if(-fbSpeed >= -lrSpeed){
-            let lSpeed = fbSpeed - lrSpeed;
-            let rSpeed = fbSpeed;
-            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
-            method: 'put'
-            })
+            lSpeed = fbSpeed - lrSpeed;
+            rSpeed = fbSpeed;
+            
           }
           else{
-            let lSpeed = 100 + fbSpeed;
-            let rSpeed = lrSpeed;
-            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
-            method: 'put'
-            })
+            lSpeed = 0;
+            rSpeed = fbSpeed;
           }
-          
+
         }
         else if(lrSpeed < 10 && fbSpeed > 10){
           //Steering forward left
           if(fbSpeed >= -lrSpeed){
-            let lSpeed = fbSpeed + lrSpeed;
-            let rSpeed = fbSpeed;
-            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
-            method: 'put'
-            })
+            lSpeed = fbSpeed + lrSpeed;
+            rSpeed = fbSpeed;
+            
           }
           else{
-            let lSpeed = -100 + fbSpeed;
-            let rSpeed = -lrSpeed;
-            fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
-            method: 'put'
-            })
+            lSpeed = 0;
+            rSpeed = fbSpeed;
           }
         }
         
+        lSpeed = Math.floor(this.expdrive(lSpeed))
+        rSpeed = Math.floor(this.expdrive(rSpeed))
+        
+        
+        fetch("http://"+ServerAddress+":8080/drive/speed/"+lSpeed+"/" + rSpeed + "/",{
+          method: 'put'
+        })
+        
+        
       }
+      
+      
     }, 50)
   }
 

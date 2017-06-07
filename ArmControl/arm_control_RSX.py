@@ -8,6 +8,7 @@ import pygame
 import math
 #import socket
 import httplib
+import sys
 
 
 def homogenousTransform(dhVector):
@@ -250,16 +251,58 @@ def getJoystickButtons():
     return buttons
 
 
-def sendAngleValues(qVect):
-    serverIP = '100.64.79.183'
-    serverHttpPort = '8080'
+def sendStartPosition(qVect):
+    global conn
+    #serverIP = '192.168.0.123'
+    #serverHttpPort = '8080'
     
-    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
 
     # stepper steps per 2*pi rotation
     q1Steps = 21973
     q2Steps = 191102
-    q3Steps = 65921
+    q3Steps = 65921*2
+    q4Steps = 5493
+    q5Steps = 5493
+    q6Steps = 5493
+    # gripperRange = 0 - 1023
+    # generate messages from qVect here q1String etc correspond to order in message, not exactly in qVect
+    q1String = str( int(qVect[4] * q5Steps/(2*math.pi) ) )
+    q2String = str( int(qVect[5] * q6Steps/(2*math.pi) ) )
+    q3String = str( int(qVect[3] * q4Steps/(2*math.pi) ) )
+    q4String = str( int(qVect[2] * q3Steps/(2*math.pi) ) )
+    q5String = str( int(qVect[1] * q2Steps/(2*math.pi) ) )
+    q6String = str( int(qVect[0] * q1Steps/(2*math.pi) ) )
+
+    command = 'g'
+    message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String
+
+    conn.request("PUT","/arm/"+message+"/")
+    #r1 = conn.getresponse()
+    #print r1.status, r1.reason
+    #data1 = r1.read()
+    #print data1
+
+    #conn.request("GET", "/arm")
+    #r2 = conn.getresponse()
+    #print r2.status, r2.reason
+    #data2 = r2.read()
+    #print data2
+    conn.close()
+
+
+# TODO MAYBE IMPLEMENT DIFFERENTLY
+def sendAngleValues(qVect):
+    global conn
+    #serverIP = '192.168.0.123'
+    #serverHttpPort = '8080'
+    
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+
+    # stepper steps per 2*pi rotation
+    q1Steps = 21973
+    q2Steps = 191102
+    q3Steps = 65921*2
     q4Steps = 5493
     q5Steps = 5493
     q6Steps = 5493
@@ -276,16 +319,18 @@ def sendAngleValues(qVect):
     message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String
 
     conn.request("PUT","/arm/"+message+"/")
-    r1 = conn.getresponse()
-    print r1.status, r1.reason
-    data1 = r1.read()
-    print data1
+    #r1 = conn.getresponse()
+    #print r1.status, r1.reason
+    #data1 = r1.read()
+    #print data1
 
-    conn.request("GET", "/arm")
-    r2 = conn.getresponse()
-    print r2.status, r2.reason
-    data2 = r2.read()
-    print data2
+    #conn.request("GET", "/arm")
+    #r2 = conn.getresponse()
+    #print r2.status, r2.reason
+    #data2 = r2.read()
+    #print data2
+    conn.close()
+
 
     # current implementation of servo control
     buttons = getJoystickButtons()
@@ -293,132 +338,124 @@ def sendAngleValues(qVect):
         message = 'o'
 
         conn.request("PUT","/arm/"+message+"/")
-        r1 = conn.getresponse()
-        print r1.status, r1.reason
-        data1 = r1.read()
-        print data1
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
         
-        conn.request("GET", "/arm")
-        r2 = conn.getresponse()
-        print r2.status, r2.reason
-        data2 = r2.read()
-        print data2
-    elif buttons[25] == 1:
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
+    if buttons[25] == 1:
         message = 'k'
 
         conn.request("PUT","/arm/"+message+"/")
-        r1 = conn.getresponse()
-        print r1.status, r1.reason
-        data1 = r1.read()
-        print data1
-        conn.request("GET", "/arm")
-        r2 = conn.getresponse()
-        print r2.status, r2.reason
-        data2 = r2.read()
-        print data2
-
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
     # miscellaneous buttons
-    if buttons[11] == 1: # RESET BUTTON
-        message = 'x'
-
-        conn.request("PUT","/arm/"+message+"/")
-        r1 = conn.getresponse()
-        print r1.status, r1.reason
-        data1 = r1.read()
-        print data1
-        
-        conn.request("GET", "/arm")
-        r2 = conn.getresponse()
-        print r2.status, r2.reason
-        data2 = r2.read()
-        print data2
     if buttons[23] == 1:
         message = 'b'
 
         conn.request("PUT","/arm/"+message+"/")
-        r1 = conn.getresponse()
-        print r1.status, r1.reason
-        data1 = r1.read()
-        print data1
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
         
-        conn.request("GET", "/arm")
-        r2 = conn.getresponse()
-        print r2.status, r2.reason
-        data2 = r2.read()
-        print data2
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
     if buttons[17] == 1:
         message = 'c'
 
         conn.request("PUT","/arm/"+message+"/")
-        r1 = conn.getresponse()
-        print r1.status, r1.reason
-        data1 = r1.read()
-        print data1
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
         
-        conn.request("GET", "/arm")
-        r2 = conn.getresponse()
-        print r2.status, r2.reason
-        data2 = r2.read()
-        print data2
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
     if buttons[18] == 1:
         message = 'd'
 
         conn.request("PUT","/arm/"+message+"/")
-        r1 = conn.getresponse()
-        print r1.status, r1.reason
-        data1 = r1.read()
-        print data1
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
         
-        conn.request("GET", "/arm")
-        r2 = conn.getresponse()
-        print r2.status, r2.reason
-        data2 = r2.read()
-        print data2
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
     if buttons[21] == 1:
         message = 'e'
 
         conn.request("PUT","/arm/"+message+"/")
-        r1 = conn.getresponse()
-        print r1.status, r1.reason
-        data1 = r1.read()
-        print data1
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
         
-        conn.request("GET", "/arm")
-        r2 = conn.getresponse()
-        print r2.status, r2.reason
-        data2 = r2.read()
-        print data2
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
     if buttons[19] == 1:
         message = 'f'
 
         conn.request("PUT","/arm/"+message+"/")
-        r1 = conn.getresponse()
-        print r1.status, r1.reason
-        data1 = r1.read()
-        print data1
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
         
-        conn.request("GET", "/arm")
-        r2 = conn.getresponse()
-        print r2.status, r2.reason
-        data2 = r2.read()
-        print data2
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
     if buttons[20] == 1:
         message = 'g'
 
         conn.request("PUT","/arm/"+message+"/")
-        r1 = conn.getresponse()
-        print r1.status, r1.reason
-        data1 = r1.read()
-        print data1
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
         
-        conn.request("GET", "/arm")
-        r2 = conn.getresponse()
-        print r2.status, r2.reason
-        data2 = r2.read()
-        print data2
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
 
-
-    conn.close()
+    
 
 
 def getJoystickAxes():
@@ -521,47 +558,49 @@ def visualizeArm(jointAngles):
 
 
 def resetArm():
-    serverIP = '100.64.79.183'
-    serverHttpPort = '8080'
+    global conn
+    #serverIP = '192.168.0.123'
+    #serverHttpPort = '8080'
     
-    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
 
     message = 'x'
 
     conn.request("PUT","/arm/"+message+"/")
 
-    r1 = conn.getresponse()
-    print r1.status, r1.reason
-    data1 = r1.read()
-    print data1
+    #r1 = conn.getresponse()
+    #print r1.status, r1.reason
+    #data1 = r1.read()
+    #print data1
 
-    conn.request("GET", "/arm")
-    r2 = conn.getresponse()
-    print r2.status, r2.reason
-    data2 = r2.read()
-    print data2
+    #conn.request("GET", "/arm")
+    #r2 = conn.getresponse()
+    #print r2.status, r2.reason
+    #data2 = r2.read()
+    #print data2
 
     conn.close()
 
 
 def sendMessage(message):
-    serverIP = '100.64.79.183'
-    serverHttpPort = '8080'
+    global conn
+    #serverIP = '192.168.0.123'
+    #serverHttpPort = '8080'
     
-    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
 
     conn.request("PUT","/arm/"+message+"/")
 
-    r1 = conn.getresponse()
-    print r1.status, r1.reason
-    data1 = r1.read()
-    print data1
+    #r1 = conn.getresponse()
+    #print r1.status, r1.reason
+    #data1 = r1.read()
+    #print data1
 
-    conn.request("GET", "/arm")
-    r2 = conn.getresponse()
-    print r2.status, r2.reason
-    data2 = r2.read()
-    print data2
+    #conn.request("GET", "/arm")
+    #r2 = conn.getresponse()
+    #print r2.status, r2.reason
+    #data2 = r2.read()
+    #print data2
 
     conn.close()
     
@@ -619,7 +658,7 @@ def manual_no_memory():
         tempAngles = copy.deepcopy( jointAngles )
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        #sendAngleValues(tempAngles)
+        sendAngleValues(tempAngles)
 
         visualizeArm(tempAngles)
         print(tempAngles)
@@ -633,7 +672,7 @@ def manual_no_memory():
         tempAngles = copy.deepcopy( jointAngles )
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        #sendAngleValues(tempAngles)
+        sendAngleValues(tempAngles)
 
         visualizeArm(tempAngles)
         print(tempAngles)
@@ -699,7 +738,7 @@ def manual():
         #savedServo = servoValueNew
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        #sendAngleValues(savedJointAngles)
+        sendAngleValues(savedJointAngles)
         
         visualizeArm(savedJointAngles)
         #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
@@ -713,7 +752,7 @@ def manual():
         #savedServo = savedServo
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        #sendAngleValues(savedJointAngles)
+        sendAngleValues(savedJointAngles)
         
         visualizeArm(savedJointAngles)
         #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
@@ -793,7 +832,7 @@ def positionalIK():
         #savedServo = servoValueNew
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        #sendAngleValues(savedJointAngles)
+        sendAngleValues(savedJointAngles)
         
         savedJointAngles = copy.deepcopy(jointAngles)
         visualizeArm(savedJointAngles)
@@ -807,7 +846,7 @@ def positionalIK():
         #savedServo = savedServo
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        #sendAngleValues(savedJointAngles)
+        sendAngleValues(savedJointAngles)
         
         savedJointAngles = copy.deepcopy(jointAngles)
         visualizeArm(savedJointAngles)
@@ -879,17 +918,15 @@ def fullIK():
     # update servo value
     #servoValueNew = updateServo(savedServo)
     try:
-        #savedQ6 += uq6 # needed specifically because we want to ignore roll of the end effector but being able to set end effector how necessary
         jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
         #print("Updated joint angles: {}".format(jointAngles))
         
-        #jointAngles[5] = 0
         savedJointAngles = copy.deepcopy(jointAngles)
 
         #savedServo = servoValueNew
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
-        #sendAngleValues(savedJointAngles)
+        sendAngleValues(savedJointAngles)
         
         visualizeArm(savedJointAngles)
         #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
@@ -903,7 +940,7 @@ def fullIK():
         #savedServo = savedServo
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!! or just do nothing?
-        #sendAngleValues(savedJointAngles)
+        sendAngleValues(savedJointAngles)
         
         visualizeArm(savedJointAngles)
         #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
@@ -917,33 +954,33 @@ def updateOperationMode():
 
     buttons = getJoystickButtons()
     if buttons[28] == 1:
-        #if modeOfOperation == 4: # needed specifically to make manual without memory mode work
-            #sendMessage('v')
+        if modeOfOperation == 4: # needed specifically to make manual without memory mode work
+            sendMessage('v')
         modeOfOperation = 1
         print("Switched to manual mode")
         tempAngles = copy.deepcopy(savedJointAngles) # needed specifically to make manual without memory mode work
         return modeOfOperation
     elif buttons[27] == 1:
-        #if modeOfOperation == 4: # needed specifically to make manual without memory mode work
-            #sendMessage('v')
+        if modeOfOperation == 4: # needed specifically to make manual without memory mode work
+            sendMessage('v')
         modeOfOperation = 2
         print("Switched to positional IK mode")
         tempAngles = copy.deepcopy(savedJointAngles) # needed specifically to make manual without memory mode work
         return modeOfOperation
     elif buttons[26] == 1:
-        #if modeOfOperation == 4: # needed specifically to make manual without memory mode work
-            #sendMessage('v')
+        if modeOfOperation == 4: # needed specifically to make manual without memory mode work
+            sendMessage('v')
         modeOfOperation = 3
         print("Switched to full IK mode")
         tempAngles = copy.deepcopy(savedJointAngles) # needed specifically to make manual without memory mode work
         return modeOfOperation
     elif buttons[1] == 1:
-        #if modeOfOperation == 4: # needed specifically to make manual without memory mode work
-            #sendMessage('v')
+        if modeOfOperation == 4: # needed specifically to make manual without memory mode work
+            sendMessage('v')
         modeOfOperation = 4
         print("Switched to full IK mode")
         tempAngles = copy.deepcopy(savedJointAngles) # needed specifically to make manual without memory mode work
-        #sendMessage('q')
+        sendMessage('q')
         return modeOfOperation
 
 
@@ -991,7 +1028,7 @@ def main():
         startTime = time.time()
         endTime = time.time()
         while endTime - startTime < 3:
-            #resetArm()
+            resetArm()
             endTime = time.time()
             time.sleep(0.02)
 
@@ -1033,9 +1070,32 @@ if __name__ == "__main__":
     global k, t # velocity coefficients for translational and rotational motions, correspondingly
     k = 0.6
     t = 0.03
-    modeOfMovement = 0
+    modeOfMovement = 0 # all DOFs mode by default
     modeOfOperation = 2 # positional IK mode by default
-    savedJointAngles = [0,0,0,0,0,0]
+
+    serverIP = '192.168.0.123'
+    serverHttpPort = '8080'
+    global conn
+    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+
+    # choose between import and non-import modes
+    if len(sys.argv)==2 and sys.argv[1] == 'import':
+        angleFile = open('savedJointAngles.txt','r')
+        angles = angleFile.read()
+        angleFile.close()
+        angles = angles.strip()
+        angles = angles.strip('[]')
+        angles = angles.split(',')
+        for i in range( len(angles) ):
+            angles[i] = float(angles[i])
+        print( angles )
+        savedJointAngles = angles
+        sendStartPosition(savedJointAngles) # MAYBE IMPLEMENT DIFFERENTLY
+    else:
+        savedJointAngles = [0,0,0,0,0,0]
+        resetArm()
+
+    
     #savedServo = 0
     setupVisualEnv()
     initializeJoystick()
