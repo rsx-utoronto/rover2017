@@ -4,7 +4,7 @@ window.$ = $
 
  window.ServerAddress = "192.168.0.123"
  //window.ServerAddress = "100.64.79.183"
- //window.ServerAddress = "localhost"
+ // window.ServerAddress = "localhost"
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap/dist/css/bootstrap-theme.css'
