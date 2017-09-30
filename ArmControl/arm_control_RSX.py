@@ -8,6 +8,7 @@ import pygame
 import math
 #import socket
 import httplib
+import sys
 
 
 def homogenousTransform(dhVector):
@@ -162,9 +163,7 @@ def inverseKinematicsPositional(dhTable, homTransMatrix):
 
 def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVector):
     updatedHomTransMatrix = copy.deepcopy( homTransMatrix )
-    # update translation part
-    k = 0.1 # amplification coefficient translational motion
-    t = 0.01 # amplification coefficient rotational motion
+    global k, t
     for ind in range(3):
         translationVector[ind] = k * translationVector[ind]
         rotationVector[ind] = t * rotationVector[ind]
@@ -188,16 +187,6 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
     H56 = homogenousTransform(DHTable[5])
     R56 = np.matrix( [ H56[0][:3], H56[1][:3], H56[2][:3] ] )
     R36 = R34 * R45 * R56
-    
-    #R06 = R03 * R36
-    #for i in range(3):
-    #    for j in range(3):
-    #        updatedHomTransMatrix[i][j] = R06[i,j]
-
-    # update translation
-    #updatedHomTransMatrix[0][3] += translationVector[0]
-    #updatedHomTransMatrix[1][3] += translationVector[1]
-    #updatedHomTransMatrix[2][3] += translationVector[2]
 
     H06 = (np.matrix(H01) * np.matrix(H12) * np.matrix(H23) * np.matrix(H34) * np.matrix(H45) * np.matrix(H56)).tolist()
     H06[0][3] += translationVector[0]
@@ -209,9 +198,7 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
 
 def updateHomTransMatrixPositional(homTransMatrix, DHTable, translationVector, rotationVector):
     updatedHomTransMatrix = copy.deepcopy( homTransMatrix )
-    # update translation part
-    k = 0.1 # amplification coefficient translational motion
-    t = 0.01 # amplification coefficient rotational motion
+    global k, t
     for ind in range(3):
         translationVector[ind] = k * translationVector[ind]
         rotationVector[ind] = t * rotationVector[ind]
@@ -243,8 +230,6 @@ def setupVisualEnv():
     # needed specifically for visualizer
     global savedJointAngles
     copySavedJointAngles = savedJointAngles[:]
-    #copySavedJointAngles[3] = -copySavedJointAngles[3]
-    #copySavedJointAngles[5] = -copySavedJointAngles[5]
     initAngles = [0,0,-math.pi/2,0,0,0]
 
     setupAngles = []
@@ -255,56 +240,222 @@ def setupVisualEnv():
     #print( robot.GetActiveDOFValues() )
 
 
-def sendAngleValues(qVect):
-    #global conn
+def getJoystickButtons():
+    pygame.event.pump()
+    
+    buttons = []
+    for i in range(0, joystick.get_numbuttons()):
+        button = joystick.get_button(i)
+        buttons.append(button)
+    #print(buttons)
+    return buttons
 
-    serverIP = '100.64.79.183'
-    serverHttpPort = '8080'
+
+def sendStartPosition(qVect):
+    global conn
+    #serverIP = '192.168.0.123'
+    #serverHttpPort = '8080'
     
-    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
-    
-    #arduino1IP = '192.168.0.181'
-    #arduino1Port = 6000
-    #arduino2IP = '192.168.0.182'
-    #arduino2Port = 6000
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
 
     # stepper steps per 2*pi rotation
     q1Steps = 21973
     q2Steps = 191102
-    q3Steps = 65921
+    q3Steps = 65921*2
     q4Steps = 5493
     q5Steps = 5493
     q6Steps = 5493
-    # gripperRange = 0 - 1024
+    # gripperRange = 0 - 1023
     # generate messages from qVect here q1String etc correspond to order in message, not exactly in qVect
-    q1String = str( int(qVect[4] * q5Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[4] * q1Steps)) ).replace(' ','0')
-    q2String = str( int(qVect[5] * q6Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[5] * q2Steps)) ).replace(' ','0')
-    q3String = str( int(qVect[3] * q4Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[3] * q3Steps)) ).replace(' ','0')
-    q4String = str( int(qVect[2] * q3Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[0] * q4Steps)) ).replace(' ','0')
-    q5String = str( int(qVect[1] * q2Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[2] * q5Steps)) ).replace(' ','0')
-    q6String = str( int(qVect[0] * q1Steps/(2*math.pi) ) )#str( '%10d' %(int(qVect[1] * q6Steps)) ).replace(' ','0')
-    #q7String = '999'
-    #message1 = q1String+q2String+q3String+q4String+'p'
-    #message2 = q5String+q6String+q7String+'p'
-    #print(message1)
-    #print(message2)
-    command = 'p'
-    message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String#+"%20"+q7String
+    q1String = str( int(qVect[4] * q5Steps/(2*math.pi) ) )
+    q2String = str( int(qVect[5] * q6Steps/(2*math.pi) ) )
+    q3String = str( int(qVect[3] * q4Steps/(2*math.pi) ) )
+    q4String = str( int(qVect[2] * q3Steps/(2*math.pi) ) )
+    q5String = str( int(qVect[1] * q2Steps/(2*math.pi) ) )
+    q6String = str( int(qVect[0] * q1Steps/(2*math.pi) ) )
+
+    command = 'g'
+    message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String
 
     conn.request("PUT","/arm/"+message+"/")
+    #r1 = conn.getresponse()
+    #print r1.status, r1.reason
+    #data1 = r1.read()
+    #print data1
 
-    r1 = conn.getresponse()
-    print r1.status, r1.reason
-    data1 = r1.read()
-    print data1
-
-    conn.request("GET", "/arm")
-    r2 = conn.getresponse()
-    print r2.status, r2.reason
-    data2 = r2.read()
-    print data2
-
+    #conn.request("GET", "/arm")
+    #r2 = conn.getresponse()
+    #print r2.status, r2.reason
+    #data2 = r2.read()
+    #print data2
     conn.close()
+
+
+# TODO MAYBE IMPLEMENT DIFFERENTLY
+def sendAngleValues(qVect):
+    global conn
+    #serverIP = '192.168.0.123'
+    #serverHttpPort = '8080'
+    
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+
+    # stepper steps per 2*pi rotation
+    q1Steps = 21973
+    q2Steps = 191102
+    q3Steps = 65921*2
+    q4Steps = 5493
+    q5Steps = 5493
+    q6Steps = 5493
+    # gripperRange = 0 - 1023
+    # generate messages from qVect here q1String etc correspond to order in message, not exactly in qVect
+    q1String = str( int(qVect[4] * q5Steps/(2*math.pi) ) )
+    q2String = str( int(qVect[5] * q6Steps/(2*math.pi) ) )
+    q3String = str( int(qVect[3] * q4Steps/(2*math.pi) ) )
+    q4String = str( int(qVect[2] * q3Steps/(2*math.pi) ) )
+    q5String = str( int(qVect[1] * q2Steps/(2*math.pi) ) )
+    q6String = str( int(qVect[0] * q1Steps/(2*math.pi) ) )
+
+    command = 'p'
+    message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String
+
+    conn.request("PUT","/arm/"+message+"/")
+    #r1 = conn.getresponse()
+    #print r1.status, r1.reason
+    #data1 = r1.read()
+    #print data1
+
+    #conn.request("GET", "/arm")
+    #r2 = conn.getresponse()
+    #print r2.status, r2.reason
+    #data2 = r2.read()
+    #print data2
+    conn.close()
+
+
+    # current implementation of servo control
+    buttons = getJoystickButtons()
+    if buttons[22] == 1:
+        message = 'o'
+
+        conn.request("PUT","/arm/"+message+"/")
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
+        
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
+    if buttons[25] == 1:
+        message = 'k'
+
+        conn.request("PUT","/arm/"+message+"/")
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
+    # miscellaneous buttons
+    if buttons[23] == 1:
+        message = 'b'
+
+        conn.request("PUT","/arm/"+message+"/")
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
+        
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
+    if buttons[17] == 1:
+        message = 'c'
+
+        conn.request("PUT","/arm/"+message+"/")
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
+        
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
+    if buttons[18] == 1:
+        message = 'd'
+
+        conn.request("PUT","/arm/"+message+"/")
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
+        
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
+    if buttons[21] == 1:
+        message = 'e'
+
+        conn.request("PUT","/arm/"+message+"/")
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
+        
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
+    if buttons[19] == 1:
+        message = 'f'
+
+        conn.request("PUT","/arm/"+message+"/")
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
+        
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
+    if buttons[20] == 1:
+        message = 'g'
+
+        conn.request("PUT","/arm/"+message+"/")
+        #r1 = conn.getresponse()
+        #print r1.status, r1.reason
+        #data1 = r1.read()
+        #print data1
+        
+        #conn.request("GET", "/arm")
+        #r2 = conn.getresponse()
+        #print r2.status, r2.reason
+        #data2 = r2.read()
+        #print data2
+        conn.close()
+
+    
 
 
 def getJoystickAxes():
@@ -318,36 +469,40 @@ def getJoystickAxes():
 
 
 def getJoystickDirection():
+    global modeOfMovement
+    
     joystickValues = getJoystickAxes()
     #print(joystickValues)
 
-    # mode for all joints being controlled at once
-    beforeDirectionVector = copy.deepcopy(joystickValues)
-    #print(beforeDirectionVector)
-    directionVector = [0,0,0,0,0,0] #beforeDirectionVector
-    index = -1
-    for thing in beforeDirectionVector:
-        index += 1
-        if abs(thing) > 0.05: # sensitivity "gap", to avoid random movements
-            directionVector[index] = thing
-    #print(directionVector)
-    
-
-    # mode for only one joint at once rotation
-    # determine direction
-    #directionVector = [0,0,0,0,0,0]
-    #storedVal = 0
-    #storedInd = 0
-    #ind = -1
-    #for value in joystickValues:
-    #    ind += 1
-    #    if abs(value) > abs(storedVal):
-    #        storedVal = value
-    #        storedInd = ind
-    # introduce some "sensitivity gap" to avoid random movement
-    #if abs(storedVal) > 0.05:
-    #    directionVector[storedInd] = storedVal
-    #print(directionVector)
+    if modeOfMovement == 0:
+        print("All DOFs mode")
+        # mode for all joints being controlled at once
+        beforeDirectionVector = copy.deepcopy(joystickValues)
+        #print(beforeDirectionVector)
+        directionVector = [0,0,0,0,0,0] #beforeDirectionVector
+        index = -1
+        for thing in beforeDirectionVector:
+            index += 1
+            if abs(thing) > 0.05: # sensitivity "gap", to avoid random movements
+                directionVector[index] = thing
+        #print(directionVector)
+    elif modeOfMovement == 1:
+        print("One DOF mode")
+        # mode for only one joint at once rotation
+        # determine direction
+        directionVector = [0,0,0,0,0,0]
+        storedVal = 0
+        storedInd = 0
+        ind = -1
+        for value in joystickValues:
+            ind += 1
+            if abs(value) > abs(storedVal):
+                storedVal = value
+                storedInd = ind
+        # introduce some "sensitivity gap" to avoid random movement
+        if abs(storedVal) > 0.05:
+            directionVector[storedInd] = storedVal
+        #print(directionVector)
         
     # needed specifically to make thigs coincide with our arm
     for i in range( len(directionVector) ):
@@ -365,9 +520,29 @@ def getJoystickDirection():
     directionVector[0] = -directionVector[0]
     # rotations swap. Remember for positionalIK mode it's rotations above yxz order
     directionVector[3] = -directionVector[3]
-    #directionVector[4] = -directionVector[4]
+    directionVector[4] = -directionVector[4]
     directionVector[5] = -directionVector[5]
     return directionVector
+
+
+def updateServo(savedServo):
+    buttons = getJoystickButtons()
+
+    # servo moves in the range 0 -1023
+    updatedServo = savedServo
+    speed = 1
+    if buttons[22] == 1:
+        if updatedServo+speed <= 1023:
+            updatedServo += speed
+        else:
+            print("Servo completely open")
+    elif buttons[25] == 1:
+        if updatedServo-speed >= 0:
+            updatedServo -= speed
+        else:
+            print("Servo completely closed")
+
+    return updatedServo
     
 
 def visualizeArm(jointAngles):
@@ -375,16 +550,133 @@ def visualizeArm(jointAngles):
     #print("Values on visualization: {}".format(copyJointAngles))
     global robot
     global initAngles
-    # invert signs of q4 and q6. Needed specifically for visualizer
-    #copyJointAngles[3] = -copyJointAngles[3]
-    #copyJointAngles[5] = -copyJointAngles[5]
-    
     
     for i in range(len(copyJointAngles)):
         copyJointAngles[i] += initAngles[i]
     robot.SetActiveDOFValues(copyJointAngles)
     #print("Initial angles: {}".format(initAngles))
+
+
+def resetArm():
+    global conn
+    #serverIP = '192.168.0.123'
+    #serverHttpPort = '8080'
     
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+
+    message = 'x'
+
+    conn.request("PUT","/arm/"+message+"/")
+
+    #r1 = conn.getresponse()
+    #print r1.status, r1.reason
+    #data1 = r1.read()
+    #print data1
+
+    #conn.request("GET", "/arm")
+    #r2 = conn.getresponse()
+    #print r2.status, r2.reason
+    #data2 = r2.read()
+    #print data2
+
+    conn.close()
+
+
+def sendMessage(message):
+    global conn
+    #serverIP = '192.168.0.123'
+    #serverHttpPort = '8080'
+    
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+
+    conn.request("PUT","/arm/"+message+"/")
+
+    #r1 = conn.getresponse()
+    #print r1.status, r1.reason
+    #data1 = r1.read()
+    #print data1
+
+    #conn.request("GET", "/arm")
+    #r2 = conn.getresponse()
+    #print r2.status, r2.reason
+    #data2 = r2.read()
+    #print data2
+
+    conn.close()
+    
+
+def manual_no_memory():
+    global k
+    # get the direction value to move in
+    joystickDirection = getJoystickDirection()
+    #print("Current joystick direction:")
+    #print(joystickDirection)
+    # get the current joint angles of the arm
+    global tempAngles
+    jointAngles = copy.deepcopy(tempAngles)
+    #global savedServo
+    #print("Current joint angles: {}".format(jointAngles))
+    #print(jointAngles)
+    
+    # joint values, pretty view
+    q1 = jointAngles[0]
+    q2 = jointAngles[1]
+    q3 = jointAngles[2]
+    q4 = jointAngles[3]
+    q5 = jointAngles[4]
+    q6 = jointAngles[5]
+    # joint variables limits (in degrees), format [min, max]
+    q1lim = np.array( [-160, 160] ) * math.pi/180
+    q2lim = np.array( [-45, 225] ) * math.pi/180
+    q3lim = np.array( [-225, 45] ) * math.pi/180
+    q4lim = np.array( [-110, 170] ) * math.pi/180
+    q5lim = np.array( [-100, 100] ) * math.pi/180
+    q6lim = np.array( [-266, 266] ) * math.pi/180
+    # DH Table with entries in the format: [a, alpha, d, theta]
+    # First links are first entries
+    DHTable = [ [0, math.pi/2, 5.5, q1],
+                [36, 0, 0, q2],
+                [0, math.pi/2, 0, q3],
+                [0, -math.pi/2, 32, q4],
+                [0, math.pi/2, 0, q5],
+                [0, 0, 15, q6] ]
+    
+    uq1 = DHTable[0][3] + 0.002 * 2*math.pi * joystickDirection[1] * k / 0.6#sr
+    uq2 = DHTable[1][3] + 0.0006 * 2*math.pi * joystickDirection[2] * k / 0.3#sp
+    uq3 = DHTable[2][3] + 0.001 * 2*math.pi * joystickDirection[0] * k / 0.3#eb
+    uq4 = DHTable[3][3] + 0.005 * 2*math.pi * joystickDirection[4] * k / 0.3#w3
+    uq5 = DHTable[4][3] + 0.005 * 2*math.pi * joystickDirection[3] * k / 0.3#w1
+    uq6 = DHTable[5][3] + 0.005 * 2*math.pi * joystickDirection[5] * k / 0.3#w2
+
+    # update servo value
+    #servoValueNew = updateServo(savedServo)
+    try:
+        jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
+
+        #savedServo = servoValueNew
+
+        tempAngles = copy.deepcopy( jointAngles )
+        
+        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        sendAngleValues(tempAngles)
+
+        visualizeArm(tempAngles)
+        print(tempAngles)
+        
+    except:
+        print("Exception encountered")
+        jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
+
+        #savedServo = savedServo
+
+        tempAngles = copy.deepcopy( jointAngles )
+        
+        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        sendAngleValues(tempAngles)
+
+        visualizeArm(tempAngles)
+        print(tempAngles)
+
 
 def manual():
     # get the direction value to move in
@@ -392,9 +684,9 @@ def manual():
     #print("Current joystick direction:")
     #print(joystickDirection)
     # get the current joint angles of the arm
-    #jointAngles = getJointAngles() # TODO TEMPORARY REPLACED
     global savedJointAngles
-    jointAngles = copy.deepcopy(savedJointAngles) # TODO TEMPORARY REPLACEMENT?
+    jointAngles = copy.deepcopy(savedJointAngles)
+    #global savedServo
     #print("Current joint angles: {}".format(jointAngles))
     #print(jointAngles)
     
@@ -428,34 +720,42 @@ def manual():
     #print([ homTransMatrix[0][3], homTransMatrix[1][3], homTransMatrix[2][3] ])
     visualizeArm(jointAngles)
     
-    k = 0.001 # speed value
     uq1 = DHTable[0][3] + 0.002 * 2*math.pi * joystickDirection[1]#sr
     uq2 = DHTable[1][3] + 0.0006 * 2*math.pi * joystickDirection[2]#sp
     uq3 = DHTable[2][3] + 0.001 * 2*math.pi * joystickDirection[0]#eb
     uq4 = DHTable[3][3] + 0.005 * 2*math.pi * joystickDirection[4]#w3
     uq5 = DHTable[4][3] + 0.005 * 2*math.pi * joystickDirection[3]#w1
     uq6 = DHTable[5][3] + 0.005 * 2*math.pi * joystickDirection[5]#w2
+
+    # update servo value
+    #servoValueNew = updateServo(savedServo)
     try:
         jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
         #print("Updated joint angles: {}".format(jointAngles))
         #print(jointAngles)
         savedJointAngles = copy.deepcopy(jointAngles)
+
+        #savedServo = servoValueNew
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         sendAngleValues(savedJointAngles)
         
         visualizeArm(savedJointAngles)
+        #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
         print(savedJointAngles)
     except:
         print("Exception encountered")
         jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
         #print("Updated joint angles: {}".format(jointAngles)) 
         savedJointAngles = copy.deepcopy(jointAngles)
+
+        #savedServo = savedServo
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         sendAngleValues(savedJointAngles)
         
         visualizeArm(savedJointAngles)
+        #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
         print(savedJointAngles)
 
 
@@ -465,9 +765,9 @@ def positionalIK():
     #print("Current joystick direction:")
     #print(joystickDirection)
     # get the current joint angles of  the arm
-    #jointAngles = getJointAngles() # TODO TEMPORARY REPLACED
     global savedJointAngles
-    jointAngles = copy.deepcopy(savedJointAngles) # TODO TEMPORARY REPLACEMENT ?
+    jointAngles = copy.deepcopy(savedJointAngles)
+    #global savedServo
     #print("Current joint angles: {}".format(jointAngles))
     #print(jointAngles)
     
@@ -521,42 +821,48 @@ def positionalIK():
     uq4 = DHTable[3][3] + rotationVector[1]#updatedDHTable[3][3]
     uq5 = DHTable[4][3] + rotationVector[0]#updatedDHTable[4][3]
     uq6 = DHTable[5][3] + rotationVector[2]#updatedDHTable[5][3]
+
+    # update servo value
+    #servoValueNew = updateServo(savedServo)
     try:
         jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
         #print("Updated joint angles: {}".format(jointAngles))
         #print(jointAngles)
+
+        #savedServo = servoValueNew
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         sendAngleValues(savedJointAngles)
         
         savedJointAngles = copy.deepcopy(jointAngles)
         visualizeArm(savedJointAngles)
+        #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
         print(savedJointAngles)
     except:
         print("Exception encountered")
         jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
         #print("Updated joint angles: {}".format(jointAngles))
+
+        #savedServo = savedServo
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         sendAngleValues(savedJointAngles)
         
         savedJointAngles = copy.deepcopy(jointAngles)
         visualizeArm(savedJointAngles)
+        #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
         print(savedJointAngles)
     
 
 def fullIK():
     # get the direction value to move in
     joystickDirection = getJoystickDirection()
-    #print("Current joystick direction:")
-    #print(joystickDirection)
+    #print("Current joystick direction: {}".format(joystickDirection))
     # get the current joint angles of the arm
-    #jointAngles = getJointAngles() # TODO TEMPORARY REPLACED
-    #global savedQ6 # needed specifically because we want to ignore roll of the end effector in IK
     global savedJointAngles
     jointAngles = copy.deepcopy(savedJointAngles)
+    #global savedServo
     #print("Current joint angles: {}".format(jointAngles))
-    #print(jointAngles)
     
     # joint values, pretty view
     q1 = jointAngles[0]
@@ -608,70 +914,127 @@ def fullIK():
     uq4 = updatedDHTable[3][3]
     uq5 = updatedDHTable[4][3]
     uq6 = updatedDHTable[5][3]
+
+    # update servo value
+    #servoValueNew = updateServo(savedServo)
     try:
-        #savedQ6 += uq6 # needed specifically because we want to ignore roll of the end effector but being able to set end effector how necessary
         jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
         #print("Updated joint angles: {}".format(jointAngles))
         
-        #jointAngles[5] = 0
         savedJointAngles = copy.deepcopy(jointAngles)
+
+        #savedServo = servoValueNew
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         sendAngleValues(savedJointAngles)
         
         visualizeArm(savedJointAngles)
+        #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
         print(savedJointAngles)
     except:
         print("Exception encountered")
         jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
         #print("Updated joint angles: {}".format(jointAngles))
         savedJointAngles = copy.deepcopy(jointAngles)
+
+        #savedServo = savedServo
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!! or just do nothing?
         sendAngleValues(savedJointAngles)
         
         visualizeArm(savedJointAngles)
+        #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
         print(savedJointAngles)
 
 
-def getOperationMode():
-    mode = 2
-    #key = 
-    #if key == '1':
-    #    mode = 1
-    #elif key == '2':
-    #    mode = 2
-    return mode
+def updateOperationMode():
+    global modeOfOperation
+    global tempAngles
+    global savedJointAngles
 
-def resetArm():
-    serverIP = '100.64.79.183'
-    serverHttpPort = '8080'
-    
-    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+    buttons = getJoystickButtons()
+    if buttons[28] == 1:
+        if modeOfOperation == 4: # needed specifically to make manual without memory mode work
+            sendMessage('v')
+        modeOfOperation = 1
+        print("Switched to manual mode")
+        tempAngles = copy.deepcopy(savedJointAngles) # needed specifically to make manual without memory mode work
+        return modeOfOperation
+    elif buttons[27] == 1:
+        if modeOfOperation == 4: # needed specifically to make manual without memory mode work
+            sendMessage('v')
+        modeOfOperation = 2
+        print("Switched to positional IK mode")
+        tempAngles = copy.deepcopy(savedJointAngles) # needed specifically to make manual without memory mode work
+        return modeOfOperation
+    elif buttons[26] == 1:
+        if modeOfOperation == 4: # needed specifically to make manual without memory mode work
+            sendMessage('v')
+        modeOfOperation = 3
+        print("Switched to full IK mode")
+        tempAngles = copy.deepcopy(savedJointAngles) # needed specifically to make manual without memory mode work
+        return modeOfOperation
+    elif buttons[1] == 1:
+        if modeOfOperation == 4: # needed specifically to make manual without memory mode work
+            sendMessage('v')
+        modeOfOperation = 4
+        print("Switched to full IK mode")
+        tempAngles = copy.deepcopy(savedJointAngles) # needed specifically to make manual without memory mode work
+        sendMessage('q')
+        return modeOfOperation
 
-    message = 'x'
 
-    conn.request("PUT","/arm/"+message+"/")
+def updateModeOfMovement():
+    global modeOfMovement
 
-    r1 = conn.getresponse()
-    print r1.status, r1.reason
-    data1 = r1.read()
-    print data1
+    buttons = getJoystickButtons()
+    if buttons[24] == 1:
+        modeOfMovement = 0
+        print("Switched to all DOFs mode")
+        return modeOfMovement
+    elif buttons[0] == 1:
+        modeOfMovement = 1
+        print("Switched to one DOF mode")
+        return modeOfMovement
 
-    conn.request("GET", "/arm")
-    r2 = conn.getresponse()
-    print r2.status, r2.reason
-    data2 = r2.read()
-    print data2
 
-    conn.close()
+def updateSpeed():
+    global k, t
+    buttons = getJoystickButtons()
+
+    if buttons[29] == 1:
+        k *= 1.5
+        t *= 1.5
+        print("Speed increased")
+    if buttons[30] == 1:
+        k /= 1.5
+        t /= 1.5
+        print("Speed decreased")
+    while buttons[30] or buttons[29]:
+        buttons = getJoystickButtons()
+        continue
 
 
 def main():
     # TODO GET THE MODE OF OPERATION
     # modes: '1'-manual, '2'-positional IK (first 3 joints), '3'-full IK
-    
-    modeOfOperation = getOperationMode()#getOperationMode()#GET THE MODE OF OPERATION FROM SOMEWHERE
+    global modeOfOperation
+    global storageFile
+    # resetting the IK model to zero position upon request 
+    global savedJointAngles
+    buttons = getJoystickButtons()
+    if buttons[6] == 1: # reset servos and model to complete zero position
+        savedJointAngles = [0,0,0,0,0,0]
+        startTime = time.time()
+        endTime = time.time()
+        while endTime - startTime < 3:
+            resetArm()
+            endTime = time.time()
+            time.sleep(0.02)
+
+    updateOperationMode()
+    updateModeOfMovement()
+    updateSpeed()
     if modeOfOperation == 1:
         print("Manual mode")
         manual()
@@ -681,38 +1044,62 @@ def main():
     elif modeOfOperation == 3:
         print("Full IK mode")
         fullIK()
+    elif modeOfOperation == 4:
+        print("Manual no memory mode")
+        manual_no_memory()
+
+    # saving the current arm status just in case
+    storageFile = open('savedJointAngles.txt', 'w')
+    storageFile.write( str(savedJointAngles) )
+    storageFile.close()
         
     # frequency in Hz
-    frequency = 20
+    frequency = 50
     timeDelay =  1.0/frequency
     #print(timeDelay)
     time.sleep(timeDelay)
 
-    
 
 if __name__ == "__main__":
-    # global variables are:
-    # joystick
-    # savedJointAngles
-    # initAngles
-    # robot
-    #global savedQ6
-    #savedQ6 = 0
     global savedJointAngles
-    savedJointAngles = [0,0,0,0,0,0]
+    global savedServo
+    global modeOfOperation
+    global storageFile
+    global tempAngles
+    global modeOfMovement # either motion in every DOF at once or only one DOF at once, "0" - all DOFs, "1" - one DOF
+    global k, t # velocity coefficients for translational and rotational motions, correspondingly
+    k = 0.6
+    t = 0.03
+    modeOfMovement = 0 # all DOFs mode by default
+    modeOfOperation = 2 # positional IK mode by default
+
+    serverIP = '192.168.0.123'
+    serverHttpPort = '8080'
+    global conn
+    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+
+    # choose between import and non-import modes
+    if len(sys.argv)==2 and sys.argv[1] == 'import':
+        angleFile = open('savedJointAngles.txt','r')
+        angles = angleFile.read()
+        angleFile.close()
+        angles = angles.strip()
+        angles = angles.strip('[]')
+        angles = angles.split(',')
+        for i in range( len(angles) ):
+            angles[i] = float(angles[i])
+        print( angles )
+        savedJointAngles = angles
+        sendStartPosition(savedJointAngles) # MAYBE IMPLEMENT DIFFERENTLY
+    else:
+        savedJointAngles = [0,0,0,0,0,0]
+        resetArm()
+
+    
+    #savedServo = 0
     setupVisualEnv()
     initializeJoystick()
-    resetArm()
-    #global s
-    #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #global conn
-    #serverIP = '100.64.79.183'
-    #serverHttpPort = '8081'
-    
-    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
-    
-    
-    #time.sleep(0.5)
+    #resetArm()
     
     while True:
         # TODO
@@ -728,8 +1115,6 @@ if __name__ == "__main__":
                 #continue
         else:
             continue
-
-    #conn.close()
     
     print("Shut the operations down")
     
