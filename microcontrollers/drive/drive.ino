@@ -30,8 +30,8 @@ EthernetServer autoSysConn(autoSysPort);
 
 //L293D
 //Joint Motor 1
-int speedPins[] = {3, 5, 7, 9, 11, 13} ;
-int directionPins[] = {2, 26, 6, 8, 28, 12};
+int speedPins[] = {9, 11, 13, 3, 5, 7 } ;
+int directionPins[] = {8, 28, 12, 2, 26, 6 };
 
 int speedl;
 int speedr;
@@ -39,12 +39,13 @@ boolean driveMode;
 int pivot;
 int speedf = -255;
 int speedp = -255;
+/*
 const int max_speed = 128;
 const int min_speed = 50;
-const int joyDead = 8; //Range of joystick movement that is accidental
+const int joyDead = 0; //Range of joystick movement that is accidental
 const int joy_max = 100;
-float drive_exp = 1.4;  // Exponential speed (1= linear, 2= squared)
-
+float drive_exp = 1.6;  // Exponential speed (1= linear, 2= squared)
+*/
 void setup() {
   //Set pins as outputs
   for (int i=0; i<6; i++) {
@@ -135,32 +136,34 @@ void doPivot(int pivot){
     setLeftSpd(pivot);
     setRightSpd(-pivot);
 }
-
+/*
 int sgn(int x){
     if (x > 0) return 1;
     if (x < 0) return -1;
     return 0;
 }
+*/
 
 // Drive forward or backward
 void forward(int speedl, int speedr){
     setLeftSpd(speedl);
     setRightSpd(speedr);
 }
-
+/*
 float expDrive (int joyVal){
     int joyMax = joy_max - joyDead;
     int joySign = sgn(joyVal);
     int joyLive = abs(joyVal) - joyDead;
     return joySign * (min_speed + ((max_speed - min_speed) * pow(joyLive, drive_exp) / pow(joyMax, drive_exp)));
 }
-
+*/
 // Ethernet helper function
 void processData(EthernetClient * client, EthernetServer * server){
   String buff = "";
   while (client->available() > 0) {
       // read the bytes incoming from the client:
       char thisChar = client->read();
+      
       buff += thisChar;
   }
 
@@ -177,29 +180,11 @@ void processData(EthernetClient * client, EthernetServer * server){
   int pivot = buff.substring(10 + frameshift, 14 + frameshift).toInt();
   boolean driveMode = (buff.charAt(14 + frameshift) == '1');
 
-  //Serial.print("Speed values: L ");
-  // Serial.print(speedl); raw speed
-  float exp_speedl = expDrive(speedl);
-  //Serial.print(exp_speedl);
-  //Serial.print(" R ");
-  // Serial.println(speedr);
-  float exp_speedr = expDrive(speedr);
-  //Serial.println(exp_speedr);
-  //Serial.print("Pivot value: ");
-  // Serial.println(pivot);
-  float exp_pivot = expDrive(pivot);
-  //Serial.println(exp_pivot);
-  //Serial.print("Drive mode: ");
-  //Serial.print(buff.charAt(14 + frameshift) == '1');
-  //Serial.println(driveMode);
-
   if(driveMode) {
-    //Serial.println("going forward");
-    forward(-exp_speedl, -exp_speedr);
+    forward(-speedl, -speedr);
   }
   else {
-    //Serial.println("Pivoting left");
-    doPivot(exp_pivot);
+    doPivot(pivot);
   }
 }
 
@@ -215,6 +200,6 @@ void loop() {
   else if(baseClient) {
     processData(&baseClient, &baseConn);
   }
-  delay(10);
+  delay(5);
 
 }

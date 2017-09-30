@@ -38,7 +38,7 @@ function update(model) {
 	.then(response => response.json())
 	.then(body => {
 		// Calculate pitch of the rover using the accelerometer, measured in degrees from horizontal.
-		// Assume that the phone is in landscape mode and mounted facing forward
+		// Assume that the phone is in portrait mode and mounted facing forward
 		// Acceleration is averaged over the last SMOOTHING iterations
 		let accelHist = _(body.accel.data)
 						.slice(-SMOOTHING)	// pop the last few elements
@@ -47,23 +47,40 @@ function update(model) {
 						.map(_.mean)
 						.value()
 		let accel = _.zipObject(body.accel.desc, accelHist);
-		let pitchRad = Math.atan2(accel.Az, accel.Ax);
+		let pitchRad = Math.atan2(-accel.Az, accel.Ay); // change to y, z
 		model.gps.pitch = toDegrees(pitchRad);
 
 		let batteryLevel = _.last(body.battery_level.data)[1];  // battery level of the phone
 		model.gps.battery = batteryLevel;
 
-		// Calculate the orientation of the rover in degrees from north.
-		// This is calculated from the magnetometer in a similar fashion to pitch.
-		let magHist = _(body.mag.data)
+		// rot_vector is calculated with sensor fusion, prefer this
+		if (body.rot_vector) {
+			// x is pitch 
+			// y is heading 
+			let rotHist = _(body.rot_vector.data)
 						.slice(-SMOOTHING)
 						.map(x => x[1])
 						.unzip()
 						.map(_.mean)
 						.value()
-		let mag = _.zipObject(body.mag.desc, magHist);
-		let magZ = mag.Mz * Math.cos(pitchRad) + mag.Mx * Math.sin(pitchRad); // apply a rotation matrix about y to correct for pitch
-		model.gps.heading = toDegrees(Math.atan2(mag.My, magZ));
+			let rot = _.zipObject(body.rot_vector.desc.map(x => x[0]), rotHist); 
+			model.gps.heading = -720 * Math.asin(rot.y) / Math.PI; 
+			// could probably also calculate pitch, but it requires some trig. 
+		}
+		else { 
+			// Calculate the orientation of the rover in degrees from north.
+			// Calculated as a compass bearing from north. Outputs from -180 to 180. 
+			// This is calculated from the magnetometer in a similar fashion to pitch.
+			let magHist = _(body.mag.data)
+							.slice(-SMOOTHING)
+							.map(x => x[1])
+							.unzip()
+							.map(_.mean)
+							.value()
+			let mag = _.zipObject(body.mag.desc, magHist);
+			let correctedMagZ = mag.Mz * Math.cos(pitchRad) + mag.My * Math.sin(pitchRad); // apply a rotation matrix about x to correct for pitch
+			model.gps.heading = toDegrees(Math.atan2(-mag.Mx, -correctedMagZ)); 
+		}
 	})
 	.catch(err => {
 		console.log("Could not get data from sensors", err)
@@ -78,7 +95,7 @@ function init(model, config) {
 		if (response.ok)
 			setInterval(() => update(model), 1000);
 	})
-	.catch(err => console.error('Could not start the gps'));
+	.catch(err => console.error('Could not start the gps sensors'));
 
 	// create the server interface
 	var router = express.Router();
