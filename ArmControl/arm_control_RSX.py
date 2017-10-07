@@ -274,8 +274,8 @@ def sendAngleValues(qVect, start = 0):
     q6String = str( int(qVect[0] * q1Steps/(2*math.pi) ) )
 
     command = 'p'
-	if start == 1:
-		command = 'g'
+    if start == 1:
+	   command = 'g'
     message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String
 
     sendMessage(message)
@@ -426,9 +426,10 @@ def resetArm():
 
 
 def sendMessage(message):
-    global conn
+    return
+    #global conn
 
-    conn.request("PUT","/arm/"+message+"/")
+    #conn.request("PUT","/arm/"+message+"/")
 
     #r1 = conn.getresponse()
     #print r1.status, r1.reason
@@ -441,11 +442,9 @@ def sendMessage(message):
     #data2 = r2.read()
     #print data2
 
-    conn.close()
+    #conn.close()
     
-def makeDHTable():
-	global tempAngles
-    jointAngles = copy.deepcopy(tempAngles)
+def makeDHTable(jointAngles):
     #global savedServo
     #print("Current joint angles: {}".format(jointAngles))
     #print(jointAngles)
@@ -465,7 +464,7 @@ def makeDHTable():
                 [0, -math.pi/2, 32, q4],
                 [0, math.pi/2, 0, q5],
                 [0, 0, 15, q6] ]
-	return DHTable
+    return DHTable
 	
 def manual_no_memory():
     global k
@@ -474,6 +473,8 @@ def manual_no_memory():
     #print("Current joystick direction:")
     #print(joystickDirection)
     # get the current joint angles of the arm
+    global tempAngles
+    jointAngles = copy.deepcopy(tempAngles)
     # joint variables limits (in degrees), format [min, max]
     q1lim = np.array( [-160, 160] ) * math.pi/180
     q2lim = np.array( [-45, 225] ) * math.pi/180
@@ -481,7 +482,7 @@ def manual_no_memory():
     q4lim = np.array( [-110, 170] ) * math.pi/180
     q5lim = np.array( [-100, 100] ) * math.pi/180
     q6lim = np.array( [-266, 266] ) * math.pi/180
-	DHTable = makeDHTable()
+    DHTable = makeDHTable(jointAngles)
     
     uq1 = DHTable[0][3] + 0.002 * 2*math.pi * joystickDirection[1] * k / 0.6#sr
     uq2 = DHTable[1][3] + 0.0006 * 2*math.pi * joystickDirection[2] * k / 0.3#sp
@@ -526,6 +527,8 @@ def manual():
     #print("Current joystick direction:")
     #print(joystickDirection)
     # get the current joint angles of the arm
+    global savedJointAngles
+    jointAngles = copy.deepcopy(savedJointAngles)
     # joint variables limits (in degrees), format [min, max]
     q1lim = np.array( [-160, 160] ) * math.pi/180
     q2lim = np.array( [-45, 225] ) * math.pi/180
@@ -534,7 +537,7 @@ def manual():
     q5lim = np.array( [-100, 100] ) * math.pi/180
     q6lim = np.array( [-266, 266] ) * math.pi/180
 	
-	DHTable = makeDHTable()
+    DHTable = makeDHTable(jointAngles)
     # do forward kinematics
     DHTableCopy = copy.deepcopy(DHTable)
     homTransMatrix = forwardKinematics(DHTableCopy)
@@ -587,6 +590,8 @@ def positionalIK():
     #print("Current joystick direction:")
     #print(joystickDirection)
     # get the current joint angles of  the arm
+    global savedJointAngles
+    jointAngles = copy.deepcopy(savedJointAngles)
     # joint variables limits (in degrees), format [min, max]
     q1lim = np.array( [-160, 160] ) * math.pi/180
     q2lim = np.array( [-45, 225] ) * math.pi/180
@@ -596,7 +601,7 @@ def positionalIK():
     q6lim = np.array( [-266, 266] ) * math.pi/180
     # DH Table with entries in the format: [a, alpha, d, theta]
     # First links are first entries
-	DHTable = makeDHTable()
+    DHTable = makeDHTable(jointAngles)
 
     # do forward kinematics
     DHTableCopy = copy.deepcopy(DHTable)
@@ -663,6 +668,8 @@ def fullIK():
     joystickDirection = getJoystickDirection()
     #print("Current joystick direction: {}".format(joystickDirection))
     # get the current joint angles of the arm
+    global savedJointAngles
+    jointAngles = copy.deepcopy(savedJointAngles)
     # joint variables limits (in degrees), format [min, max]
     q1lim = np.array( [-160, 160] ) * math.pi/180
     q2lim = np.array( [-45, 225] ) * math.pi/180
@@ -671,7 +678,7 @@ def fullIK():
     q5lim = np.array( [-100, 100] ) * math.pi/180
     q6lim = np.array( [-266, 266] ) * math.pi/180
 
-	DHTable = makeDHTable()
+    DHTable = makeDHTable(jointAngles)
 
     # do forward kinematics
     DHTableCopy = copy.deepcopy(DHTable)
@@ -862,7 +869,7 @@ if __name__ == "__main__":
     serverIP = '192.168.0.123'
     serverHttpPort = '8080'
     global conn
-    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
 
     # choose between import and non-import modes
     if len(sys.argv)==2 and sys.argv[1] == 'import':
