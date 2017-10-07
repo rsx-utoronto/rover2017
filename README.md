@@ -5,7 +5,8 @@
 
 ### Running the full toolkit
 Navigate to the folder where you want to install everything
-- ` $ git clone --recursive https://github.com/rsx-utoronto/rover2017 `
+- ` $ git clone --recursive https://github.com/rsx-utoronto/rover `
+- ` $ cd rover `
 
 ##### Installing Front-end
 - ` $ cd RoverDashboard `
@@ -16,10 +17,10 @@ Navigate to the folder where you want to install everything
 - Navigate to localhost:3000 in your browser
 
 ##### Installing Server
+In a new window
 - ` $ npm install `
 
 ##### Running Server
-In a new window
 - ` $ cd server `
 - ` $ node main.js # runs the server `
 Can also use `nodemon main.js` for hot reloading.
