@@ -10,16 +10,9 @@ Navigate to the folder where you want to install everything
 ##### Installing Front-end
 - ` $ cd RoverDashboard `
 - ` $ npm install `
-- ` $ npm install -g http-server `
-- ` $ npm install -g webpack `
-
-##### Building Front-end
-- ` $ webpack ` Compile the front-end
-Can also use `webpack --watch` for hot reload
 
 ##### Running Front-end
-- ` $ cd RoverDashboard `
-- ` $ http-server -p 3000  # runs the frontend `
+- ` $ npm start`
 - Navigate to localhost:3000 in your browser
 
 ##### Installing Server
@@ -42,13 +35,13 @@ Can also use `nodemon main.js` for hot reloading.
 - `-h` enables help
 - `-all-arduinos` enables all the arduinos on serial ports. see `main.js` for how to enable specific systems
 - `-v` enables verbose debugging
-- `-l` enables the lidar 
+- `-l` enables the lidar
 
-### Installing lidar 
-- Lidar should be installed in the `server/lib` folder: 
+### Installing lidar
+- Lidar should be installed in the `server/lib` folder:
 `cd server/lib
-- Lidar repo can be installed with `git submodule update --init --recursive` 
-- Lidar repo can be updated with `git submodule update --recursive` (haven't tried this yet) 
+- Lidar repo can be installed with `git submodule update --init --recursive`
+- Lidar repo can be updated with `git submodule update --recursive` (haven't tried this yet)
 
 Notes:
 - You can copy `example_config.json` to `config.json` if you need to set your own settings. The latter will have a higher priority.
