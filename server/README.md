@@ -46,3 +46,11 @@ The science system reports the state from the science sensors.
 
 Endpoint:
 `GET /`: Gets science state. The format has not been determined yet.
+
+### GPS System
+The GPS reports the position and heading of the rover.
+
+Endpoint:
+`GET /`: Gets the gps state. The information is in the form: ``` {
+    latitude: float, longitude: float, heading: float
+}```
