@@ -5,9 +5,19 @@ import json
 import math
 
 stop_time = 300
-speed = 20
-targetX = -79.38721  #long
-targetY = 43.70442   #lat
+speed = 50
+count = 0
+# targetX = -79.38721  #long
+# targetY = 43.70442   #lat
+
+# right beside the doorway
+# targetX = -79.40283789434407
+# targetY = 43.664950484257666
+
+# away from the doorway
+targetX = -79.40313654280052
+targetY = 43.664923792445684
+
 x = 0
 y = 0
 tick = datetime.now()
@@ -39,7 +49,7 @@ while True:
     x = targetX - json_gps["longitude"]
     y = targetY - json_gps["latitude"]
     
-    if abs(x) < 0.001 and abs(y) < 0.001:
+    if abs(x) < 0.000001 and abs(y) < 0.000001:
         print ("Destination reached")
         break
     '''
@@ -61,30 +71,51 @@ while True:
     
     #Move to the goal
     angle = target_angle - head
+    count += 1
+    if count == 0:
+        print("target_angle")
+        print(target_angle)
+    
     print("head:")
     print(head)
     print("angle:")
     print(angle)
     if angle >= 0:
         #move right
+        if angle <= 90:
             #Turn appropriately: higher the angle, bigger the turn (left speed increases)
-        left_speed = speed
-        right_speed = speed * math.cos(angle)
+            left_speed = speed
+            right_speed = speed * abs(math.cos(abs(angle)))
+        elif angle < 180:
+            left_speed = speed
+            right_speed = 0
+        else:
+            left_speed = 0
+            right_speed = 0
 
-    if angle < 0:
+
+    else:
         #move left
-        left_speed = speed * math.cos(abs(angle))
-        right_speed = speed
+        if abs(angle) <= 90:
+            left_speed = speed * abs(math.cos(abs(angle)))
+            right_speed = speed
+        elif abs(angle) < 180:
+            left_speed = 0
+            right_speed = speed
+        else:
+            left_speed = 0
+            right_speed = 0
 
     #conn = http.client.HTTPConnection("100.64.104.140:8080")
     conn = http.client.HTTPConnection("localhost:8080")
     conn.request("PUT", "/drive/speed/" + str(left_speed) + "/" + str(right_speed))
     time.sleep(1/speed)
     
-    '''
+    print("Left speed")
     print(left_speed)
+    print("Right speed")
     print(right_speed)
-    '''
+    
 #conn = http.client.HTTPConnection("100.64.104.140:8080")
 conn = http.client.HTTPConnection("localhost:8080")
 conn.request("PUT", "/drive/stop")

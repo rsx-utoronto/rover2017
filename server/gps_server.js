@@ -93,7 +93,7 @@ function init(model, config) {
 	fetch(`${phoneURL}/settings/gps_active?set=on`)
 	.then(response => {
 		if (response.ok)
-			setInterval(() => update(model), 1000);
+			setInterval(() => update(model), 200);
 	})
 	.catch(err => console.error('Could not start the gps sensors'));
 
