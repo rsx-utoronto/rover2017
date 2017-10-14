@@ -331,9 +331,11 @@ def getJoystickAxes():
 
 def getJoystickDirection():
     global modeOfMovement
-    
+    global savedJointAngles
+    global modeOfOperation
+
     joystickValues = getJoystickAxes()
-    #print(joystickValues)
+    print(joystickValues)
 
     if modeOfMovement == 0:
         print("All DOFs mode")
@@ -355,14 +357,20 @@ def getJoystickDirection():
         storedVal = 0
         storedInd = 0
         ind = -1
-        for value in joystickValues:
+        for value in joystickValues:    #Can use argmax -- HAO Zhang
             ind += 1
             if abs(value) > abs(storedVal):
                 storedVal = value
                 storedInd = ind
         # introduce some "sensitivity gap" to avoid random movement
         if abs(storedVal) > 0.05:
-            directionVector[storedInd] = storedVal
+            if storedInd == 3 and modeOfOperation == 3:
+                if savedJointAngles[5] > 0:
+                    directionVector[storedInd] = storedVal
+                else:
+                    directionVector[storedInd] = -storedVal
+            else:
+                directionVector[storedInd] = storedVal
         #print(directionVector)
         
     # needed specifically to make thigs coincide with our arm
@@ -723,7 +731,7 @@ def fullIK():
         
         visualizeArm(savedJointAngles)
         #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
-        print(savedJointAngles)
+        #print(savedJointAngles)
     except:
         print("Exception encountered")
         jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
@@ -737,7 +745,7 @@ def fullIK():
         
         visualizeArm(savedJointAngles)
         #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
-        print(savedJointAngles)
+        #print(savedJointAngles)
 
 
 def updateOperationMode():
