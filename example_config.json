@@ -15,5 +15,7 @@
 		"heading": 0
 	},
 	"phone_url": "http://192.168.0.12:8080",
-	"lidar_port": "/dev/ttyUSB0"
+	"lidar_port": "/dev/ttyUSB0",
+
+	""
 }

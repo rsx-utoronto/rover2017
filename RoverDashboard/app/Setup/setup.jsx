@@ -1,19 +1,23 @@
 import React from 'react'
 import _ from 'lodash'
 
-// for the playstation gamepads, use 1, 0 respectively.
 // for the big joystick, use 1, 5.
-const AXIS_FB = 1; // which axes control the gamepad
-const AXIS_LR = 0;
-const AXIS_PIVOT = 5;
-const min_speed = 20; //min analog write to the motor drivers
-const mmax_speed = 128; //suggested maximum (255 is the physical max)
-const lmax_speed = 70; //For the best control
+const AXIS_FB = 1; // which axes control the rover's forward/ backward motion
+const AXIS_LR = 0; // which axis controls the rover's left/ right motion
+const AXIS_PIVOT = 5; // which axis controls the rover's pivot. by default, this is disabled.
+const AXIS_SPEED = 6; // which axis controls the rover's speed
+
+var min_sensitivity = 70; // maximum speed when sensitivity is minimized.
+var max_sensitivity = 180; // ^ sensitivity is maximized
+
+const min_speed = 20; // min analog write to the motor drivers
+const mmax_speed = 128; // suggested maximum (255 is the physical max)
+const lmax_speed = 70; // For the best control
 const hmax_speed = 180; // For very fast rover
 
-const joyDead = 0; //Range in wich the joy stick movement is accidental
-const joy_max = 100; //Maximum joy stick input
-const drive_exp = 1.4; //Relationship between the joystick input and the output (power)
+const joyDead = 0; // Range in wich the joystick movement is accidental
+const joy_max = 100; // Maximum joystick input
+const drive_exp = 1.4; // Relationship between the joystick input and the output (power)
 
 let state; // save state on dismount
 let interval; // handles drive
