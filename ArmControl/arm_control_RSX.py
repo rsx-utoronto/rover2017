@@ -164,8 +164,7 @@ def inverseKinematicsPositional(dhTable, homTransMatrix):
     return updatedDHTable
 
 
-def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVector):
-    updatedHomTransMatrix = copy.deepcopy( homTransMatrix )
+def updateHomTransMatrix(DHTable, translationVector, rotationVector):
     global k, t
     for ind in range(3):
         translationVector[ind] = k * translationVector[ind]
@@ -189,7 +188,7 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
     R45 = np.matrix( [ H45[0][:3], H45[1][:3], H45[2][:3] ] )
     H56 = homogenousTransform(DHTable[5])
     R56 = np.matrix( [ H56[0][:3], H56[1][:3], H56[2][:3] ] )
-    R36 = R34 * R45 * R56
+    R36 = R34 * R45 * R56       #Hao - Rotation matrices are not used
 
     H06 = (np.matrix(H01) * np.matrix(H12) * np.matrix(H23) * np.matrix(H34) * np.matrix(H45) * np.matrix(H56)).tolist()
     H06[0][3] += translationVector[0]
@@ -205,10 +204,8 @@ def updateHomTransMatrixPositional(homTransMatrix, DHTable, translationVector, r
     for ind in range(3):
         translationVector[ind] = k * translationVector[ind]
         rotationVector[ind] = t * rotationVector[ind]
-    
-    # update translational part
-    for i in range(3):
-        updatedHomTransMatrix[i][3] += translationVector[i] 
+        # update translational part
+        updatedHomTransMatrix[ind][3] += translationVector[ind] 
     
     return updatedHomTransMatrix
 
@@ -357,20 +354,18 @@ def getJoystickDirection():
         storedVal = 0
         storedInd = 0
         ind = -1
-        for value in joystickValues:    #Can use argmax -- HAO Zhang
-            ind += 1
-            if abs(value) > abs(storedVal):
-                storedVal = value
-                storedInd = ind
+        absJoystickValues = np.absolute(np.matrix(joystickValues))
+        storedInd = np.argmax(absJoystickValues)
+        storedVal = joystickValues[storedInd]
         # introduce some "sensitivity gap" to avoid random movement
         if abs(storedVal) > 0.05:
-            if storedInd == 3 and modeOfOperation == 3:
-                if savedJointAngles[5] > 0:
-                    directionVector[storedInd] = storedVal
-                else:
-                    directionVector[storedInd] = -storedVal
-            else:
-                directionVector[storedInd] = storedVal
+            # if storedInd == 3 and modeOfOperation == 3:
+            #     if savedJointAngles[5] > 0:
+            #         directionVector[storedInd] = storedVal
+            #     else:
+            #         directionVector[storedInd] = -storedVal
+            # else:
+            directionVector[storedInd] = storedVal
         #print(directionVector)
         
     # needed specifically to make thigs coincide with our arm
@@ -437,7 +432,7 @@ def sendMessage(message):
     return
     #global conn
 
-    #conn.request("PUT","/arm/"+message+"/")
+    conn.request("PUT","/arm/"+message+"/")
 
     #r1 = conn.getresponse()
     #print r1.status, r1.reason
@@ -482,14 +477,10 @@ def manual_no_memory():
     #print(joystickDirection)
     # get the current joint angles of the arm
     global tempAngles
+    global qlim
     jointAngles = copy.deepcopy(tempAngles)
     # joint variables limits (in degrees), format [min, max]
-    q1lim = np.array( [-160, 160] ) * math.pi/180
-    q2lim = np.array( [-45, 225] ) * math.pi/180
-    q3lim = np.array( [-225, 45] ) * math.pi/180
-    q4lim = np.array( [-110, 170] ) * math.pi/180
-    q5lim = np.array( [-100, 100] ) * math.pi/180
-    q6lim = np.array( [-266, 266] ) * math.pi/180
+
     DHTable = makeDHTable(jointAngles)
     
     uq1 = DHTable[0][3] + 0.002 * 2*math.pi * joystickDirection[1] * k / 0.6#sr
@@ -536,19 +527,14 @@ def manual():
     #print(joystickDirection)
     # get the current joint angles of the arm
     global savedJointAngles
+    global qlim
     jointAngles = copy.deepcopy(savedJointAngles)
     # joint variables limits (in degrees), format [min, max]
-    q1lim = np.array( [-160, 160] ) * math.pi/180
-    q2lim = np.array( [-45, 225] ) * math.pi/180
-    q3lim = np.array( [-225, 45] ) * math.pi/180
-    q4lim = np.array( [-110, 170] ) * math.pi/180
-    q5lim = np.array( [-100, 100] ) * math.pi/180
-    q6lim = np.array( [-266, 266] ) * math.pi/180
-	
+
     DHTable = makeDHTable(jointAngles)
     # do forward kinematics
     DHTableCopy = copy.deepcopy(DHTable)
-    homTransMatrix = forwardKinematics(DHTableCopy)
+    #homTransMatrix = forwardKinematics(DHTableCopy)
     #print("Current position: " )
     #print([ homTransMatrix[0][3], homTransMatrix[1][3], homTransMatrix[2][3] ])
     visualizeArm(jointAngles)
@@ -599,14 +585,11 @@ def positionalIK():
     #print(joystickDirection)
     # get the current joint angles of  the arm
     global savedJointAngles
+    global qlim
     jointAngles = copy.deepcopy(savedJointAngles)
     # joint variables limits (in degrees), format [min, max]
-    q1lim = np.array( [-160, 160] ) * math.pi/180
-    q2lim = np.array( [-45, 225] ) * math.pi/180
-    q3lim = np.array( [-225, 45] ) * math.pi/180
-    q4lim = np.array( [-110, 170] ) * math.pi/180
-    q5lim = np.array( [-100, 100] ) * math.pi/180
-    q6lim = np.array( [-266, 266] ) * math.pi/180
+
+
     # DH Table with entries in the format: [a, alpha, d, theta]
     # First links are first entries
     DHTable = makeDHTable(jointAngles)
@@ -677,20 +660,12 @@ def fullIK():
     #print("Current joystick direction: {}".format(joystickDirection))
     # get the current joint angles of the arm
     global savedJointAngles
+    global qlim                
     jointAngles = copy.deepcopy(savedJointAngles)
     # joint variables limits (in degrees), format [min, max]
-    q1lim = np.array( [-160, 160] ) * math.pi/180
-    q2lim = np.array( [-45, 225] ) * math.pi/180
-    q3lim = np.array( [-225, 45] ) * math.pi/180
-    q4lim = np.array( [-110, 170] ) * math.pi/180
-    q5lim = np.array( [-100, 100] ) * math.pi/180
-    q6lim = np.array( [-266, 266] ) * math.pi/180
 
     DHTable = makeDHTable(jointAngles)
 
-    # do forward kinematics
-    DHTableCopy = copy.deepcopy(DHTable)
-    homTransMatrix = forwardKinematics(DHTableCopy)
     #print("Current position: " )
     #print([ homTransMatrix[0][3], homTransMatrix[1][3], homTransMatrix[2][3] ])
     visualizeArm(jointAngles)
@@ -698,17 +673,16 @@ def fullIK():
     # update homogenous transformation matrix based on joystick input
     translationVector = joystickDirection[:3]
     rotationVector = joystickDirection[3:]
-    
-    copyHomTransMatrix = copy.deepcopy(homTransMatrix)
-    DHTableCopy2 = copy.deepcopy(DHTable)
-    updatedHomTransMatrix = updateHomTransMatrix(copyHomTransMatrix, DHTableCopy2, translationVector, rotationVector)
+
+    DHTableCopy = copy.deepcopy(DHTable)
+    updatedHomTransMatrix = updateHomTransMatrix(DHTableCopy, translationVector, rotationVector)
     #print("Updated position: ")
     #print([ updatedHomTransMatrix[0][3], updatedHomTransMatrix[1][3], updatedHomTransMatrix[2][3] ])
 
     # solve IK based on the new homTransMatrix
-    DHTableCopy3 = copy.deepcopy(DHTable)
+    DHTableCopy2 = copy.deepcopy(DHTable)
     copyUpdatedHomTransMatrix = copy.deepcopy(updatedHomTransMatrix)
-    updatedDHTable = inverseKinematics(DHTableCopy3, copyUpdatedHomTransMatrix)
+    updatedDHTable = inverseKinematics(DHTableCopy2, copyUpdatedHomTransMatrix)
     uq1 = updatedDHTable[0][3]
     uq2 = updatedDHTable[1][3]
     uq3 = updatedDHTable[2][3]
@@ -869,6 +843,7 @@ if __name__ == "__main__":
     global tempAngles
     global modeOfMovement # either motion in every DOF at once or only one DOF at once, "0" - all DOFs, "1" - one DOF
     global k, t # velocity coefficients for translational and rotational motions, correspondingly
+    global qlim
     k = 0.6
     t = 0.03
     modeOfMovement = 0 # all DOFs mode by default
@@ -896,7 +871,8 @@ if __name__ == "__main__":
         savedJointAngles = [0,0,0,0,0,0]
         resetArm()
 
-    
+    qlim = np.array([[-160, 160], [-45, 225], [-225, 45], [-110, 170], [-100, 100], [-266, 266]]) * math.pi/180
+    #In the order of q1lim to q6lim
     #savedServo = 0
     setupVisualEnv()
     initializeJoystick()
