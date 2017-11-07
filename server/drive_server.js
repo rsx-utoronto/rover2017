@@ -1,6 +1,7 @@
 var express = require('express');
 var _ = require('lodash');
 var net = require('net');
+var SerialPort = require('serialport');
 
 var client = undefined; // arduino tcp client
 
@@ -88,49 +89,62 @@ function init(model, config) {
       res.json(model.drive);
     });
 
-    // start the tcp connection
-    router.get('/tcp', (req, res) => {
-      connectViaTCP();
-      res.json(model.drive);
+    // // start the tcp connection
+    // router.get('/tcp', (req, res) => {
+    //   connectViaTCP();
+    //   res.json(model.drive);
+    // });
+
+    // let connectViaTCP = function() {
+    //   if (client) {
+    //       client.destroy(); // reset the connection if applicable
+    //       //model.drive.connected = false; 
+    //   }
+    //   console.log('--> connecting to tcp on drive arduino');
+    //   client = net.connect(config.drive_port, config.drive_ip, () => {
+    //       console.log('--> connected to tcp on drive arduino');
+    //       model.drive.connected = true;
+    //       //client.setTimeout(500); 
+    //   });
+    //   enableClientListeners();
+    // }
+
+    // let enableClientListeners = function(){
+    //   //handling ETIMEDOUT error
+    //   client.on('error', (e) => {
+    //       console.log("got an error", e.code);
+    //       model.drive.connected = false;
+    //       if (e.code == 'ETIMEDOUT') {
+    //           console.log('--> Unable to Connect/Disconnected from drive arduino');
+    //           connectViaTCP();
+    //       }
+
+    //   });
+
+    //   client.on('data', function(data) {
+    //       // drive arduino never sends data back.
+    //       console.log('received drive data from client');
+    //   });
+    // }
+
+    var port = new SerialPort('COM6', {
+      baudRate: 9600
     });
-
-    let connectViaTCP = function() {
-      if (client) {
-          client.destroy(); // reset the connection if applicable
-          //model.drive.connected = false; 
-      }
-      console.log('--> connecting to tcp on drive arduino');
-      client = net.connect(config.drive_port, config.drive_ip, () => {
-          console.log('--> connected to tcp on drive arduino');
-          model.drive.connected = true;
-          //client.setTimeout(500); 
-      });
-      enableClientListeners();
-    }
-
-    let enableClientListeners = function(){
-      //handling ETIMEDOUT error
-      client.on('error', (e) => {
-          console.log("got an error", e.code);
-          model.drive.connected = false;
-          if (e.code == 'ETIMEDOUT') {
-              console.log('--> Unable to Connect/Disconnected from drive arduino');
-              connectViaTCP();
-          }
-
-      });
-
-      client.on('data', function(data) {
-          // drive arduino never sends data back.
-          console.log('received drive data from client');
-      });
-    }
 
     // send the current state of the rover over tcp
     let sendState = function() {
-        if (client && client.writable) {
-            client.write(`${_.padStart(model.drive.speed[0], 5)}${_.padStart(model.drive.speed[1], 5)}${_.padStart(model.drive.pivot, 4)}${_.toNumber(model.drive.drive_mode)}`);
+      port.write(
+        [_.padEnd(model.drive.speed[0], 5),
+        _.padEnd(model.drive.speed[1], 5),
+        _.padEnd(model.drive.pivot, 5),
+        _.toNumber(model.drive.drive_mode)].join(''),
+        err => {
+          if(err) {
+            console.error(err.message);
+            serialConnected = false;
+          }
         }
+      );
     }
     setInterval(sendState, 100);
 
