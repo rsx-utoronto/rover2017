@@ -30,6 +30,8 @@ class AutonomousRover:
 
         self.speed = 100
 
+        self.timeOut = False
+
     def move_towards_gps_Location(self, coordinate):
         '''
         Move towards the goal GPS location
@@ -40,6 +42,7 @@ class AutonomousRover:
         tock = datetime.now()
         diff = tock - self.tick
         if diff.total_seconds() > self.stopTime:
+            self.timeOut = True
             return False
 
         #Get current GPS coordinate
@@ -56,6 +59,9 @@ class AutonomousRover:
         #Longitude increases towards the west. For easy calculation, it should increase towards the east.
         x = (targetY - json_gps["longitude"]) * -1
         y = targetX - json_gps["latitude"]
+
+        print (json_gps["longitude"])
+        print (json_gps["latitude"])
 
         if (abs(x) < self.xError and abs(y) < self.yError):
             print ("Destination reached")
