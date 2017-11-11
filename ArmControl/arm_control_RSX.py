@@ -164,38 +164,68 @@ def inverseKinematicsPositional(dhTable, homTransMatrix):
     return updatedDHTable
 
 
-def updateHomTransMatrix(DHTable, translationVector, rotationVector):
+def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVector):
+    updatedHomTransMatrix = copy.deepcopy( homTransMatrix )
     global k, t
     for ind in range(3):
         translationVector[ind] = k * translationVector[ind]
         rotationVector[ind] = t * rotationVector[ind]
 
-    # update rotation
-    H01 = homogenousTransform(DHTable[0])
-    R01 = np.matrix( [ H01[0][:3], H01[1][:3], H01[2][:3] ] )
-    H12 = homogenousTransform(DHTable[1])
-    R12 = np.matrix( [ H12[0][:3], H12[1][:3], H12[2][:3] ] )
-    H23 = homogenousTransform(DHTable[2])
-    R23 = np.matrix( [ H23[0][:3], H23[1][:3], H23[2][:3] ] )
-    R03 = R01 * R12 * R23
-    
-    DHTable[3][3] += rotationVector[1]
-    DHTable[4][3] += rotationVector[0]
-    DHTable[5][3] += rotationVector[2]
-    H34 = homogenousTransform(DHTable[3])
-    R34 = np.matrix( [ H34[0][:3], H34[1][:3], H34[2][:3] ] )
-    H45 = homogenousTransform(DHTable[4])
-    R45 = np.matrix( [ H45[0][:3], H45[1][:3], H45[2][:3] ] )
-    H56 = homogenousTransform(DHTable[5])
-    R56 = np.matrix( [ H56[0][:3], H56[1][:3], H56[2][:3] ] )
-    R36 = R34 * R45 * R56       #Hao - Rotation matrices are not used
+    # update translation
+    # forward-backward movement
+    R06 = np.matrix( [ updatedHomTransMatrix[0][:3], updatedHomTransMatrix[1][:3], updatedHomTransMatrix[2][:3] ] )
+    xMovement = R06 * np.matrix( [0, 0, translationVector[0]] ).transpose()
+    updatedHomTransMatrix[0][3] += xMovement.tolist()[0][0]
+    updatedHomTransMatrix[1][3] += xMovement.tolist()[1][0]
+    updatedHomTransMatrix[2][3] += xMovement.tolist()[2][0]
+    # left-right movement
+    updatedHomTransMatrix[1][3] += translationVector[1]
+    # up-down movement
+    updatedHomTransMatrix[2][3] += translationVector[2]
 
-    H06 = (np.matrix(H01) * np.matrix(H12) * np.matrix(H23) * np.matrix(H34) * np.matrix(H45) * np.matrix(H56)).tolist()
-    H06[0][3] += translationVector[0]
-    H06[1][3] += translationVector[1]
-    H06[2][3] += translationVector[2]
+    # update rotation
+    # update rotation about z0
+    Rz0 = np.matrix( [ [math.cos(rotationVector[1]), -math.sin(rotationVector[1]), 0], 
+                        [math.sin(rotationVector[1]), math.cos(rotationVector[1]), 0], 
+                        [0, 0, 1] ] )
+    # update rotation about z6
+    Rz6 = np.matrix( [ [math.cos(rotationVector[2]), -math.sin(rotationVector[2]), 0], 
+                        [math.sin(rotationVector[2]), math.cos(rotationVector[2]), 0], 
+                        [0, 0, 1] ] )
+    # update rotation about y0_tilda, where y0_tilda = z6 x z0/||z6 x z0||
+    # basic rotation about y in 0_tilda frame
+    Ry = np.matrix( [ [math.cos(rotationVector[0]), 0, math.sin(rotationVector[0])], 
+                        [0, 1, 0], 
+                        [-math.sin(rotationVector[0]), 0, math.cos(rotationVector[0])] ] )
+    # construction of rotation matrix from 0 to 0_tilda frame
+    x0 = [1, 0, 0]
+    y0 = [0, 1, 0]
+    z0 = [0, 0, 1]
+    z6_temp = (R06 * np.matrix( z0 ).transpose()).tolist()
+    z6 = [ z6_temp[0][0], z6_temp[1][0], z6_temp[2][0] ]
+
+    z0_tilda = copy.deepcopy(z6)
+
+    y0_tilda = np.cross(z6, z0)
+    y0_tildaNorm = np.linalg.norm(y0_tilda)
+    for i in range(len(y0_tilda)):
+        y0_tilda[i] = y0_tilda[i]/y0_tildaNorm
+    y0_tilda = y0_tilda.tolist()
+
+    x0_tilda = np.cross(y0_tilda,z0_tilda).tolist()
+
+    R00_tilda = np.matrix( [ [np.dot(x0_tilda,x0), np.dot(y0_tilda,x0), np.dot(z0_tilda,x0)], 
+                            [np.dot(x0_tilda,y0), np.dot(y0_tilda,y0), np.dot(z0_tilda,y0)], 
+                            [np.dot(x0_tilda,z0), np.dot(y0_tilda,z0), np.dot(z0_tilda,z0)] ] )
+    Ry0_tilda = R00_tilda * Ry * R00_tilda.transpose()
+
+    # update rotation matrix
+    R06_updated = (Rz0 * Ry0_tilda * R06 * Rz6).tolist()
+    for i in range(3):
+        for j in range(3):
+            updatedHomTransMatrix[i][j] = R06_updated[i][j] 
     
-    return H06
+    return updatedHomTransMatrix
 
 
 def updateHomTransMatrixPositional(homTransMatrix, DHTable, translationVector, rotationVector):
@@ -382,9 +412,9 @@ def getJoystickDirection():
     directionVector[0] = tempval2
     # swap the z direction
     directionVector[0] = -directionVector[0]
-    # rotations swap. Remember for positionalIK mode it's rotations above yxz order
+    # rotations swaps. Remember for positionalIK mode it's rotations above yxz order
     directionVector[3] = -directionVector[3]
-    directionVector[4] = -directionVector[4]
+    directionVector[4] = directionVector[4]
     directionVector[5] = -directionVector[5]
     return directionVector
 
@@ -432,7 +462,7 @@ def sendMessage(message):
     return
     #global conn
 
-    conn.request("PUT","/arm/"+message+"/")
+    #conn.request("PUT","/arm/"+message+"/")
 
     #r1 = conn.getresponse()
     #print r1.status, r1.reason
@@ -675,7 +705,9 @@ def fullIK():
     rotationVector = joystickDirection[3:]
 
     DHTableCopy = copy.deepcopy(DHTable)
-    updatedHomTransMatrix = updateHomTransMatrix(DHTableCopy, translationVector, rotationVector)
+    homTransMatrix = forwardKinematics(DHTableCopy)
+    copyHomTransMatrix = copy.deepcopy(homTransMatrix)
+    updatedHomTransMatrix = updateHomTransMatrix(copyHomTransMatrix, DHTableCopy, translationVector, rotationVector)
     #print("Updated position: ")
     #print([ updatedHomTransMatrix[0][3], updatedHomTransMatrix[1][3], updatedHomTransMatrix[2][3] ])
 
