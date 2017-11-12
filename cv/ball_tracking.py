@@ -8,8 +8,11 @@ import numpy as np
 import argparse
 import imutils
 import cv2
+#
+out = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20.0, (640,480))
+# out_mask= cv2.VideoWriter('output_mask.mp4', cv2.VideoWriter_fourcc(*'DIVX'), 20.0, (640,480))
 
-out = cv2.VideoWriter('output.mp4', -1, 20.0, (640,480))
+# print('after writer lines')
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -22,8 +25,8 @@ args = vars(ap.parse_args())
 # define the lower and upper boundaries of the "green"
 # ball in the HSV color space, then initialize the
 # list of tracked points
-greenLower = (33, 80, 80) #(0-180,0-255,0-255)
-greenUpper = (80, 255, 255)
+greenLower = (20, 80, 80) #(0-180,0-255,0-255)
+greenUpper = (100, 255, 255)
 pts = deque(maxlen=args["buffer"])
 
 # if a video path was not supplied, grab the reference
@@ -38,6 +41,7 @@ else:
 # keep looping
 while True:
 	# grab the current frame
+	# frame is the next frame, grabbed is bool showing if there is a next frame
 	(grabbed, frame) = camera.read()
 
 	# if we are viewing a video and we did not grab a frame,
@@ -47,7 +51,7 @@ while True:
 
 	# resize the frame, blur it, and convert it to the HSV
 	# color space
-	frame = imutils.resize(frame, width=600)
+	frame = imutils.resize(frame, width=800)
 	# blurred = cv2.GaussianBlur(frame, (11, 11), 0)
 	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -55,15 +59,17 @@ while True:
 	# a series of dilations and erosions to remove any small
 	# blobs left in the mask
 	mask = cv2.inRange(hsv, greenLower, greenUpper)
+	cv2.imshow("mask before de-noise", mask)
 	mask = cv2.erode(mask, None, iterations=2)
 	mask = cv2.dilate(mask, None, iterations=2)
-
+	cv2.imshow("mask", mask)
 	# find contours in the mask and initialize the current
 	# (x, y) center of the ball
 	cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
 		cv2.CHAIN_APPROX_SIMPLE)[-2]
 	center = None
-
+	print('contour length %d', len(cnts))
+	print(cnts)
 	# only proceed if at least one contour was found
 	if len(cnts) > 0:
 		# find the largest contour in the mask, then use
@@ -73,7 +79,8 @@ while True:
 		((x, y), radius) = cv2.minEnclosingCircle(c)
 		M = cv2.moments(c)
 		center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-
+		print('centre')
+		print(center)
 		# only proceed if the radius meets a minimum size
 		if radius > 20:
 			print("radius: {}".format(radius))
@@ -99,7 +106,7 @@ while True:
 		cv2.line(frame, pts[i - 1], pts[i], (0, 0, 255), thickness)
 
 	# show the frame to our screen
-	out.write(frame)
+	# out.write(frame)
 	cv2.imshow("Frame", frame)
 	key = cv2.waitKey(200) & 0xFF
 
@@ -109,4 +116,12 @@ while True:
 
 # cleanup the camera and close any open windows
 camera.release()
+out.release()
+out_mask.release()
 cv2.destroyAllWindows()
+
+
+
+
+
+
