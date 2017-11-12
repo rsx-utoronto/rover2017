@@ -59,7 +59,7 @@ filePaths.reduce(function(promise, path) {
         ].map(x => 'http://localhost:' + x)
     }))*/
     .use('/drive/', driveServer.init(model, config))
-    .use('/arm/', armServer.init(model, config))
+    // .use('/arm/', armServer.init(model, config))
     .use('/science/', scienceServer.init(model, config))
     .use('/aux/', auxServer.init(model, config))
     .use('/gps/', gpsServer.init(model, config))

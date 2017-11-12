@@ -113,18 +113,19 @@ export default class Setup extends React.Component {
     let joySign = this.sgn(joyVal); 
     let joyLive = Math.abs(joyVal) - joyDead
 
-    if (Math.floor(gamepads[driveGamepad].axes[6] == -1)) {
-      //Extreme fast mode
-      maxSpeed = hmax_speed;
-    }
-    else if (Math.floor(gamepads[driveGamepad].axes[6] == 1)){
-      //Slow mode
-      maxSpeed = lmax_speed;
-    }
-    else{
-      //Normal mode
-      maxSpeed = mmax_speed;
-    }
+    // if (Math.floor(gamepads[driveGamepad].axes[6] == -1)) {
+    //   //Extreme fast mode
+    //   maxSpeed = hmax_speed;
+    // }
+    // else if (Math.floor(gamepads[driveGamepad].axes[6] == 1)){
+    //   //Slow mode
+    //   maxSpeed = lmax_speed;
+    // }
+    // else{
+    //   //Normal mode
+    //   maxSpeed = mmax_speed;
+    // }
+    let maxSpeed = mmax_speed;
     //((proportion of the joystick value)^1.4) * range of desired speed + minimum speed
     return (joySign * (min_speed + (maxSpeed-min_speed) * Math.pow(joyLive / joyMax,drive_exp))); 
 
@@ -154,7 +155,7 @@ export default class Setup extends React.Component {
           method: 'put'
         })
       }
-      
+
       else if(gamepads[driveGamepad].buttons[8].pressed) {
         console.log("ludicrous mode backward")
         fetch(`http://${ServerAddress}:8080/drive/speed/-255`, {
