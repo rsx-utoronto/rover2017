@@ -10,10 +10,7 @@ import math
 import httplib
 import sys
 
-#Replaced all conn.request... blocks of code with sendMessage(message)
-#sendAngleValues and sendStartPosition had the same first part of the code so I deleted sendStartPosition and implemented "start = 0" default variable in sendAngleValues.
-#When 'start = 1', set command = 'g' which was the only difference in sendStartPosition
-#Added makeDHTable function because the same code was being used in all 4 modes to make a DHTable
+
 def homogenousTransform(dhVector):
     a = dhVector[0]
     alpha = dhVector[1]
@@ -113,7 +110,7 @@ def inverseKinematics(dhTable, homTransMatrix):
     return updatedDHTable
 
 
-def inverseKinematicsPositional(dhTable, homTransMatrix):
+def inverseKinematicsPositional(dhTable, homTransMatrix, rotationVector):
     d1 = dhTable[0][2]
     a2 = dhTable[1][0]
     d4 = dhTable[3][2]
@@ -160,6 +157,9 @@ def inverseKinematicsPositional(dhTable, homTransMatrix):
     updatedDHTable[0][3] = q1
     updatedDHTable[1][3] = q2
     updatedDHTable[2][3] = q3
+    updatedDHTable[3][3] = rotationVector[1]
+    updatedDHTable[4][3] = rotationVector[0]
+    updatedDHTable[5][3] = rotationVector[2]
     
     return updatedDHTable
 
@@ -482,48 +482,87 @@ def makeDHTable(jointAngles):
     #print("Current joint angles: {}".format(jointAngles))
     #print(jointAngles)
     
-    # joint values, pretty view
-    q1 = jointAngles[0]
-    q2 = jointAngles[1]
-    q3 = jointAngles[2]
-    q4 = jointAngles[3]
-    q5 = jointAngles[4]
-    q6 = jointAngles[5]
+
 	# DH Table with entries in the format: [a, alpha, d, theta]
     # First links are first entries
-    DHTable = [ [0, math.pi/2, 5.5, q1],
-                [36, 0, 0, q2],
-                [0, math.pi/2, 0, q3],
-                [0, -math.pi/2, 32, q4],
-                [0, math.pi/2, 0, q5],
-                [0, 0, 15, q6] ]
+    DHTable = [ [0, math.pi/2, 5.5, jointAngles[0]],
+                [36, 0, 0, jointAngles[1]],
+                [0, math.pi/2, 0, jointAngles[2]],
+                [0, -math.pi/2, 32, jointAngles[3]],
+                [0, math.pi/2, 0, jointAngles[4]],
+                [0, 0, 15, jointAngles[5]] ]
     return DHTable
-	
-def manual_no_memory():
+
+def updateAngles(DHTable, updatedDHTable):
     global k
+    global modeOfOperation
+    global qlim
     # get the direction value to move in
     joystickDirection = getJoystickDirection()
     #print("Current joystick direction:")
     #print(joystickDirection)
+
+    if modeOfOperation == 1:
+        #Manual mode
+        uq1 = DHTable[0][3] + 0.002 * 2*math.pi * joystickDirection[1]#sr
+        uq2 = DHTable[1][3] + 0.0006 * 2*math.pi * joystickDirection[2]#sp
+        uq3 = DHTable[2][3] + 0.001 * 2*math.pi * joystickDirection[0]#eb
+        uq4 = DHTable[3][3] + 0.005 * 2*math.pi * joystickDirection[4]#w3
+        uq5 = DHTable[4][3] + 0.005 * 2*math.pi * joystickDirection[3]#w1
+        uq6 = DHTable[5][3] + 0.005 * 2*math.pi * joystickDirection[5]#w2
+    elif modeOfOperation == 2:
+        #Positional IK mode
+        uq1 = updatedDHTable[0][3]
+        uq2 = updatedDHTable[1][3]
+        uq3 = updatedDHTable[2][3]
+        uq4 = DHTable[3][3] + updatedDHTable[3][3]
+        uq5 = DHTable[4][3] + updatedDHTable[4][3]
+        uq6 = DHTable[5][3] + updatedDHTable[5][3]
+    elif modeOfOperation == 3:
+        #Full IK mode
+        uq1 = updatedDHTable[0][3]
+        uq2 = updatedDHTable[1][3]
+        uq3 = updatedDHTable[2][3]
+        uq4 = updatedDHTable[3][3]
+        uq5 = updatedDHTable[4][3]
+        uq6 = updatedDHTable[5][3]
+    elif modeOfOperation == 4:
+        #Manual no memory mode
+        uq1 = DHTable[0][3] + 0.002 * 2*math.pi * joystickDirection[1] * k / 0.6#sr
+        uq2 = DHTable[1][3] + 0.0006 * 2*math.pi * joystickDirection[2] * k / 0.3#sp
+        uq3 = DHTable[2][3] + 0.001 * 2*math.pi * joystickDirection[0] * k / 0.3#eb
+        uq4 = DHTable[3][3] + 0.005 * 2*math.pi * joystickDirection[4] * k / 0.3#w3
+        uq5 = DHTable[4][3] + 0.005 * 2*math.pi * joystickDirection[3] * k / 0.3#w1
+        uq6 = DHTable[5][3] + 0.005 * 2*math.pi * joystickDirection[5] * k / 0.3#w2
+    uq = [uq1, uq2, uq3, uq4, uq5, uq6]
+    maxRot = 2*math.pi*10/360
+    update = 1
+    for i in range(6):
+        if(uq[i] <= qlim[i][0] or uq[i] >= qlim[i][1] or abs(uq[i] - DHTable[i][3]) > maxRot):
+            update = 0
+            break
+    if(update == 0):
+        for i in range(6):
+            uq[i] = DHTable[i][3]       #Do not change angle if it exceeds the limits.
+
+
+    return uq
+
+def manual_no_memory():
+    
     # get the current joint angles of the arm
     global tempAngles
-    global qlim
     jointAngles = copy.deepcopy(tempAngles)
     # joint variables limits (in degrees), format [min, max]
 
     DHTable = makeDHTable(jointAngles)
     
-    uq1 = DHTable[0][3] + 0.002 * 2*math.pi * joystickDirection[1] * k / 0.6#sr
-    uq2 = DHTable[1][3] + 0.0006 * 2*math.pi * joystickDirection[2] * k / 0.3#sp
-    uq3 = DHTable[2][3] + 0.001 * 2*math.pi * joystickDirection[0] * k / 0.3#eb
-    uq4 = DHTable[3][3] + 0.005 * 2*math.pi * joystickDirection[4] * k / 0.3#w3
-    uq5 = DHTable[4][3] + 0.005 * 2*math.pi * joystickDirection[3] * k / 0.3#w1
-    uq6 = DHTable[5][3] + 0.005 * 2*math.pi * joystickDirection[5] * k / 0.3#w2
+    uq = updateAngles(DHTable, 0)
 
     # update servo value
     #servoValueNew = updateServo(savedServo)
     try:
-        jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
+        jointAngles = copy.deepcopy( uq )
 
         #savedServo = servoValueNew
 
@@ -557,7 +596,6 @@ def manual():
     #print(joystickDirection)
     # get the current joint angles of the arm
     global savedJointAngles
-    global qlim
     jointAngles = copy.deepcopy(savedJointAngles)
     # joint variables limits (in degrees), format [min, max]
 
@@ -569,17 +607,12 @@ def manual():
     #print([ homTransMatrix[0][3], homTransMatrix[1][3], homTransMatrix[2][3] ])
     visualizeArm(jointAngles)
     
-    uq1 = DHTable[0][3] + 0.002 * 2*math.pi * joystickDirection[1]#sr
-    uq2 = DHTable[1][3] + 0.0006 * 2*math.pi * joystickDirection[2]#sp
-    uq3 = DHTable[2][3] + 0.001 * 2*math.pi * joystickDirection[0]#eb
-    uq4 = DHTable[3][3] + 0.005 * 2*math.pi * joystickDirection[4]#w3
-    uq5 = DHTable[4][3] + 0.005 * 2*math.pi * joystickDirection[3]#w1
-    uq6 = DHTable[5][3] + 0.005 * 2*math.pi * joystickDirection[5]#w2
+    uq = updateAngles(DHTable, 0)
 
     # update servo value
     #servoValueNew = updateServo(savedServo)
     try:
-        jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
+        jointAngles = copy.deepcopy( uq )
         #print("Updated joint angles: {}".format(jointAngles))
         #print(jointAngles)
         savedJointAngles = copy.deepcopy(jointAngles)
@@ -615,7 +648,6 @@ def positionalIK():
     #print(joystickDirection)
     # get the current joint angles of  the arm
     global savedJointAngles
-    global qlim
     jointAngles = copy.deepcopy(savedJointAngles)
     # joint variables limits (in degrees), format [min, max]
 
@@ -644,18 +676,13 @@ def positionalIK():
     # solve IK based on the new homTransMatrix
     DHTableCopy3 = copy.deepcopy(DHTable)
     copyUpdatedHomTransMatrix = copy.deepcopy(updatedHomTransMatrix)
-    updatedDHTable = inverseKinematicsPositional(DHTableCopy3, copyUpdatedHomTransMatrix)
-    uq1 = updatedDHTable[0][3]
-    uq2 = updatedDHTable[1][3]
-    uq3 = updatedDHTable[2][3]
-    uq4 = DHTable[3][3] + rotationVector[1]#updatedDHTable[3][3]
-    uq5 = DHTable[4][3] + rotationVector[0]#updatedDHTable[4][3]
-    uq6 = DHTable[5][3] + rotationVector[2]#updatedDHTable[5][3]
+    updatedDHTable = inverseKinematicsPositional(DHTableCopy3, copyUpdatedHomTransMatrix, rotationVector)
 
+    uq = updateAngles(DHTable, updatedDHTable)
     # update servo value
     #servoValueNew = updateServo(savedServo)
     try:
-        jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
+        jointAngles = copy.deepcopy( uq )
         #print("Updated joint angles: {}".format(jointAngles))
         #print(jointAngles)
 
@@ -689,8 +716,7 @@ def fullIK():
     joystickDirection = getJoystickDirection()
     #print("Current joystick direction: {}".format(joystickDirection))
     # get the current joint angles of the arm
-    global savedJointAngles
-    global qlim                
+    global savedJointAngles          
     jointAngles = copy.deepcopy(savedJointAngles)
     # joint variables limits (in degrees), format [min, max]
 
@@ -715,17 +741,12 @@ def fullIK():
     DHTableCopy2 = copy.deepcopy(DHTable)
     copyUpdatedHomTransMatrix = copy.deepcopy(updatedHomTransMatrix)
     updatedDHTable = inverseKinematics(DHTableCopy2, copyUpdatedHomTransMatrix)
-    uq1 = updatedDHTable[0][3]
-    uq2 = updatedDHTable[1][3]
-    uq3 = updatedDHTable[2][3]
-    uq4 = updatedDHTable[3][3]
-    uq5 = updatedDHTable[4][3]
-    uq6 = updatedDHTable[5][3]
-
+    
+    uq = updateAngles(DHTable, updatedDHTable)
     # update servo value
     #servoValueNew = updateServo(savedServo)
     try:
-        jointAngles = copy.deepcopy( [uq1,uq2,uq3,uq4,uq5,uq6] )
+        jointAngles = copy.deepcopy( uq )
         #print("Updated joint angles: {}".format(jointAngles))
         
         savedJointAngles = copy.deepcopy(jointAngles)
@@ -737,7 +758,7 @@ def fullIK():
         
         visualizeArm(savedJointAngles)
         #print("Joint angles and servo are {}, {}".format(savedJointAngles, savedServo) )
-        #print(savedJointAngles)
+        print(savedJointAngles)
     except:
         print("Exception encountered")
         jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
@@ -903,8 +924,8 @@ if __name__ == "__main__":
         savedJointAngles = [0,0,0,0,0,0]
         resetArm()
 
-    qlim = np.array([[-160, 160], [-45, 225], [-225, 45], [-110, 170], [-100, 100], [-266, 266]]) * math.pi/180
-    #In the order of q1lim to q6lim
+    qlim = np.array([[-180, 180], [-45, 315], [-180, 180], [-120, 120], [-160, 160], [-180, 180]]) * math.pi/180
+    #In the order of q1lim to q6lim [min,max]
     #savedServo = 0
     setupVisualEnv()
     initializeJoystick()
