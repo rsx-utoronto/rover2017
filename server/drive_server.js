@@ -4,6 +4,7 @@ var net = require('net');
 var SerialPort = require('serialport');
 
 var client = undefined; // arduino tcp client
+var port = undefined;
 
 function init(model, config) {
     model.drive = {
@@ -127,8 +128,27 @@ function init(model, config) {
     //   });
     // }
 
-    var port = new SerialPort('COM6', {
-      baudRate: 9600
+    clear = () => {
+      port.write('0    0    0    0');
+      s = port.read();
+      if(s) {
+        console.log(s.toString())
+      }
+      else {
+        console.log('sent')
+      }
+    }
+
+    port = new SerialPort('COM6', {
+      baudRate: 38400
+    }
+    , err => {
+      if(err) {
+        console.error("Error opening serial port", err.message);
+      }
+      else {
+        console.log("started serial port")
+      }
     });
 
     // send the current state of the rover over tcp
@@ -145,8 +165,14 @@ function init(model, config) {
           }
         }
       );
+      let s = port.read();
+      if(s) {
+        console.log(s.toString())
+      }
     }
-    setInterval(sendState, 100);
+
+    setInterval(sendState, 800); // for anything under 900, it doesn't work with baud=9600
+    // setInterval(clear, 800)
 
     console.log('-> drive server started');
     return router;

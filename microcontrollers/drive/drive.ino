@@ -39,13 +39,7 @@ boolean driveMode;
 int pivot;
 int speedf = -255;
 int speedp = -255;
-/*
-const int max_speed = 128;
-const int min_speed = 50;
-const int joyDead = 0; //Range of joystick movement that is accidental
-const int joy_max = 100;
-float drive_exp = 1.6;  // Exponential speed (1= linear, 2= squared)
-*/
+
 void setup() {
   //Set pins as outputs
   for (int i=0; i<6; i++) {
@@ -60,7 +54,7 @@ void setup() {
   // autoSysConn.begin();
 
   // Open serial communications and wait for port to open:
-  Serial.begin(9600);
+  Serial.begin(38400);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -165,6 +159,8 @@ void processData() {
   if(Serial.available() < 16) {
     return;
   }
+  Serial.println("started a write");
+  Serial.println(millis());
 
   char lSpeedBuffer[6], rSpeedBuffer[6], pivotBuffer[6], driveMode;
   loadData(lSpeedBuffer, 5);
@@ -187,11 +183,15 @@ void processData() {
   while(Serial.available()) {
     Serial.read();
   }
+  
+  Serial.println("done writing"); 
+  Serial.println(millis());
 }
 
 void loop() {
-    // wait for a new client:
-  processData();
+  // wait for a new client:
+//  Serial.println("looped");
   delay(5);
+  processData();
 }
 
