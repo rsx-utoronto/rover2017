@@ -30,8 +30,11 @@
 
 //L293D
 //Joint Motor 1
-int speedPins[] = {9, 11, 13, 3, 5, 7 } ;
-int directionPins[] = {8, 28, 12, 2, 26, 6 };
+int speedPins[] = {5, 8, 13, 6, 5, 7 } ;
+int directionPins[] = {9, 28, 12, 10, 26, 6 };
+
+int speedPinsUno[] = {5, 6} ;
+int directionPinsUno[] = {9, 10};
 
 int speedl;
 int speedr;
@@ -39,13 +42,7 @@ boolean driveMode;
 int pivot;
 int speedf = -255;
 int speedp = -255;
-/*
-const int max_speed = 128;
-const int min_speed = 50;
-const int joyDead = 0; //Range of joystick movement that is accidental
-const int joy_max = 100;
-float drive_exp = 1.6;  // Exponential speed (1= linear, 2= squared)
-*/
+
 void setup() {
   //Set pins as outputs
   for (int i=0; i<6; i++) {
@@ -60,7 +57,7 @@ void setup() {
   // autoSysConn.begin();
 
   // Open serial communications and wait for port to open:
-  Serial.begin(9600);
+  Serial.begin(38400);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -94,21 +91,25 @@ void setRightSpd(int spd) {
       }
 }
 #else // not mini rover
-#pragma message ("using big rover") 
+#pragma message ("using big rover")
 void setLeftSpd(int spd) {
         Serial.print("left speed ");
       Serial.println(spd);
       if(spd < 0) {
-          for(int i=0; i<3; i++) {
-              digitalWrite(directionPins[i], LOW);
-              analogWrite(speedPins[i], -spd);
-          }
+          //for(int i=0; i<3; i++) {
+              //digitalWrite(directionPins[i], LOW);
+              //analogWrite(speedPins[i], -spd);
+          //}
+          digitalWrite(directionPinsUno[0], LOW);
+          analogWrite(speedPinsUno[0], -spd);
       }
       else {
-          for(int i=0; i<3; i++) {
-              digitalWrite(directionPins[i], HIGH);
-              analogWrite(speedPins[i], spd);
-          }
+          //for(int i=0; i<3; i++) {
+              //digitalWrite(directionPins[i], HIGH);
+              //analogWrite(speedPins[i], spd);
+          //}
+          digitalWrite(directionPinsUno[0], HIGH);
+          analogWrite(speedPinsUno[0], spd);
       }
 }
 
@@ -116,16 +117,20 @@ void setRightSpd(int spd) {
       Serial.print("right speed ");
       Serial.println(spd);
     if(spd < 0) {
-        for(int i=3; i<6; i++) {
-            digitalWrite(directionPins[i], LOW);
-            analogWrite(speedPins[i], -spd);
-        }
+        //for(int i=3; i<6; i++) {
+            //digitalWrite(directionPins[i], LOW);
+            //analogWrite(speedPins[i], -spd);
+        //}
+        digitalWrite(directionPinsUno[1], LOW);
+        analogWrite(speedPinsUno[1], -spd);
     }
     else {
-        for(int i=3; i<6; i++) {
-            digitalWrite(directionPins[i], HIGH);
-            analogWrite(speedPins[i], spd);
-        }
+        //for(int i=3; i<6; i++) {
+            //digitalWrite(directionPins[i], HIGH);
+            //analogWrite(speedPins[i], spd);
+        //}
+        digitalWrite(directionPinsUno[1], HIGH);
+        analogWrite(speedPinsUno[1], spd);
     }
 }
 #endif // mini rover
@@ -165,6 +170,8 @@ void processData() {
   if(Serial.available() < 16) {
     return;
   }
+  Serial.println("started a write");
+  Serial.println(millis());
 
   char lSpeedBuffer[6], rSpeedBuffer[6], pivotBuffer[6], driveMode;
   loadData(lSpeedBuffer, 5);
@@ -187,11 +194,15 @@ void processData() {
   while(Serial.available()) {
     Serial.read();
   }
+  
+  Serial.println("done writing"); 
+  Serial.println(millis());
 }
 
 void loop() {
-    // wait for a new client:
-  processData();
+  // wait for a new client:
+//  Serial.println("looped");
   delay(5);
+  processData();
 }
 
