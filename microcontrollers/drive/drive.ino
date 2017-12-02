@@ -30,8 +30,11 @@
 
 //L293D
 //Joint Motor 1
-int speedPins[] = {9, 11, 13, 3, 5, 7 } ;
-int directionPins[] = {8, 28, 12, 2, 26, 6 };
+int speedPins[] = {5, 8, 13, 6, 5, 7 } ;
+int directionPins[] = {9, 28, 12, 10, 26, 6 };
+
+int speedPinsUno[] = {5, 6} ;
+int directionPinsUno[] = {9, 10};
 
 int speedl;
 int speedr;
@@ -88,21 +91,25 @@ void setRightSpd(int spd) {
       }
 }
 #else // not mini rover
-#pragma message ("using big rover") 
+#pragma message ("using big rover")
 void setLeftSpd(int spd) {
         Serial.print("left speed ");
       Serial.println(spd);
       if(spd < 0) {
-          for(int i=0; i<3; i++) {
-              digitalWrite(directionPins[i], LOW);
-              analogWrite(speedPins[i], -spd);
-          }
+          //for(int i=0; i<3; i++) {
+              //digitalWrite(directionPins[i], LOW);
+              //analogWrite(speedPins[i], -spd);
+          //}
+          digitalWrite(directionPinsUno[0], LOW);
+          analogWrite(speedPinsUno[0], -spd);
       }
       else {
-          for(int i=0; i<3; i++) {
-              digitalWrite(directionPins[i], HIGH);
-              analogWrite(speedPins[i], spd);
-          }
+          //for(int i=0; i<3; i++) {
+              //digitalWrite(directionPins[i], HIGH);
+              //analogWrite(speedPins[i], spd);
+          //}
+          digitalWrite(directionPinsUno[0], HIGH);
+          analogWrite(speedPinsUno[0], spd);
       }
 }
 
@@ -110,16 +117,20 @@ void setRightSpd(int spd) {
       Serial.print("right speed ");
       Serial.println(spd);
     if(spd < 0) {
-        for(int i=3; i<6; i++) {
-            digitalWrite(directionPins[i], LOW);
-            analogWrite(speedPins[i], -spd);
-        }
+        //for(int i=3; i<6; i++) {
+            //digitalWrite(directionPins[i], LOW);
+            //analogWrite(speedPins[i], -spd);
+        //}
+        digitalWrite(directionPinsUno[1], LOW);
+        analogWrite(speedPinsUno[1], -spd);
     }
     else {
-        for(int i=3; i<6; i++) {
-            digitalWrite(directionPins[i], HIGH);
-            analogWrite(speedPins[i], spd);
-        }
+        //for(int i=3; i<6; i++) {
+            //digitalWrite(directionPins[i], HIGH);
+            //analogWrite(speedPins[i], spd);
+        //}
+        digitalWrite(directionPinsUno[1], HIGH);
+        analogWrite(speedPinsUno[1], spd);
     }
 }
 #endif // mini rover

@@ -171,7 +171,7 @@ function init(model, config) {
       }
     }
 
-    setInterval(sendState, 800); // for anything under 900, it doesn't work with baud=9600
+    setInterval(sendState, 100); // for anything under 900, it doesn't work with baud=9600
     // setInterval(clear, 800)
 
     console.log('-> drive server started');
