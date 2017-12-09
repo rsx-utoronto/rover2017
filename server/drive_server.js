@@ -139,7 +139,7 @@ function init(model, config) {
       }
     }
 
-    port = new SerialPort('COM6', {
+    port = new SerialPort(config.drive_serial, {
       baudRate: 38400
     }
     , err => {
