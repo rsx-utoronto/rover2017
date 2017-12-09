@@ -20,7 +20,7 @@ export default class EBrakeComponent extends React.Component {
   }
 
   updateData() {
-    fetch("http://"+ServerAddress+":8080/drive/ebrake").then((response) => {
+    fetch("http://"+ServerAddress+"/drive/ebrake").then((response) => {
       if(response.ok){
         response.json().then((myJSON) => {
           this.setState({
@@ -36,7 +36,7 @@ export default class EBrakeComponent extends React.Component {
   }
 
   toggleEBrake() {
-    fetch("http://"+ServerAddress+":8080/drive/ebrake",{
+    fetch("http://"+ServerAddress+"/drive/ebrake",{
       method: 'put'
     })
   }

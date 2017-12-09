@@ -172,7 +172,7 @@ export default class Setup extends React.Component {
       let speedControl = driveGamepad.axes[AXIS_SPEED] * -1;
 
       if(driveGamepad.buttons[STOP_BTN].pressed) {
-        fetch(`http://${ServerAddress}:8080/drive/stop`, {
+        fetch(`http://${ServerAddress}/drive/stop`, {
           method: 'put'
         });
       }
@@ -180,7 +180,7 @@ export default class Setup extends React.Component {
       // Ludicrous forward: full speed
       else if(driveGamepad.buttons[LUDICROUS_FORWARD_BTN].pressed) {
         console.log("ludicrous mode forward");
-        fetch(`http://${ServerAddress}:8080/drive/speed/255`, {
+        fetch(`http://${ServerAddress}/drive/speed/255`, {
           method: 'put'
         });
       }
@@ -188,7 +188,7 @@ export default class Setup extends React.Component {
       // Ludicrous backward: full speed
       else if(driveGamepad.buttons[LUDICROUS_BACKWARD_BTN].pressed) {
         console.log("ludicrous mode backward");
-        fetch(`http://${ServerAddress}:8080/drive/speed/-255`, {
+        fetch(`http://${ServerAddress}/drive/speed/-255`, {
           method: 'put'
         });
       }
@@ -196,7 +196,7 @@ export default class Setup extends React.Component {
       // Pivot
       else if(driveGamepad.buttons[ENABLE_PIVOT_BUTTON].pressed && Math.abs(pivotSpeed) > JOYSTICK_DEADZONE){
         let pSpeed = this.expdrive(pivotSpeed, speedControl);
-        fetch(`http://${ServerAddress}:8080/drive/pivot/${pSpeed}`, {
+        fetch(`http://${ServerAddress}/drive/pivot/${pSpeed}`, {
           method: 'put'
         }); 
       }
@@ -233,14 +233,14 @@ export default class Setup extends React.Component {
         }
         lSpeed = Math.floor(this.expdrive(lSpeed, speedControl));
         rSpeed = Math.floor(this.expdrive(rSpeed, speedControl));
-        fetch(`http://${ServerAddress}:8080/drive/speed/${lSpeed}/${rSpeed}`, {
+        fetch(`http://${ServerAddress}/drive/speed/${lSpeed}/${rSpeed}`, {
           method: 'put'
         });
       }
 
       else {
         // Stop
-        fetch(`http://${ServerAddress}:8080/drive/stop`, {
+        fetch(`http://${ServerAddress}/drive/stop`, {
           method: 'put'
         });
       }
@@ -254,7 +254,7 @@ export default class Setup extends React.Component {
         <td className='tcp-connect-btn'>
           <button className='btn btn-sm btn-primary'
           onClick={() => {
-            fetch(`http://${ServerAddress}:8080/${systemName}/tcp"`)
+            fetch(`http://${ServerAddress}/${systemName}/tcp"`)
           }}
           > Connect! </button>
         </td>
