@@ -141,8 +141,6 @@ void processData() {
   if(Serial.available() < 16) {
     return;
   }
-  Serial.println("started a write");
-  Serial.println(millis());
 
   char lSpeedBuffer[6], rSpeedBuffer[6], pivotBuffer[6], driveMode;
   loadData(lSpeedBuffer, 5);
@@ -165,9 +163,6 @@ void processData() {
   while(Serial.available()) {
     Serial.read();
   }
-  
-  Serial.println("done writing"); 
-  Serial.println(millis());
 }
 
 void loop() {

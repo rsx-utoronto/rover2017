@@ -133,9 +133,9 @@ function init(model, config) {
       }
     }
 
-    setTimeout(
-      _.constant(setInterval(sendState, 100)),
-      1000);
+    setTimeout(function() {
+      setInterval(sendState, 100)
+    }, 1000);
     
     console.log('-> drive server started');
     return router;
