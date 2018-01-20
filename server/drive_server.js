@@ -90,56 +90,18 @@ function init(model, config) {
       res.json(model.drive);
     });
 
-    // // start the tcp connection
-    // router.get('/tcp', (req, res) => {
-    //   connectViaTCP();
-    //   res.json(model.drive);
-    // });
-
-    // let connectViaTCP = function() {
-    //   if (client) {
-    //       client.destroy(); // reset the connection if applicable
-    //       //model.drive.connected = false; 
-    //   }
-    //   console.log('--> connecting to tcp on drive arduino');
-    //   client = net.connect(config.drive_port, config.drive_ip, () => {
-    //       console.log('--> connected to tcp on drive arduino');
-    //       model.drive.connected = true;
-    //       //client.setTimeout(500); 
-    //   });
-    //   enableClientListeners();
-    // }
-
-    // let enableClientListeners = function(){
-    //   //handling ETIMEDOUT error
-    //   client.on('error', (e) => {
-    //       console.log("got an error", e.code);
-    //       model.drive.connected = false;
-    //       if (e.code == 'ETIMEDOUT') {
-    //           console.log('--> Unable to Connect/Disconnected from drive arduino');
-    //           connectViaTCP();
-    //       }
-
-    //   });
-
-    //   client.on('data', function(data) {
-    //       // drive arduino never sends data back.
-    //       console.log('received drive data from client');
-    //   });
-    // }
-
     clear = () => {
       port.write('0    0    0    0');
       s = port.read();
       if(s) {
-        console.log(s.toString())
+        console.log("received from arduino", s.toString())
       }
       else {
         console.log('sent')
       }
     }
 
-    port = new SerialPort(config.drive_serial, {
+    port = new SerialPort(config.drive_port, {
       baudRate: 38400
     }
     , err => {
@@ -171,9 +133,10 @@ function init(model, config) {
       }
     }
 
-    setInterval(sendState, 100); // for anything under 900, it doesn't work with baud=9600
-    // setInterval(clear, 800)
-
+    setTimeout(
+      _.constant(setInterval(sendState, 100)),
+      1000);
+    
     console.log('-> drive server started');
     return router;
 }
