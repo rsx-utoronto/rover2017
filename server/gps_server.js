@@ -11,10 +11,27 @@ var express = require('express');
 
 var phoneURL;
 
-const SMOOTHING = 5; // number of readings to average over
+const SMOOTHING = 10; // number of readings to average over
 
 function toDegrees(x) {
 	return x * 180 / Math.PI;
+}
+
+//Calculates weighted mean using mean=(1/2*xn + 1/4*x(n-1) + ... 1/2^n * x1) + 1/2^n * xn
+function weightedMean(input_array){
+    var arrayLength = SMOOTHING;
+    var ratio = 1/2;
+    var mean = 0;
+    
+    for (var i = arrayLength-1; i >= 0; i--) {
+        mean += ratio * input_array[i];
+        ratio = 1/2 * ratio;
+    }
+    
+    //Need to add this term otherwise the sum of the coefficients will not be 1
+    mean += Math.pow(1/2, SMOOTHING) * input_array[SMOOTHING-1];
+    
+    return mean
 }
 
 function update(model) {
@@ -44,7 +61,7 @@ function update(model) {
 						.slice(-SMOOTHING)	// pop the last few elements
 						.map(x => x[1]) 	// read data
 						.unzip()			// transpose so we can calculate the mean
-						.map(_.mean)
+						.map(weightedMean)
 						.value()
 		let accel = _.zipObject(body.accel.desc, accelHist);
 		let pitchRad = Math.atan2(-accel.Az, accel.Ay); // change to y, z
@@ -61,7 +78,7 @@ function update(model) {
 						.slice(-SMOOTHING)
 						.map(x => x[1])
 						.unzip()
-						.map(_.mean)
+						.map(weightedMean)
 						.value()
 			let rot = _.zipObject(body.rot_vector.desc.map(x => x[0]), rotHist); 
 			model.gps.heading = -720 * Math.asin(rot.y) / Math.PI; 
@@ -75,7 +92,7 @@ function update(model) {
 							.slice(-SMOOTHING)
 							.map(x => x[1])
 							.unzip()
-							.map(_.mean)
+							.map(weightedMean)
 							.value()
 			let mag = _.zipObject(body.mag.desc, magHist);
 			let correctedMagZ = mag.Mz * Math.cos(pitchRad) + mag.My * Math.sin(pitchRad); // apply a rotation matrix about x to correct for pitch
