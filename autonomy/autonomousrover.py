@@ -162,7 +162,7 @@ class AutonomousRover:
         #print("Right speed")
         print(right_speed)
 
-        #conn = http.client.HTTPConnection(self.serverLocation)
-        #conn.request("PUT", "/drive/speed/" + str(left_speed) + "/" + str(right_speed))
+        conn = http.client.HTTPConnection(self.serverLocation)
+        conn.request("PUT", "/drive/speed/" + str(left_speed) + "/" + str(right_speed))
         #time.sleep()
 

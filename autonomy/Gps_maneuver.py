@@ -15,9 +15,11 @@ if __name__ == '__main__':
     #The Destinations: (longitude, latitude)
     destination_markers = [(-79.404091, 43.637514)]
     #43.637139, -79.404111
-    xError = 0.00005
-    yError = 0.00005
-
+    #43.664758, -79.403821
+    xError = 0.000005
+    yError = 0.000005
+    #0.000020 -> 10 metre: 2metre: 0.000005
+    #0.000375 -> 40 metre: 10metre: 0.000094: 2metre: 0.000019
     # Server location. Alternative location: "100.64.104.140:8080"
     server = "localhost:8080"
     rover = AutonomousRover(datetime.now(), xError, yError, server)
@@ -36,9 +38,9 @@ if __name__ == '__main__':
         else:
             break
 
-        #conn = http.client.HTTPConnection(server)
-        #conn.request("PUT", "/drive/stop")
+        conn = http.client.HTTPConnection(server)
+        conn.request("PUT", "/drive/stop")
 
-    #conn = http.client.HTTPConnection(server)
-    #conn.request("PUT", "/drive/stop")
+    conn = http.client.HTTPConnection(server)
+    conn.request("PUT", "/drive/stop")
 
