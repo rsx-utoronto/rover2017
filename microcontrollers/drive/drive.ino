@@ -8,26 +8,6 @@
 
 #define MINI_ROVER    0  // whether we're using the mini rover
 
-// #include <SPI.h>
-// #include <Ethernet.h>
-
-// Enter a MAC address and IP address for your controller below.
-// The IP address will be dependent on your local network.
-// gateway and subnet are optional:
-// byte mac[] = {
-//   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
-// };
-// IPAddress ip(192, 168, 0, 177);
-// IPAddress myDns(192,168,1, 1);
-// IPAddress gateway(192, 168, 1, 1);
-// IPAddress subnet(255, 255, 255, 0);
-
-// #define baseStationPort 5000
-// #define autoSysPort 6000
-
-// EthernetServer baseConn(baseStationPort);
-// EthernetServer autoSysConn(autoSysPort);
-
 //L293D
 //Joint Motor 1
 int speedPins[] = {5, 8, 13, 6, 5, 7 } ;
@@ -50,20 +30,11 @@ void setup() {
     pinMode(directionPins[i], OUTPUT);
   }
 
-  // // initialize the ethernet device
-  // Ethernet.begin(mac, ip, myDns, gateway, subnet);
-  // // start listening for clients
-  // baseConn.begin();
-  // autoSysConn.begin();
-
   // Open serial communications and wait for port to open:
   Serial.begin(38400);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
-
-  // Serial.print("IP address:");
-  // Serial.println(Ethernet.localIP());
 }
 
 // Helper functions
@@ -170,8 +141,6 @@ void processData() {
   if(Serial.available() < 16) {
     return;
   }
-  Serial.println("started a write");
-  Serial.println(millis());
 
   char lSpeedBuffer[6], rSpeedBuffer[6], pivotBuffer[6], driveMode;
   loadData(lSpeedBuffer, 5);
@@ -194,14 +163,10 @@ void processData() {
   while(Serial.available()) {
     Serial.read();
   }
-  
-  Serial.println("done writing"); 
-  Serial.println(millis());
 }
 
 void loop() {
   // wait for a new client:
-//  Serial.println("looped");
   delay(5);
   processData();
 }
