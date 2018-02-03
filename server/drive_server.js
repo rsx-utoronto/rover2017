@@ -167,7 +167,7 @@ function init(model, config) {
       );
       let s = port.read();
       if(s) {
-        console.log(s.toString())
+        //  	console.log(s.toString())
       }
     }
 
