@@ -70,6 +70,10 @@ function init(model, config) {
     router.put('/stop', (req, res) => {
         model.drive.speed[0] = model.drive.speed[1] = 0;
         model.drive.pivot = 0;
+        // sends stop signal to the relays
+        for (var i = 0; i < 6; i++){
+          model.aux.relay[i] = false;
+        }
         res.json(model.drive);
     });
 
