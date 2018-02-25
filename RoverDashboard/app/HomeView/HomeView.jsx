@@ -25,7 +25,7 @@ export default class HomeView extends React.Component {
 		super(props)
 		this.state = {
 			drive: {
-				speed: [5,5],
+				speed: [0,0],
 				pivot: 500,
 				drive_mode: true,
 				connected: false
