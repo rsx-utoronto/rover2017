@@ -88,11 +88,16 @@ export default class Setup extends React.Component {
     if(!this.state.joystickPositions || !this.state.joystickPositions[index])
       return <div></div>
 
-    let gp = this.state.joystickPositions[index]
-    return <div>
-      forward: {gp.axes[AXIS_FB].toFixed(4)} <br/>
-      pivot: {gp.axes[AXIS_PIVOT].toFixed(4)}
-    </div>
+    let gp = this.state.joystickPositions[index];
+    if (gp.axes.length < 4) {
+      return <div>Invalid joystick</div>
+    }
+    else {
+      return <div>
+        forward: {gp.axes[AXIS_FB].toFixed(4)} <br/>
+        pivot: {gp.axes[AXIS_PIVOT].toFixed(4)}
+      </div>
+    }
   }
 
   gamepadRow(gamepad, index) {
@@ -121,17 +126,17 @@ export default class Setup extends React.Component {
 
   sgn(x) {
     if (x > 0)
-      return 1; 
+      return 1;
     else if (x < 0)
-      return -1; 
+      return -1;
     else
-      return 0; 
+      return 0;
   }
 
   /**
-    Takes joyVal, a raw value from the joystick and converts it to a the speed for the rover. 
-    
-    joyVal should be a value from -1 to 1. 
+    Takes joyVal, a raw value from the joystick and converts it to a the speed for the rover.
+
+    joyVal should be a value from -1 to 1.
     speedControl should be a value from -1 to 1, representing how sensitive the joystick is ranging from minSensitivity to maxSensitivity
 
     The output is in the range -255 to 255.
@@ -144,7 +149,7 @@ export default class Setup extends React.Component {
     // set the maximum speed as controlled by the SPEED_AXIS
     let joyMax = (speedControl + 1) / 2 * (maxSensitivity - minSensitivity) + minSensitivity;
 
-    // ((proportion of the joystick value)^1.4) * range of desired speed + minimum speed 
+    // ((proportion of the joystick value)^1.4) * range of desired speed + minimum speed
     if(_.isNaN(this.sgn(joyVal) * joyMax * Math.pow(Math.abs(joyVal), 1.4))){
       console.log(joyVal)
     }
@@ -155,7 +160,7 @@ export default class Setup extends React.Component {
     clearInterval(interval);
     interval = setInterval(() => {
       let driveGamepadId = this.state.joystickMapping.indexOf('drive');
-      
+
       if (driveGamepadId === -1)  // nothing listening to drive
         return
 
@@ -198,13 +203,13 @@ export default class Setup extends React.Component {
         let pSpeed = this.expdrive(pivotSpeed, speedControl);
         fetch(`http://${ServerAddress}/drive/pivot/${pSpeed}`, {
           method: 'put'
-        }); 
+        });
       }
-      
+
       // Drive normally
       //    FRONT
       //  \   1   /
-      //    \   /   
+      //    \   /
       //  4   X   3
       //    /   \
       //  /   2   \
@@ -212,7 +217,7 @@ export default class Setup extends React.Component {
       // When the joystick is in regions 1 or 2, one wheel turns faster than the other
       // When the joystick is in regions 3 and 4, only one wheel turns.
       else if (Math.abs(lrSpeed) > JOYSTICK_DEADZONE || Math.abs(fbSpeed) > JOYSTICK_DEADZONE) {
-        let lSpeed, rSpeed; 
+        let lSpeed, rSpeed;
         if (lrSpeed > 0) {
           lSpeed = fbSpeed;
           if (Math.abs(fbSpeed) >= Math.abs(lrSpeed)) {

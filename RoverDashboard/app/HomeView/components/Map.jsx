@@ -20,7 +20,7 @@ export default class Map extends React.Component {
 		var marker = L.marker({lat:0, lon:0}).addTo(map);
 
 		setInterval(() => {
-			fetch("http://"+ServerAddress+":8080/gps")
+			fetch("http://"+ServerAddress+"/gps")
 			.then(response => {
 				if (response.ok)
 					return response.json();
