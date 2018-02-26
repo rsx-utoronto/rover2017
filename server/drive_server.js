@@ -106,7 +106,7 @@ function init(model, config) {
     }
 
     port = new SerialPort(config.drive_port, {
-      baudRate: 38400
+      baudRate: 9600
     }
     , err => {
       if(err) {
