@@ -52,3 +52,5 @@ bundle.js
 *.png
 *.ttf
 *.eot
+
+.vscode/
