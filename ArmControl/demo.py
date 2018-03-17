@@ -2,9 +2,9 @@
 
 import pygame
 import serial
-#import sys
+import sys
 
-#ser = serial.Serial('COM5', 9600)
+ser = serial.Serial('COM5', 9600)
  
 # Define some colors
 BLACK = (0, 0, 0)
@@ -58,13 +58,12 @@ pygame.mouse.set_visible(0)
 # list of keys in order: Q, E, W, S, A, D, R, F, U, J, I, K
 list_of_key_numbers_unpressed = [11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33]
 done = False
-#ser.open()
+ser.open()
 
 while not done:
     print(1)
-    #print(sys.getsizeof(1))
     # OUTPUT TO SERIAL
-    #ser.write(1)
+    ser.write(chr(1))
 
     # --- Event Processing
     for event in pygame.event.get():
@@ -143,7 +142,7 @@ while not done:
                 #print('Output: ')
                 print( output )
                 # OUTPUT TO SERIAL
-                #ser.write(output)
+                ser.write(chr(output))
 
         if event.type == pygame.KEYUP:
             if event.key==pygame.K_q or event.key==pygame.K_e or event.key==pygame.K_w or event.key==pygame.K_s or event.key==pygame.K_a or event.key==pygame.K_d or event.key==pygame.K_r or event.key==pygame.K_f or event.key==pygame.K_u or event.key==pygame.K_j or event.key==pygame.K_i or event.key==pygame.K_k:
@@ -215,7 +214,7 @@ while not done:
                 #print('Output: ')
                 print( output )
                 # OUTPUT TO SERIAL
-                #ser.write(output)
+                ser.write(chr(output))
 
  
     # --- Drawing Code
@@ -235,6 +234,6 @@ while not done:
     clock.tick( int(1/time_delay) )
  
 # Close the window and quit.
-#ser.close()
+ser.close()
 pygame.quit()
 
