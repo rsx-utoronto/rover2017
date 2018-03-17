@@ -1,11 +1,17 @@
 #include <Arduino.h>
 
-const uint8_t l_wrist_pin = ;
-const uint8_t r_wrist_pin = ;
-const uint8_t forearm_pin = ;
-const uint8_t gripper_pin = ;
-const uint8_t elbow_pin = ;
-const uint8_t shoulder_pin = ;
+const uint8_t l_wrist_PIN = 0;
+const uint8_t l_wrist_DIR = 0;
+const uint8_t r_wrist_PIN = 0;
+const uint8_t r_wrist_DIR = 0;
+const uint8_t forearm_PIN = 0;
+const uint8_t forearm_DIR = 0;
+const uint8_t gripper_PIN = 0;
+const uint8_t gripper_DIR = 0;
+const uint8_t elbow_PIN = 0;
+const uint8_t elbow_DIR = 0;
+const uint8_t shoulder_PIN = 0;
+const uint8_t shoulder_DIR = 0;
 
 
 int16_t motorSpeed = 80;
@@ -169,11 +175,21 @@ void setVariables(uint8_t inByte) {
     }
 }
 
+int sign(int X) {
+    return (int) (X > 0); 
+}
+
 void updateMotors() {
-    analogWrite(l_wrist_pin, l_wrist_vel);
-    analogWrite(r_wrist_pin, r_wrist_vel);
-    analogWrite(forearm_pin, forearm_vel);
-    analogWrite(gripper_pin, gripper_vel);
-    analogWrite(elbow_pin, elbow_vel);
-    analogWrite(shoulder_pin, shoulder_vel);
+    analogWrite(abs(l_wrist_PIN), l_wrist_vel);
+    analogWrite(l_wrist_DIR, sign(l_wrist_vel));
+    analogWrite(abs(r_wrist_PIN), r_wrist_vel);
+    analogWrite(r_wrist_DIR, sign(r_wrist_vel));
+    analogWrite(abs(forearm_PIN), forearm_vel);
+    analogWrite(forearm_DIR, sign(forearm_vel));
+    analogWrite(abs(gripper_PIN), gripper_vel);
+    analogWrite(gripper_DIR, sign(gripper_vel));
+    analogWrite(abs(elbow_PIN), elbow_vel);
+    analogWrite(elbow_DIR, sign(elbow_vel));
+    analogWrite(abs(shoulder_PIN), shoulder_vel);
+    analogWrite(shoulder_DIR, sign(shoulder_vel));
 }
