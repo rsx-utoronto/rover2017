@@ -1,17 +1,17 @@
 #include <Arduino.h>
 
-const uint8_t l_wrist_PIN = 0;
-const uint8_t l_wrist_DIR = 0;
-const uint8_t r_wrist_PIN = 0;
-const uint8_t r_wrist_DIR = 0;
-const uint8_t forearm_PIN = 0;
-const uint8_t forearm_DIR = 0;
-const uint8_t gripper_PIN = 0;
-const uint8_t gripper_DIR = 0;
-const uint8_t elbow_PIN = 0;
-const uint8_t elbow_DIR = 0;
-const uint8_t shoulder_PIN = 0;
-const uint8_t shoulder_DIR = 0;
+const uint8_t l_wrist_PIN = 5;
+const uint8_t l_wrist_DIR = 24;
+const uint8_t r_wrist_PIN = 6;
+const uint8_t r_wrist_DIR = 32;
+const uint8_t forearm_PIN = 7;
+const uint8_t forearm_DIR = 42;
+const uint8_t gripper_PIN = 4;
+const uint8_t gripper_DIR = 40;
+const uint8_t elbow_PIN = 3;
+const uint8_t elbow_DIR = 38;
+const uint8_t shoulder_PIN = 2;
+const uint8_t shoulder_DIR = 34;
 
 
 int16_t motorSpeed = 80;
@@ -64,6 +64,24 @@ const uint8_t S_PIT_U_X = 31;
 const uint8_t S_PIT_D_A = 32;
 const uint8_t S_PIT_D_X = 33;
 
+int sign(int X) {
+    return (int) (X > 0); 
+}
+
+void updateMotors() {
+    analogWrite(abs(l_wrist_PIN), l_wrist_vel);
+    analogWrite(l_wrist_DIR, sign(l_wrist_vel));
+    analogWrite(abs(r_wrist_PIN), r_wrist_vel);
+    analogWrite(r_wrist_DIR, sign(r_wrist_vel));
+    analogWrite(abs(forearm_PIN), forearm_vel);
+    analogWrite(forearm_DIR, sign(forearm_vel));
+    analogWrite(abs(gripper_PIN), gripper_vel);
+    analogWrite(gripper_DIR, sign(gripper_vel));
+    analogWrite(abs(elbow_PIN), elbow_vel);
+    analogWrite(elbow_DIR, sign(elbow_vel));
+    analogWrite(abs(shoulder_PIN), shoulder_vel);
+    analogWrite(shoulder_DIR, sign(shoulder_vel));
+}
 
 void stopAllMotors() {
     l_wrist_vel = 0;
@@ -72,6 +90,7 @@ void stopAllMotors() {
     gripper_vel = 0;
     elbow_vel = 0;
     shoulder_vel = 0;
+    updateMotors();
 }
 
 void setVariables(uint8_t inByte) {
@@ -173,23 +192,4 @@ void setVariables(uint8_t inByte) {
         stopAllMotors();
     break;
     }
-}
-
-int sign(int X) {
-    return (int) (X > 0); 
-}
-
-void updateMotors() {
-    analogWrite(abs(l_wrist_PIN), l_wrist_vel);
-    analogWrite(l_wrist_DIR, sign(l_wrist_vel));
-    analogWrite(abs(r_wrist_PIN), r_wrist_vel);
-    analogWrite(r_wrist_DIR, sign(r_wrist_vel));
-    analogWrite(abs(forearm_PIN), forearm_vel);
-    analogWrite(forearm_DIR, sign(forearm_vel));
-    analogWrite(abs(gripper_PIN), gripper_vel);
-    analogWrite(gripper_DIR, sign(gripper_vel));
-    analogWrite(abs(elbow_PIN), elbow_vel);
-    analogWrite(elbow_DIR, sign(elbow_vel));
-    analogWrite(abs(shoulder_PIN), shoulder_vel);
-    analogWrite(shoulder_DIR, sign(shoulder_vel));
 }
