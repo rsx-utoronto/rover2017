@@ -54,3 +54,5 @@ bundle.js
 *.eot
 
 .vscode/
+.pioenvs
+.piolibdeps
