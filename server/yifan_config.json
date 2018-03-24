@@ -1,0 +1,19 @@
+{
+	"server_port": 8080,
+	"dashboard_port": 3000,
+	"drive_port": 5000,
+	"drive_ip": "192.168.0.177",
+	"arm_port": 5000,
+	"arm_ip": "127.0.0.1",
+	"science_port": 5000,
+	"science_ip": "192.168.0.179",
+	"aux_port": 5000,
+	"aux_ip": "192.168.0.180",
+	"initial_position": {
+		"latitude": 43.7819,
+		"longitude": -79.4655,
+		"heading": 0
+	},
+	"phone_url": "http://0.0.0.0:8080",
+	"lidar_port": "/dev/ttyUSB0"
+}
