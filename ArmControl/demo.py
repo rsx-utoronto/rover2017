@@ -4,7 +4,7 @@ import pygame
 import serial
 import sys
 
-ser = serial.Serial('COM5', 9600)
+ser = serial.Serial('/dev/ttyACM0', 9600)
  
 # Define some colors
 BLACK = (0, 0, 0)
@@ -39,7 +39,7 @@ pygame.display.set_caption("My Game")
  
 # Loop until the user clicks the close button.
 #done = False
- 
+
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
  
@@ -58,7 +58,6 @@ pygame.mouse.set_visible(0)
 # list of keys in order: Q, E, W, S, A, D, R, F, U, J, I, K
 list_of_key_numbers_unpressed = [11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33]
 done = False
-ser.open()
 
 while not done:
     print(1)
