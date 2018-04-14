@@ -12,6 +12,8 @@ function init(model, config) {
 
 	var router = express.Router();
 	var port = new SerialPort('/dev/tty-usbserial1');
+	// testing purpose:
+	//var port = new SerialPort('/dev/ttyUSB0');
 	var portOpen = false; 
 
 	port.on('open', function() {
@@ -28,6 +30,7 @@ function init(model, config) {
 		model.arm.desired = _.merge(model.arm.desired, req.params)
 		res.json(model.arm);
 
+*
 		if (portOpen)
 			port.write(model.arm.desired.message, (err) => {
 				if (err) { 

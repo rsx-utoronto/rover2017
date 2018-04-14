@@ -386,12 +386,12 @@ def getJoystickButtons():
 def sendAngleValues(qVect, start = 0):
 
     # stepper steps per 2*pi rotation
-    q1Steps = 21973
-    q2Steps = 191102
-    q3Steps = 65921*2
-    q4Steps = 5493
-    q5Steps = 5493
-    q6Steps = 5493
+    q1Steps = 1000
+    q2Steps = 1000
+    q3Steps = 1000
+    q4Steps = 1000
+    q5Steps = 1000
+    q6Steps = 1000
     # gripperRange = 0 - 1023
     # generate messages from qVect here q1String etc correspond to order in message, not exactly in qVect
     q1String = str( int(qVect[4] * q5Steps/(2*math.pi) ) )
@@ -560,23 +560,23 @@ def resetArm():
 
 
 def sendMessage(message):
-    return
-    #global conn
+    
+    global conn
 
-    #conn.request("PUT","/arm/"+message+"/")
+    conn.request("PUT","/arm/"+message+"/")
 
-    #r1 = conn.getresponse()
-    #print r1.status, r1.reason
-    #data1 = r1.read()
-    #print data1
+    r1 = conn.getresponse()
+    print r1.status, r1.reason
+    data1 = r1.read()
+    print data1
 
-    #conn.request("GET", "/arm")
-    #r2 = conn.getresponse()
-    #print r2.status, r2.reason
-    #data2 = r2.read()
-    #print data2
+    conn.request("GET", "/arm")
+    r2 = conn.getresponse()
+    print r2.status, r2.reason
+    data2 = r2.read()
+    print data2
 
-    #conn.close()
+    conn.close()
     
 def makeDHTable(jointAngles):
     #global savedServo
@@ -1006,7 +1006,7 @@ if __name__ == "__main__":
     serverIP = '192.168.0.123'
     serverHttpPort = '8080'
     global conn
-    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
 
     # choose between import and non-import modes
     if len(sys.argv)==2 and sys.argv[1] == 'import':
