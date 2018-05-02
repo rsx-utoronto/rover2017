@@ -271,7 +271,6 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
     Rz = np.matrix( [ [math.cos(rotationVector[2]), -math.sin(rotationVector[2]), 0], 
                         [math.sin(rotationVector[2]), math.cos(rotationVector[2]), 0], 
                         [0, 0, 1] ] )
-
     # update rotation matrix
     # rotation is happening in the order: around x -> around y -> around z
     R06_updated = (R06 * Rx * Ry * Rz).tolist()
@@ -563,20 +562,20 @@ def sendMessage(message):
     
     global conn
 
-    conn.request("PUT","/arm/"+message+"/")
+    # conn.request("PUT","/arm/"+message+"/")
 
-    r1 = conn.getresponse()
-    print r1.status, r1.reason
-    data1 = r1.read()
-    print data1
+    # r1 = conn.getresponse()
+    # print r1.status, r1.reason
+    # data1 = r1.read()
+    # print data1
 
-    conn.request("GET", "/arm")
-    r2 = conn.getresponse()
-    print r2.status, r2.reason
-    data2 = r2.read()
-    print data2
+    # conn.request("GET", "/arm")
+    # r2 = conn.getresponse()
+    # print r2.status, r2.reason
+    # data2 = r2.read()
+    # print data2
 
-    conn.close()
+    # conn.close()
     
 def makeDHTable(jointAngles):
     #global savedServo
@@ -1026,6 +1025,7 @@ if __name__ == "__main__":
         resetArm()
 
     qlim = np.array([[-180, 180], [-45, 315], [-180, 180], [-175, 175], [-175, 175], [-180, 180]]) * math.pi/180
+    #qlim = np.array([[-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000]]) * math.pi/180
     #In the order of q1lim to q6lim [min,max]
     #savedServo = 0
     setupVisualEnv()
