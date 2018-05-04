@@ -18,6 +18,8 @@ void setup() {
     pinMode(gripper_DIR, OUTPUT);
     pinMode(elbow_DIR, OUTPUT);
     pinMode(shoulder_DIR, OUTPUT);
+    stopAllMotors();
+    delay(1000);
 }
 
 void loop() {
