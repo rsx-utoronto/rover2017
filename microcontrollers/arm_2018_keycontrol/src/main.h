@@ -9,12 +9,14 @@ const uint8_t forearm_DIR = 42;
 const uint8_t gripper_PIN = 4;
 const uint8_t gripper_DIR = 40;
 const uint8_t elbow_PIN = 3;
-const uint8_t elbow_DIR = 38;
+const uint8_t elbow_DIR = 28;
 const uint8_t shoulder_PIN = 2;
 const uint8_t shoulder_DIR = 34;
 
 
-int16_t motorSpeed = 80;
+int16_t motorSpeed = 100;
+int16_t linSpeed = 255;
+int16_t gripSpeed = 255;
 int16_t l_wrist_vel = 0;
 int16_t r_wrist_vel = 0;
 int16_t forearm_vel = 0;
@@ -69,18 +71,18 @@ int sign(int X) {
 }
 
 void updateMotors() {
-    analogWrite(abs(l_wrist_PIN), l_wrist_vel);
-    analogWrite(l_wrist_DIR, sign(l_wrist_vel));
-    analogWrite(abs(r_wrist_PIN), r_wrist_vel);
-    analogWrite(r_wrist_DIR, sign(r_wrist_vel));
-    analogWrite(abs(forearm_PIN), forearm_vel);
-    analogWrite(forearm_DIR, sign(forearm_vel));
-    analogWrite(abs(gripper_PIN), gripper_vel);
-    analogWrite(gripper_DIR, sign(gripper_vel));
-    analogWrite(abs(elbow_PIN), elbow_vel);
-    analogWrite(elbow_DIR, sign(elbow_vel));
-    analogWrite(abs(shoulder_PIN), shoulder_vel);
-    analogWrite(shoulder_DIR, sign(shoulder_vel));
+    analogWrite(l_wrist_PIN, abs(l_wrist_vel));
+    digitalWrite(l_wrist_DIR, sign(l_wrist_vel));
+    analogWrite(r_wrist_PIN, abs(r_wrist_vel));
+    digitalWrite(r_wrist_DIR, sign(r_wrist_vel));
+    analogWrite(forearm_PIN, abs(forearm_vel));
+    digitalWrite(forearm_DIR, sign(forearm_vel));
+    analogWrite(gripper_PIN, abs(gripper_vel));
+    digitalWrite(gripper_DIR, sign(gripper_vel));
+    analogWrite(elbow_PIN, abs(elbow_vel));
+    digitalWrite(elbow_DIR, sign(elbow_vel));
+    analogWrite(shoulder_PIN, abs(shoulder_vel));
+    digitalWrite(shoulder_DIR, sign(shoulder_vel));
 }
 
 void stopAllMotors() {
@@ -121,20 +123,20 @@ void setVariables(uint8_t inByte) {
     break;
     // Wrist Pitch
     case W_PIT_U_A:
-        l_wrist_vel += motorSpeed;
-        r_wrist_vel -= motorSpeed;
+        l_wrist_vel -= motorSpeed;
+        r_wrist_vel += motorSpeed;
     break;
     case W_PIT_U_X:
-        l_wrist_vel -= motorSpeed;
-        r_wrist_vel += motorSpeed;
-    break;
-    case W_PIT_D_A:
-        l_wrist_vel -= motorSpeed;
-        r_wrist_vel += motorSpeed;
-    break;
-    case W_PIT_D_X:
         l_wrist_vel += motorSpeed;
         r_wrist_vel -= motorSpeed;
+    break;
+    case W_PIT_D_A:
+        l_wrist_vel += motorSpeed;
+        r_wrist_vel -= motorSpeed;
+    break;
+    case W_PIT_D_X:
+        l_wrist_vel -= motorSpeed;
+        r_wrist_vel += motorSpeed;
     break;
     // Forearm Rotation
     case F_ROT_L_A:
@@ -151,42 +153,42 @@ void setVariables(uint8_t inByte) {
     break;
     // Gripper
     case G_ACT_C_A:
-        gripper_vel += motorSpeed;
+        gripper_vel += gripSpeed;
     break;
     case G_ACT_C_X:
-        gripper_vel -= motorSpeed;
+        gripper_vel -= gripSpeed;
     break;
     case G_ACT_O_A:
-        gripper_vel -= motorSpeed;
+        gripper_vel -= gripSpeed;
     break;
     case G_ACT_O_X:
-        gripper_vel += motorSpeed;
+        gripper_vel += gripSpeed;
     break;
     // Elbow Pitch
     case E_PIT_U_A:
-        elbow_vel += motorSpeed;
+        elbow_vel += linSpeed;
     break;
     case E_PIT_U_X:
-        elbow_vel -= motorSpeed;
+        elbow_vel -= linSpeed;
     break;
     case E_PIT_D_A:
-        elbow_vel -= motorSpeed;
+        elbow_vel -= linSpeed;
     break;
     case E_PIT_D_X:
-        elbow_vel += motorSpeed;
+        elbow_vel += linSpeed;
     break;
     // Shoulder Pitch
     case S_PIT_U_A:
-        shoulder_vel += motorSpeed;
+        shoulder_vel += linSpeed;
     break;
     case S_PIT_U_X:
-        shoulder_vel -= motorSpeed;
+        shoulder_vel -= linSpeed;
     break;
     case S_PIT_D_A:
-        shoulder_vel -= motorSpeed;
+        shoulder_vel -= linSpeed;
     break;
     case S_PIT_D_X:
-        shoulder_vel += motorSpeed;
+        shoulder_vel += linSpeed;
     break;
     default: // UNKNOWN COMMAND, INITIATE E-STOP
         stopAllMotors();
