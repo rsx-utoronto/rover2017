@@ -171,56 +171,156 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
         translationVector[ind] = k * translationVector[ind]
         rotationVector[ind] = t * rotationVector[ind]
 
-    # update translation
-    # forward-backward movement
+
+    # ## TYPE0 fancy motions, relative to the camera
+    # ## update movement in end effector camera frame
+    # x0 = np.matrix( [1, 0, 0] ).transpose()
+    # y0 = np.matrix( [0, 1, 0] ).transpose()
+    # z0 = np.matrix( [0, 0, 1] ).transpose()
+    # R06 = np.matrix( [ updatedHomTransMatrix[0][:3], updatedHomTransMatrix[1][:3], updatedHomTransMatrix[2][:3] ] )
+    # # get z3
+    # A1 = np.matrix( homogenousTransform(DHTable[0]) )
+    # A2 = np.matrix( homogenousTransform(DHTable[1]) )
+    # A3 = np.matrix( homogenousTransform(DHTable[2]) )
+    # H03 = A1*A2*A3#*A4
+    # R03 = H03[:3,:3]
+    # z3 = R03 * z0
+    
+    # #z6 = R06 * z0
+    # # get z4
+    # A4 = np.matrix( homogenousTransform(DHTable[3]) )
+    # #A5 = np.matrix( homogenousTransform(DHTable[4]) )
+    # H04 = H03*A4
+    # R04 = H04[:3,:3]
+    # z4 = R04 * z0
+    # # define the end effector camera frame
+    # x0_tilda = z3.transpose().tolist()[0]
+    # z0_tilda = z4.transpose().tolist()[0]#np.cross(x0_tilda, y0_tilda)
+    # y0_tilda = np.cross(z0_tilda,x0_tilda)#(-z5.transpose()).tolist()[0]
+    # y0_tildaNorm = np.linalg.norm(y0_tilda)
+    # for i in range(len(z0_tilda)):
+    #     y0_tilda[i] = y0_tilda[i]/y0_tildaNorm
+
+    # #print(x0_tilda)
+    # #print(y0_tilda)
+    # #print(z0_tilda)
+
+    # # construct R00_tilda
+    # x0 = x0.transpose().tolist()[0]
+    # y0 = y0.transpose().tolist()[0]
+    # z0 = z0.transpose().tolist()[0]
+    # R00_tilda = np.matrix( [ [np.dot(x0_tilda,x0), np.dot(y0_tilda,x0), np.dot(z0_tilda,x0)], 
+    #                         [np.dot(x0_tilda,y0), np.dot(y0_tilda,y0), np.dot(z0_tilda,y0)], 
+    #                         [np.dot(x0_tilda,z0), np.dot(y0_tilda,z0), np.dot(z0_tilda,z0)] ] )
+    # # update translation
+    # xMovement = R00_tilda * np.matrix( [translationVector[0], 0, 0] ).transpose()
+    # yMovement = R00_tilda * np.matrix( [0, translationVector[1], 0] ).transpose()
+    # zMovement = R00_tilda * np.matrix( [0, 0, translationVector[2]] ).transpose()
+    # # update rotation
+    # Rx = np.matrix( [ [1, 0, 0], 
+    #                     [0, math.cos(rotationVector[0]), -math.sin(rotationVector[0])], 
+    #                     [0, math.sin(rotationVector[0]), math.cos(rotationVector[0])] ] )
+    # Ry = np.matrix( [ [math.cos(rotationVector[1]), 0, math.sin(rotationVector[1])], 
+    #                     [0, 1, 0], 
+    #                     [-math.sin(rotationVector[1]), 0, math.cos(rotationVector[1])] ] )
+    # Rz = np.matrix( [ [math.cos(rotationVector[2]), -math.sin(rotationVector[2]), 0], 
+    #                     [math.sin(rotationVector[2]), math.cos(rotationVector[2]), 0], 
+    #                     [0, 0, 1] ] )
+    # Rx0_tilda = R00_tilda * Rx * R00_tilda.transpose()
+    # Ry0_tilda = R00_tilda * Ry * R00_tilda.transpose()
+    # Rz0_tilda = R00_tilda * Rz * R00_tilda.transpose()
+    # # update homogenous transform matrix
+    # updatedHomTransMatrix[0][3] += (xMovement.tolist()[0][0] + yMovement.tolist()[0][0] + zMovement.tolist()[0][0])
+    # updatedHomTransMatrix[1][3] += (xMovement.tolist()[1][0] + yMovement.tolist()[1][0] + zMovement.tolist()[1][0])
+    # updatedHomTransMatrix[2][3] += (xMovement.tolist()[2][0] + yMovement.tolist()[2][0] + zMovement.tolist()[2][0])
+    # #rotation is happening in the order: around z -> around y -> around x
+    # R06_updated = (Rx0_tilda * Ry0_tilda * Rz0_tilda * R06).tolist()
+    # for i in range(3):
+    #     for j in range(3):
+    #         updatedHomTransMatrix[i][j] = R06_updated[i][j] 
+
+
+    ### TYPE 1 fancy motions
+    # update translation (in the tip reference frame)
     R06 = np.matrix( [ updatedHomTransMatrix[0][:3], updatedHomTransMatrix[1][:3], updatedHomTransMatrix[2][:3] ] )
+    # forward-backward movement update
     xMovement = R06 * np.matrix( [0, 0, translationVector[0]] ).transpose()
     updatedHomTransMatrix[0][3] += xMovement.tolist()[0][0]
     updatedHomTransMatrix[1][3] += xMovement.tolist()[1][0]
     updatedHomTransMatrix[2][3] += xMovement.tolist()[2][0]
-    # left-right movement
-    updatedHomTransMatrix[1][3] += translationVector[1]
-    # up-down movement
-    updatedHomTransMatrix[2][3] += translationVector[2]
+    # left-right movement update
+    yMovement = R06 * np.matrix( [0, -translationVector[1], 0] ).transpose() # put "-" for the right movement direction
+    updatedHomTransMatrix[0][3] += yMovement.tolist()[0][0]
+    updatedHomTransMatrix[1][3] += yMovement.tolist()[1][0]
+    updatedHomTransMatrix[2][3] += yMovement.tolist()[2][0]
+    # up-down movement update
+    zMovement = R06 * np.matrix( [translationVector[2], 0, 0] ).transpose()
+    updatedHomTransMatrix[0][3] += zMovement.tolist()[0][0]
+    updatedHomTransMatrix[1][3] += zMovement.tolist()[1][0]
+    updatedHomTransMatrix[2][3] += zMovement.tolist()[2][0]
 
-    # update rotation
-    # update rotation about z0
-    Rz0 = np.matrix( [ [math.cos(rotationVector[1]), -math.sin(rotationVector[1]), 0], 
-                        [math.sin(rotationVector[1]), math.cos(rotationVector[1]), 0], 
-                        [0, 0, 1] ] )
-    # update rotation about z6
-    Rz6 = np.matrix( [ [math.cos(rotationVector[2]), -math.sin(rotationVector[2]), 0], 
-                        [math.sin(rotationVector[2]), math.cos(rotationVector[2]), 0], 
-                        [0, 0, 1] ] )
-    # update rotation about y0_tilda, where y0_tilda = z6 x z0/||z6 x z0||
-    # basic rotation about y in 0_tilda frame
+
+    # update rotation (in the tip reference frame)
+    # basic rotations
+    Rx = np.matrix( [ [1, 0, 0], 
+                        [0, math.cos(rotationVector[1]), -math.sin(rotationVector[1])], 
+                        [0, math.sin(rotationVector[1]), math.cos(rotationVector[1])] ] )
     Ry = np.matrix( [ [math.cos(rotationVector[0]), 0, math.sin(rotationVector[0])], 
                         [0, 1, 0], 
                         [-math.sin(rotationVector[0]), 0, math.cos(rotationVector[0])] ] )
-    # construction of rotation matrix from 0 to 0_tilda frame
-    x0 = [1, 0, 0]
-    y0 = [0, 1, 0]
-    z0 = [0, 0, 1]
-    z6_temp = (R06 * np.matrix( z0 ).transpose()).tolist()
-    z6 = [ z6_temp[0][0], z6_temp[1][0], z6_temp[2][0] ]
-
-    z0_tilda = copy.deepcopy(z6)
-
-    y0_tilda = np.cross(z6, z0)
-    y0_tildaNorm = np.linalg.norm(y0_tilda)
-    for i in range(len(y0_tilda)):
-        y0_tilda[i] = y0_tilda[i]/y0_tildaNorm
-    y0_tilda = y0_tilda.tolist()
-
-    x0_tilda = np.cross(y0_tilda,z0_tilda).tolist()
-
-    R00_tilda = np.matrix( [ [np.dot(x0_tilda,x0), np.dot(y0_tilda,x0), np.dot(z0_tilda,x0)], 
-                            [np.dot(x0_tilda,y0), np.dot(y0_tilda,y0), np.dot(z0_tilda,y0)], 
-                            [np.dot(x0_tilda,z0), np.dot(y0_tilda,z0), np.dot(z0_tilda,z0)] ] )
-    Ry0_tilda = R00_tilda * Ry * R00_tilda.transpose()
-
+    Rz = np.matrix( [ [math.cos(rotationVector[2]), -math.sin(rotationVector[2]), 0], 
+                        [math.sin(rotationVector[2]), math.cos(rotationVector[2]), 0], 
+                        [0, 0, 1] ] )
     # update rotation matrix
-    R06_updated = (Rz0 * Ry0_tilda * R06 * Rz6).tolist()
+    # rotation is happening in the order: around x -> around y -> around z
+    R06_updated = (R06 * Rx * Ry * Rz).tolist()
+
+
+    # # left-right movement
+    # updatedHomTransMatrix[1][3] += translationVector[1]
+    # # up-down movement
+    # updatedHomTransMatrix[2][3] += translationVector[2]
+    # 
+    # # update rotation
+    # # update rotation about z0
+    # Rz0 = np.matrix( [ [math.cos(rotationVector[1]), -math.sin(rotationVector[1]), 0], 
+    #                     [math.sin(rotationVector[1]), math.cos(rotationVector[1]), 0], 
+    #                     [0, 0, 1] ] )
+    # # update rotation about z6
+    # Rz6 = np.matrix( [ [math.cos(rotationVector[2]), -math.sin(rotationVector[2]), 0], 
+    #                     [math.sin(rotationVector[2]), math.cos(rotationVector[2]), 0], 
+    #                     [0, 0, 1] ] )
+    # # update rotation about y0_tilda, where y0_tilda = z6 x z0/||z6 x z0||
+    # # basic rotation about y in 0_tilda frame
+    # Ry = np.matrix( [ [math.cos(rotationVector[0]), 0, math.sin(rotationVector[0])], 
+    #                     [0, 1, 0], 
+    #                     [-math.sin(rotationVector[0]), 0, math.cos(rotationVector[0])] ] )
+    # # construction of rotation matrix from 0 to 0_tilda frame
+    # x0 = [1, 0, 0]
+    # y0 = [0, 1, 0]
+    # z0 = [0, 0, 1]
+    # z6_temp = (R06 * np.matrix( z0 ).transpose()).tolist()
+    # z6 = [ z6_temp[0][0], z6_temp[1][0], z6_temp[2][0] ]
+
+    # z0_tilda = copy.deepcopy(z6)
+
+    # y0_tilda = np.cross(z6, z0)
+    # y0_tildaNorm = np.linalg.norm(y0_tilda)
+    # for i in range(len(y0_tilda)):
+    #     y0_tilda[i] = y0_tilda[i]/y0_tildaNorm
+    # y0_tilda = y0_tilda.tolist()
+
+    # x0_tilda = np.cross(y0_tilda,z0_tilda).tolist()
+
+    # R00_tilda = np.matrix( [ [np.dot(x0_tilda,x0), np.dot(y0_tilda,x0), np.dot(z0_tilda,x0)], 
+    #                         [np.dot(x0_tilda,y0), np.dot(y0_tilda,y0), np.dot(z0_tilda,y0)], 
+    #                         [np.dot(x0_tilda,z0), np.dot(y0_tilda,z0), np.dot(z0_tilda,z0)] ] )
+    # Ry0_tilda = R00_tilda * Ry * R00_tilda.transpose()
+
+    # # update rotation matrix
+    # R06_updated = (Rz0 * Ry0_tilda * R06 * Rz6).tolist()
+
+    # update homTrans matrix
     for i in range(3):
         for j in range(3):
             updatedHomTransMatrix[i][j] = R06_updated[i][j] 
@@ -285,12 +385,12 @@ def getJoystickButtons():
 def sendAngleValues(qVect, start = 0):
 
     # stepper steps per 2*pi rotation
-    q1Steps = 21973
-    q2Steps = 191102
-    q3Steps = 65921*2
-    q4Steps = 5493
-    q5Steps = 5493
-    q6Steps = 5493
+    q1Steps = 1000
+    q2Steps = 1000
+    q3Steps = 1000
+    q4Steps = 1000
+    q5Steps = 1000
+    q6Steps = 1000
     # gripperRange = 0 - 1023
     # generate messages from qVect here q1String etc correspond to order in message, not exactly in qVect
     q1String = str( int(qVect[4] * q5Steps/(2*math.pi) ) )
@@ -459,23 +559,23 @@ def resetArm():
 
 
 def sendMessage(message):
-    return
-    #global conn
+    
+    global conn
 
-    #conn.request("PUT","/arm/"+message+"/")
+    # conn.request("PUT","/arm/"+message+"/")
 
-    #r1 = conn.getresponse()
-    #print r1.status, r1.reason
-    #data1 = r1.read()
-    #print data1
+    # r1 = conn.getresponse()
+    # print r1.status, r1.reason
+    # data1 = r1.read()
+    # print data1
 
-    #conn.request("GET", "/arm")
-    #r2 = conn.getresponse()
-    #print r2.status, r2.reason
-    #data2 = r2.read()
-    #print data2
+    # conn.request("GET", "/arm")
+    # r2 = conn.getresponse()
+    # print r2.status, r2.reason
+    # data2 = r2.read()
+    # print data2
 
-    #conn.close()
+    # conn.close()
     
 def makeDHTable(jointAngles):
     #global savedServo
@@ -806,7 +906,7 @@ def updateOperationMode():
         if modeOfOperation == 4: # needed specifically to make manual without memory mode work
             sendMessage('v')
         modeOfOperation = 4
-        print("Switched to full IK mode")
+        print("Switched to manual-no-memory mode")
         tempAngles = copy.deepcopy(savedJointAngles) # needed specifically to make manual without memory mode work
         sendMessage('q')
         return modeOfOperation
@@ -905,7 +1005,7 @@ if __name__ == "__main__":
     serverIP = '192.168.0.123'
     serverHttpPort = '8080'
     global conn
-    #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
+    conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
 
     # choose between import and non-import modes
     if len(sys.argv)==2 and sys.argv[1] == 'import':
@@ -924,7 +1024,8 @@ if __name__ == "__main__":
         savedJointAngles = [0,0,0,0,0,0]
         resetArm()
 
-    qlim = np.array([[-180, 180], [-45, 315], [-180, 180], [-120, 120], [-160, 160], [-180, 180]]) * math.pi/180
+    qlim = np.array([[-180, 180], [-45, 315], [-180, 180], [-175, 175], [-175, 175], [-180, 180]]) * math.pi/180
+    #qlim = np.array([[-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000]]) * math.pi/180
     #In the order of q1lim to q6lim [min,max]
     #savedServo = 0
     setupVisualEnv()

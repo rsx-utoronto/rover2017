@@ -4,7 +4,7 @@ import pygame
 import serial
 import sys
 
-ser = serial.Serial('COM6', 9600)
+ser = serial.Serial('/dev/ttyACM0', 9600)
  
 # Define some colors
 BLACK = (0, 0, 0)
@@ -39,7 +39,7 @@ pygame.display.set_caption("My Game")
  
 # Loop until the user clicks the close button.
 #done = False
- 
+
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
  
