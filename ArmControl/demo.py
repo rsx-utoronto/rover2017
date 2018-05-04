@@ -4,7 +4,7 @@ import pygame
 import serial
 import sys
 
-ser = serial.Serial('COM5', 9600)
+ser = serial.Serial('COM6', 9600)
  
 # Define some colors
 BLACK = (0, 0, 0)
@@ -58,7 +58,6 @@ pygame.mouse.set_visible(0)
 # list of keys in order: Q, E, W, S, A, D, R, F, U, J, I, K
 list_of_key_numbers_unpressed = [11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33]
 done = False
-ser.open()
 
 while not done:
     print(1)
@@ -230,7 +229,7 @@ while not done:
     pygame.display.flip()
  
     # Limit frames per second
-    time_delay = 0.1 # in seconds
+    time_delay = 0.03 # in seconds
     clock.tick( int(1/time_delay) )
  
 # Close the window and quit.
