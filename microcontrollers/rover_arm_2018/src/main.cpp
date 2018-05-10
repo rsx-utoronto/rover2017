@@ -31,6 +31,11 @@ void loop() {
             case 'r':
                 resume_operation();
                 break;
+            case 'z':
+                 for(int i = 0; i < 7; i++){
+                    actual_pos[i] = 0;
+                 }
+                 break;
         default:
             Serial.println("parse err");
         }
