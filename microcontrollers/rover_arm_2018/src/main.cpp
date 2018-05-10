@@ -73,7 +73,7 @@ void update_velocity(){
                 digitalWrite(dirPin[i], sign(shoulder_vel));
                 analogWrite(pwmPin[i], min(abs(shoulder_vel), spdLimit[i]));
             } else {
-                analogWrite(pwmPin[i], min(abs(shoulder_vel), spdLimit[i]));
+                analogWrite(pwmPin[i], 0);
             }
         }
     }
