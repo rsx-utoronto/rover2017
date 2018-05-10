@@ -138,6 +138,20 @@ class AutonomousRover:
         return False
 
     def motor_controller(self, angle_from_rover, x, y):
+
+        if angle_from_rover >= 10:
+            #Turn right
+            left_speed = self.speed
+            right_speed = 0
+        elif angle_from_rover <= -10:
+            #Turn left
+            left_speed = 0
+            right_speed = self.speed
+        else:
+            left_speed = self.speed
+            right_speed = self.speed
+
+"""
         if angle_from_rover >= 0:
             #Turn right
             if angle_from_rover < 80:
@@ -156,6 +170,7 @@ class AutonomousRover:
             else:
                 left_speed = 0
                 right_speed = self.speed
+"""
 
         #print("Left speed")
         print(left_speed)
