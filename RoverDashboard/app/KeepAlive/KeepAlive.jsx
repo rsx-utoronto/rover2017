@@ -16,7 +16,7 @@ class KeepAlive extends React.Component {
   estalishKeepAlive() {
     console.log("Establishing Keep Alive")
     this.setState({
-      socket: io.connect(""+ServerAddress+":8080"),
+      socket: io.connect(ServerAddress),
       connection: 'Connected'
     })
 

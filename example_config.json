@@ -1,8 +1,7 @@
 {
 	"server_port": 8080,
 	"dashboard_port": 3000,
-	"drive_port": 5000,
-	"drive_ip": "192.168.0.177",
+	"drive_port": "COM6",
 	"arm_port": 5000,
 	"arm_ip": "192.168.0.178",
 	"science_port": 5000,
@@ -15,5 +14,8 @@
 		"heading": 0
 	},
 	"phone_url": "http://192.168.0.12:8080",
-	"lidar_port": "/dev/ttyUSB0"
+	"lidar_port": "/dev/ttyUSB0",
+
+	"minSensitivity": 70,
+	"maxSensitivity": 180
 }

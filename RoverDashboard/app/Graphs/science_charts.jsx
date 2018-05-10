@@ -23,7 +23,7 @@ export default class ScienceCharts extends React.Component {
       Gas: 0
     }
 
-    fetch("http://"+ServerAddress+":8080/science").then((response) => {
+    fetch("http://"+ServerAddress+"/science").then((response) => {
       if (response.ok) {
         response.json().then((jsonRes) => {
           data.Humidity = jsonRes.humidity

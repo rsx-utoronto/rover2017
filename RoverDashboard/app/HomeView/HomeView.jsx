@@ -25,8 +25,8 @@ export default class HomeView extends React.Component {
 		super(props)
 		this.state = {
 			drive: {
-				speed: [5,5],
-				pivot: 500,
+				speed: [0,0],
+				pivot: 0,
 				drive_mode: true,
 				connected: false
 			},
@@ -39,7 +39,7 @@ export default class HomeView extends React.Component {
 	}
 
 	updateData() {
-		fetch("http://"+ServerAddress+":8080/drive").then((response) => {
+		fetch("http://"+ServerAddress+"/drive").then((response) => {
 			if(response.ok){
 				response.json().then((myJSON) => {
 					this.setState({
@@ -56,7 +56,7 @@ export default class HomeView extends React.Component {
 			console.log("Cannot Reach Server")
 		})
 
-		fetch("http://"+ServerAddress+":8080/aux").then((response) => {
+		fetch("http://"+ServerAddress+"/aux").then((response) => {
 			if(response.ok){
 				response.json().then((myJSON) => {
 					this.setState({
@@ -107,14 +107,14 @@ export default class HomeView extends React.Component {
 				    </thead>
 				    <tbody>
 				      <tr>
-								<td><Col md={3}>{wheel[0]}</Col></td>
-								<td><Col md={3}>{wheel[3]}</Col></td>
+						<td><Col md={3}>{wheel[0]}</Col></td>
+						<td><Col md={3}>{wheel[3]}</Col></td>
 				      </tr>
 				      <tr>
 				        <td><Col md={3}>{wheel[1]}</Col></td>
 				        <td><Col md={3}>{wheel[4]}</Col></td>
 				      </tr>
-							<tr>
+						<tr>
 				        <td><Col md={3}>{wheel[2]}</Col></td>
 				        <td><Col md={3}>{wheel[5]}</Col></td>
 				      </tr>
