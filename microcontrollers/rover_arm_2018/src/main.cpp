@@ -30,6 +30,7 @@ void loop() {
                 break;
             case 'r':
                 resume_operation();
+                break;
         default:
             Serial.println("parse err");
         }
