@@ -31,7 +31,7 @@ void loop() {
             case 'r': // resume operation
                 running = 1;
                 break;
-            case 'z':
+            case 'z': // zero out encoders
                 for(int i = 0; i < 7; i++){
                     actual_pos[i] = 0;
                     goal_pos[0] = 0;
@@ -67,10 +67,11 @@ void update_goals(){
         // 0-3 joints translate directly
         goal_pos[i] = raw_pos[i];
     }
+    // Translate IK spherical model to differential wrist
     goal_pos[4] = raw_pos[4] + raw_pos[5]; // tilt + rot
     goal_pos[5] = - raw_pos[4] + raw_pos[5]; // - til + rot
-    // gripper is directly translated
-    goal_pos[6] = raw_pos[6];
+    // Gripper position must take into account spherical wrist rotaiton
+    goal_pos[6] = raw_pos[6] - (int) ((float) raw_pos[5] * 1.0) ;
 }
 
 void update_velocity(){
