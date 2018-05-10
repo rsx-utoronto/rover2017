@@ -93,14 +93,6 @@ void drivers_initilize(){
     }
 }
 
-void e_stop(){
-    
-}
-
-void resume_operation(){
-    
-}
-
 void setup_interrupts() {
     attachInterrupt(digitalPinToInterrupt(enc_A[0]), A0_handler, CHANGE);
     attachInterrupt(digitalPinToInterrupt(enc_B[0]), B0_handler, CHANGE);

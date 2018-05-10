@@ -25,8 +25,6 @@ void drivers_initilize();
 void update_velocity();
 void update_encoders();
 void update_goals();
-void e_stop();
-void resume_operation();
 void setup_interrupts();
 
 #endif
