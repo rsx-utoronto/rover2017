@@ -4,8 +4,8 @@
 		<contributor>
 			<authoring_tool>URDF Collada Writer</authoring_tool>
 		</contributor>
-		<created>2018-05-02T16:48:10.000000</created>
-		<modified>2018-05-02T16:48:10.000000</modified>
+		<created>2018-05-02T20:23:21.000000</created>
+		<modified>2018-05-02T20:23:21.000000</modified>
 		<unit/>
 		<up_axis>Z_UP</up_axis>
 	</asset>
@@ -126,7 +126,7 @@
 		<geometry id="gkmodel0_link0_base_geom0">
 			<mesh>
 				<source id="gkmodel0_link0_base_geom0_positions">
-					<float_array id="gkmodel0_link0_base_geom0_positions-array" count="24" digits="2490374">-17.75 -12 -0.05000000074505806 17.75 -12 -0.05000000074505806 17.75 -12 0.05000000074505806 -17.75 -12 0.05000000074505806 -17.75 12 0.05000000074505806 -17.75 -12 0.05000000074505806 17.75 -12 0.05000000074505806 17.75 12 0.05000000074505806 17.75 12 -0.05000000074505806 17.75 12 0.05000000074505806 17.75 -12 0.05000000074505806 17.75 -12 -0.05000000074505806 -17.75 -12 0.05000000074505806 -17.75 12 0.05000000074505806 -17.75 12 -0.05000000074505806 -17.75 -12 -0.05000000074505806 -17.75 -12 -0.05000000074505806 -17.75 12 -0.05000000074505806 17.75 12 -0.05000000074505806 17.75 -12 -0.05000000074505806 17.75 12 -0.05000000074505806 -17.75 12 -0.05000000074505806 -17.75 12 0.05000000074505806 17.75 12 0.05000000074505806</float_array>
+					<float_array id="gkmodel0_link0_base_geom0_positions-array" count="24" digits="2490374">-17.75 -12 -0.05000000074505806 17.75 -12 -0.05000000074505806 17.75 -12 0.05000000074505806 -17.75 -12 0.05000000074505806 -17.75 12 0.05000000074505806 -17.75 -12 0.05000000074505806 17.75 -12 0.05000000074505806 17.75 12 0.05000000074505806 17.75 12 -10 17.75 12 0.05000000074505806 17.75 -12 0.05000000074505806 17.75 -12 -10 -17.75 -12 0.05000000074505806 -17.75 12 0.05000000074505806 -17.75 12 -0.05000000074505806 -17.75 -12 -0.05000000074505806 -17.75 -12 -0.05000000074505806 -17.75 12 -0.05000000074505806 17.75 12 -0.05000000074505806 17.75 -12 -0.05000000074505806 17.75 12 -0.05000000074505806 -17.75 12 -0.05000000074505806 -17.75 12 0.05000000074505806 17.75 12 0.05000000074505806</float_array>
 					<technique_common>
 						<accessor count="24" source="#gkmodel0_link0_base_geom0_positions-array" stride="3">
 							<param name="X" type="float"/>
@@ -210,7 +210,7 @@
 		<geometry id="gkmodel0_link4_wrist1_geom0">
 			<mesh>
 				<source id="gkmodel0_link4_wrist1_geom0_positions">
-					<float_array id="gkmodel0_link4_wrist1_geom0_positions-array" count="24" digits="2490374">-2 -1 -1 2 -1 -1 2 -1 1 -2 -1 1 -2 1 1 -2 -1 1 2 -1 1 2 1 1 2 1 -1 2 1 1 2 -1 1 2 -1 -1 -2 -1 1 -2 1 1 -2 1 -1 -2 -1 -1 -2 -1 -1 -2 1 -1 2 1 -1 2 -1 -1 2 1 -1 -2 1 -1 -2 1 1 2 1 1</float_array>
+					<float_array id="gkmodel0_link4_wrist1_geom0_positions-array" count="24" digits="2490374">-2 -1 -1 2 -1 -1 2 -1 1 -2 -1 1 -2 2 1 -2 -1 1 2 -1 1 2 2 1 2 2 -1 2 2 1 2 -1 1 2 -1 -1 -2 -1 1 -2 2 1 -2 2 -1 -2 -1 -1 -2 -1 -1 -2 2 -1 2 2 -1 2 -1 -1 2 2 -1 -2 2 -1 -2 2 1 2 2 1</float_array>
 					<technique_common>
 						<accessor count="24" source="#gkmodel0_link4_wrist1_geom0_positions-array" stride="3">
 							<param name="X" type="float"/>
@@ -252,7 +252,7 @@
 		<geometry id="gkmodel0_link6_wrist3_geom0">
 			<mesh>
 				<source id="gkmodel0_link6_wrist3_geom0_positions">
-					<float_array id="gkmodel0_link6_wrist3_geom0_positions-array" count="24" digits="2490374">-2 -1 -1 2 -1 -1 2 -1 1 -2 -1 1 -2 1 1 -2 -1 1 2 -1 1 2 1 1 2 1 -1 2 1 1 2 -1 1 2 -1 -1 -2 -1 1 -2 1 1 -2 1 -1 -2 -1 -1 -2 -1 -1 -2 1 -1 2 1 -1 2 -1 -1 2 1 -1 -2 1 -1 -2 1 1 2 1 1</float_array>
+					<float_array id="gkmodel0_link6_wrist3_geom0_positions-array" count="24" digits="2490374">-2 -1 -1 2 -1 -1 2 -1 1 -2 -1 1 -2 2 1 -2 -1 1 2 -1 1 2 2 1 2 2 -1 2 2 1 2 -1 1 2 -1 -1 -2 -1 1 -2 2 1 -2 2 -1 -2 -1 -1 -2 -1 -1 -2 2 -1 2 2 -1 2 -1 -1 2 2 -1 -2 2 -1 -2 2 1 2 2 1</float_array>
 					<technique_common>
 						<accessor count="24" source="#gkmodel0_link6_wrist3_geom0_positions-array" stride="3">
 							<param name="X" type="float"/>
