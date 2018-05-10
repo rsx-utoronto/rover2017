@@ -25,17 +25,18 @@ void loop() {
             case 'p': // goal position update
                 update_goals();
                 break;
-            case 'e':
-                e_stop();
+            case 'e': // e-stop
+                running = 0;
                 break;
-            case 'r':
-                resume_operation();
+            case 'r': // resume operation
+                running = 1;
                 break;
             case 'z':
-                 for(int i = 0; i < 7; i++){
+                for(int i = 0; i < 7; i++){
                     actual_pos[i] = 0;
-                 }
-                 break;
+                    goal_pos[0] = 0;
+                }
+                break;
         default:
             Serial.println("parse err");
         }
@@ -92,11 +93,11 @@ void drivers_initilize(){
 }
 
 void e_stop(){
-    running = 0;
+    
 }
 
 void resume_operation(){
-    running = 1;
+    
 }
 
 void setup_interrupts() {
