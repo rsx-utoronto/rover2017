@@ -28,7 +28,7 @@ class AutonomousRover:
 
         self.yError = errory
 
-        self.speed = 50
+        self.speed = 70
 
         self.timeOut = False
 
@@ -62,6 +62,7 @@ class AutonomousRover:
             return 0
 
         target_angle = math.degrees(math.atan2(y,x))
+
 
         #Heading starts from north. Clockwise is positive and CounterClockwise is negative.
         #Make it start from east, because the target_angle starts from angle 0 (east).
@@ -104,10 +105,12 @@ class AutonomousRover:
         x = targetX - json_gps["longitude"]
         y = targetY - json_gps["latitude"]
 
-        print ("Longitude")
-        print (json_gps["longitude"])
-        print ("Latitude")
+        print ("Longitude, latittude")
         print (json_gps["latitude"])
+        print (json_gps["longitude"])
+
+        print ("xDifferential" + str(x))
+        print ("yDifferential" + str(y))
 
         if (abs(x) < self.xError and abs(y) < self.yError):
             print ("Destination reached")
@@ -115,11 +118,25 @@ class AutonomousRover:
             return True
 
         target_angle = math.degrees(math.atan2(y, x))
+        if (target_angle < 0):
+            target_angle = 360 + target_angle
+
+        #Sometimes the head values are messed up.
+        if(head > 180):
+            head = -1 * (360 - head)
+        elif(head < -180):
+            head = 360 + head
 
         # Heading starts from north. Clockwise is positive and CounterClockwise is negative.
-        # Make it start from east, because the target_angle starts from angle 0 (east).
-        correctHeading = -1 * (head - 90)
-        angle_from_rover = correctHeading - target_angle
+        # Change it to unit circle degree measurement
+        if (head <= 0):
+            refinedHead = abs(head) + 90
+        elif(head <= 90):
+            refinedHead = head - 90
+        elif(head > 90):
+            refinedHead = 360 - (head - 90)
+
+        angle_from_rover = refinedHead - target_angle
 
         # For angles to destination higher than 180, turn the other way, because it's faster.
         if (angle_from_rover >= 180):
@@ -128,7 +145,7 @@ class AutonomousRover:
             angle_from_rover = (360 - abs(angle_from_rover))
 
         print("Head: ")
-        print(correctHeading)
+        print(head)
         print("target_angle: ")
         print(target_angle)
         print("angle from rover: ")
@@ -138,39 +155,33 @@ class AutonomousRover:
         return False
 
     def motor_controller(self, angle_from_rover, x, y):
-
-        if angle_from_rover >= 10:
-            #Turn right
-            left_speed = self.speed
-            right_speed = 0
-        elif angle_from_rover <= -10:
-            #Turn left
-            left_speed = 0
-            right_speed = self.speed
-        else:
-            left_speed = self.speed
-            right_speed = self.speed
-
-"""
         if angle_from_rover >= 0:
             #Turn right
-            if angle_from_rover < 80:
+            if angle_from_rover < 85:
                 #Turn appropriately: higher the angle, bigger the turn (right speed decreases)
                 left_speed = self.speed
                 right_speed = self.speed * abs(math.cos(math.radians(abs(angle_from_rover))))
+            elif angle_from_rover > 95:
+                #Backwards
+                angle_from_rover = 180 - angle_from_rover
+                left_speed = -self.speed
+                right_speed = -self.speed * abs(math.cos(math.radians(abs(angle_from_rover))))
             else:
-                #Turn right as sharp as you can.
                 left_speed = self.speed
-                right_speed = 10
+                right_speed = 0
         else:
             #Turn left
-            if abs(angle_from_rover) < 80:
+            if abs(angle_from_rover) < 85:
                 left_speed = self.speed * abs(math.cos(math.radians(abs(angle_from_rover))))
                 right_speed = self.speed
+            elif abs(angle_from_rover) > 95:
+                #Backwards
+                angle_from_rover = 180 - abs(angle_from_rover)
+                left_speed = -self.speed * abs(math.cos(math.radians(abs(angle_from_rover))))
+                right_speed = -self.speed
             else:
                 left_speed = 0
                 right_speed = self.speed
-"""
 
         #print("Left speed")
         print(left_speed)
@@ -178,6 +189,8 @@ class AutonomousRover:
         print(right_speed)
 
         conn = http.client.HTTPConnection(self.serverLocation)
+        #conn.request("PUT", "/drive/stop")
+
         conn.request("PUT", "/drive/speed/" + str(left_speed) + "/" + str(right_speed))
         #time.sleep()
 
