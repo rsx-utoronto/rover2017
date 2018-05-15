@@ -6,10 +6,7 @@ import math
 from autonomousrover import *
 
 
-def get_gps_coordinate(server):
-    # The Destinations: (longitude, latitude)
-    destination_markers = [(-79.403573, 43.664939)]
-    #near the fence: -79.403450, 43.664741
+def get_gps_coordinate(server, destination_markers):
 
     xError = 0.00005
     yError = 0.00005
@@ -43,7 +40,14 @@ if __name__ == '__main__':
     # Server location. Alternative location: "100.64.104.140:8080"
     server = "192.168.0.3:8080"
 
-    get_gps_coordinate(server)
+    longitude = -79.403781
+    latitude = 43.663951
+
+    # The Destinations: (longitude, latitude)
+    destination_markers = [( longitude,  latitude)]
+    #near the fence: -79.403450, 43.664741
+
+    get_gps_coordinate(server, destination_markers)
 
     conn = http.client.HTTPConnection(server)
     conn.request("PUT", "/drive/stop")

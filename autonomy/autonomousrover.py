@@ -191,6 +191,6 @@ class AutonomousRover:
         conn = http.client.HTTPConnection(self.serverLocation)
         #conn.request("PUT", "/drive/stop")
 
-        conn.request("PUT", "/drive/speed/" + str(left_speed) + "/" + str(right_speed))
+        conn.request("PUT", "/drive/speed/" + str(right_speed) + "/" + str(left_speed))
         #time.sleep()
 

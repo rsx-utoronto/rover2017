@@ -13,10 +13,9 @@ from autonomousrover import *
 
 if __name__ == '__main__':
     #The Destinations: (longitude, latitude)
-    destination_markers = [(- 79.4035726, 43.66493943)]
+    destination_markers = [(43.664800, -79.403662)]
     #43.637139, -79.404111
     #43.664758, -79.403821
-
     xError = 0.00005
     yError = 0.00005
     #0.000020 -> 10 metre, 0.000005 -> 2 metre,
