@@ -94,12 +94,12 @@ if __name__ == "__main__":
 
     pygame.init()
     screen = pygame.display.set_mode((320, 240))
-    domain = "192.168.0.101"
+    domain = "192.168.0.71" # find the IP address by going to the address of the router and looking at the list of LAN computers
+                            # on the dlink router, this is under status > device info > LAN computers. the name of the camera shows up as unknown
     motor = KaicongMotor(domain)
 
     def checkKeys():
         keys = pygame.key.get_pressed()
-        print(keys)
         x = 0
         y = 0
         if keys[pygame.K_a]:
