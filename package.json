@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rsx-utoronto/rover.git"
+    "url": "git+https://github.com/rsx-utoronto/rover2017.git"
   },
   "author": "",
   "license": "ISC",
@@ -24,7 +24,7 @@
     "lodash": "^4.16.4",
     "net": "^1.0.2",
     "node-fetch": "^1.6.3",
-    "serialport": "^6.0.4",
+    "serialport": "^4.0.7",
     "socket.io": "^1.7.2"
   }
 }
