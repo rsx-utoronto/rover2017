@@ -36,7 +36,8 @@ filePaths.reduce(function(promise, path) {
     return promise.catch(function(error) {
         return fs.readFileAsync(path, 'utf-8').then(configFile => [configFile, path]);
     });
-}, Promise.reject()).then(function([configFile, filename]) {
+}, Promise.reject())
+.then(function([configFile, filename]) {
     console.log(`-> loaded config file from ${filename}`);
     config = _.assignIn(JSON.parse(configFile), program);
 
@@ -46,26 +47,20 @@ filePaths.reduce(function(promise, path) {
         next();
     }
 
-    app
+    app.use(logger)
     .use(cors()) // enable all requests. not great security, but oh well
-    /* .use(cors({
-        origin: [
-            config.dashboard_port,
-            config.drive_port,
-            config.arm_port,
-            config.sensor_port,
-            config.aux_port,
-            config.server_port,
-        ].map(x => 'http://localhost:' + x)
-    }))*/
     .use('/drive/', driveServer.init(model, config))
-    .use('/arm/', armServer.init(model, config))
+    // .use('/arm/', armServer.init(model, config))
     .use('/science/', scienceServer.init(model, config))
     .use('/aux/', auxServer.init(model, config))
     .use('/gps/', gpsServer.init(model, config))
-    .use(logger)
     .get('/', (req, res) => {
         res.json(model);
+    })
+
+    // serve config file
+    .use('/config.json', (req, res) => {
+        res.json(config);
     })
 
     io.on('connection', function(socket) {

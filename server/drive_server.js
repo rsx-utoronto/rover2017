@@ -1,8 +1,10 @@
 var express = require('express');
 var _ = require('lodash');
 var net = require('net');
+var SerialPort = require('serialport');
 
 var client = undefined; // arduino tcp client
+var port = undefined;
 
 function init(model, config) {
     model.drive = {
@@ -68,6 +70,10 @@ function init(model, config) {
     router.put('/stop', (req, res) => {
         model.drive.speed[0] = model.drive.speed[1] = 0;
         model.drive.pivot = 0;
+        // sends stop signal to the relays
+        for (var i = 0; i < 6; i++){
+          model.aux.relay[i] = false;
+        }
         res.json(model.drive);
     });
 
@@ -88,52 +94,53 @@ function init(model, config) {
       res.json(model.drive);
     });
 
-    // start the tcp connection
-    router.get('/tcp', (req, res) => {
-      connectViaTCP();
-      res.json(model.drive);
-    });
-
-    let connectViaTCP = function() {
-      if (client) {
-          client.destroy(); // reset the connection if applicable
-          //model.drive.connected = false; 
+    clear = () => {
+      port.write('0    0    0    0');
+      s = port.read();
+      if(s) {
+        console.log("received from arduino", s.toString())
       }
-      console.log('--> connecting to tcp on drive arduino');
-      client = net.connect(config.drive_port, config.drive_ip, () => {
-          console.log('--> connected to tcp on drive arduino');
-          model.drive.connected = true;
-          //client.setTimeout(500); 
-      });
-      enableClientListeners();
+      else {
+        console.log('sent')
+      }
     }
 
-    let enableClientListeners = function(){
-      //handling ETIMEDOUT error
-      client.on('error', (e) => {
-          console.log("got an error", e.code);
-          model.drive.connected = false;
-          if (e.code == 'ETIMEDOUT') {
-              console.log('--> Unable to Connect/Disconnected from drive arduino');
-              connectViaTCP();
-          }
-
-      });
-
-      client.on('data', function(data) {
-          // drive arduino never sends data back.
-          console.log('received drive data from client');
-      });
+    port = new SerialPort(config.drive_port, {
+      baudRate: 9600
     }
+    , err => {
+      if(err) {
+        console.error("Error opening serial port", err.message);
+      }
+      else {
+        console.log("started serial port")
+      }
+    });
 
     // send the current state of the rover over tcp
     let sendState = function() {
-        if (client && client.writable) {
-            client.write(`${_.padStart(model.drive.speed[0], 5)}${_.padStart(model.drive.speed[1], 5)}${_.padStart(model.drive.pivot, 4)}${_.toNumber(model.drive.drive_mode)}`);
+      port.write(
+        [_.padEnd(model.drive.speed[0], 5),
+        _.padEnd(model.drive.speed[1], 5),
+        _.padEnd(model.drive.pivot, 5),
+        _.toNumber(model.drive.drive_mode)].join(''),
+        err => {
+          if(err) {
+            console.error(err.message);
+            serialConnected = false;
+          }
         }
+      );
+      let s = port.read();
+      if(s) {
+        console.log(s.toString())
+      }
     }
-    setInterval(sendState, 100);
 
+    setTimeout(function() {
+      setInterval(sendState, 100)
+    }, 1000);
+    
     console.log('-> drive server started');
     return router;
 }
