@@ -13,9 +13,15 @@
 		"longitude": -79.4655,
 		"heading": 0
 	},
+<<<<<<< HEAD
+	"phone_url": "http://192.168.0.123:8080",
+	"lidar_port": "/dev/ttyUSB0"
+}
+=======
 	"phone_url": "http://192.168.0.12:8080",
 	"lidar_port": "/dev/ttyUSB0",
 
 	"minSensitivity": 70,
 	"maxSensitivity": 180
 }
+>>>>>>> master

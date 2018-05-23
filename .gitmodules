@@ -1,3 +1,9 @@
 [submodule "server/lib/sweep-sdk"]
 	path = server/lib/sweep-sdk
 	url = https://github.com/scanse/sweep-sdk
+[submodule "microcontrollers/rover_arm_2018/lib/Arduino-PID-Library"]
+	path = microcontrollers/rover_arm_2018/lib/Arduino-PID-Library
+	url = https://github.com/br3ttb/Arduino-PID-Library.git
+[submodule "microcontrollers/rover_arm_2018/lib/digitalWriteFast"]
+	path = microcontrollers/rover_arm_2018/lib/digitalWriteFast
+	url = https://github.com/NicksonYap/digitalWriteFast.git
