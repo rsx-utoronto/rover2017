@@ -31,4 +31,18 @@ void update_encoders();
 void update_goals();
 void setup_interrupts();
 
+void A0_handler();
+void B0_handler();
+void A1_handler();
+void B1_handler();
+void A2_handler();
+void B2_handler();
+void A3_handler();
+void B3_handler();
+void A4_handler();
+void B4_handler();
+void A5_handler();
+void B5_handler();
+void A6_handler();
+void B6_handler();
 #endif
