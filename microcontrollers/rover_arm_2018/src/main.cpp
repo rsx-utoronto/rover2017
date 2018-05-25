@@ -68,7 +68,7 @@ void update_goals() {
     int raw_pos[7];
     for (int i = 0; i < 7; i++) {
         // parse incoming integer
-        raw_pos[i] = Serial.parseInt(' ');
+        raw_pos[i] = Serial.parseInt();
         // apply constraints at raw joint angle level
         raw_pos[i] = constrain(raw_pos[i], low_pos_limit[i], high_pos_limit[i]);
     }
