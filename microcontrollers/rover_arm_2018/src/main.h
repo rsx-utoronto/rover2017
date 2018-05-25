@@ -4,7 +4,7 @@
 double low_pos_limit[7] = {-1000000, -1000000, -1000000, -1000000, -1000000, -1000000, -1000000};
 double high_pos_limit[7] = {1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000};
 
-double goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};            // position vector
+double goal_pos[7] = {1000, 1000, 1000, 1000, 1000, 1000, 1000};            // position vector
 volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
 double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
 double vel[7] = {0, 0, 0, 0, 0, 0, 0};
@@ -49,4 +49,5 @@ void B6_handler();
 void TEST_find_encoder_pins();
 void TEST_print_encoder_pins();
 void TEST_encoder_positions();
+void TEST_PID();
 #endif

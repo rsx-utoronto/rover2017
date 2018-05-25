@@ -19,10 +19,11 @@ void setup() {
     //Serial.setTimeout(2);
     Serial.println("Serial initialized.");
     // drivers_initilize();
-    // setup_interrupts();
+    setup_interrupts();
     Serial.println("drivers and encoders initialized.");
     // TEST_find_encoder_pins();
     // TEST_print_encoder_pins();
+    TEST_encoder_positions();
 }
 
 void loop() {
@@ -269,5 +270,37 @@ void TEST_print_encoder_pins(){
             Serial.print(digitalRead(enc_B[i]));
         }
         Serial.println();
+    }
+}
+
+void TEST_encoder_positions(){
+    while(true){
+        for(int i = 0; i < 7; i++){
+            Serial.print(actual_pos[i]);
+            Serial.print(' ');
+        }
+        Serial.println();
+    }
+}
+
+void TEST_PID(){
+    unsigned long last_goal_change = millis();
+    while(true) {
+        if(last_goal_change - millis() > 1000){
+            for(int i = 0; i < 7; i++){
+                Serial.print(actual_pos[i]);
+                Serial.print(' ');
+            }
+        }
+        for(int i = 0; i < 7; i++){
+            Serial.print(actual_pos[i]);
+            Serial.print(' ');
+        }
+        Serial.print("   ");
+        updatePID();
+        for(int i = 0; i < 7; i++){
+            Serial.print(vel[i]);
+            Serial.print(' ');
+        }
     }
 }
