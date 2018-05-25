@@ -1,9 +1,10 @@
 #ifndef main_h
 #define main_h
 
-int goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};            // position vector
+double goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};            // position vector
 volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
-int vel[7] = {0, 0, 0, 0, 0, 0, 0};
+double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
+double vel[7] = {0, 0, 0, 0, 0, 0, 0};
 
 double Kp[7] = {2, 2, 2, 2, 2, 2, 2};
 double Ki[7] = {0, 0, 0, 0, 0, 0, 0};

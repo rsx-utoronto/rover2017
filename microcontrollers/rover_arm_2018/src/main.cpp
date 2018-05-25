@@ -3,13 +3,13 @@
 #include <digitalWriteFast.h>
 #include <main.h>
 
-PID PID_0(&actual_pos[0], &vel[0], &goal_pos[0], Kp[0], Ki[0], Kd[0], DIRECT);
-PID PID_1(&actual_pos[1], &vel[1], &goal_pos[1], Kp[1], Ki[1], Kd[1], DIRECT);
-PID PID_2(&actual_pos[2], &vel[2], &goal_pos[2], Kp[2], Ki[2], Kd[2], DIRECT);
-PID PID_3(&actual_pos[3], &vel[3], &goal_pos[3], Kp[3], Ki[3], Kd[3], DIRECT);
-PID PID_4(&actual_pos[4], &vel[4], &goal_pos[4], Kp[4], Ki[4], Kd[4], DIRECT);
-PID PID_5(&actual_pos[5], &vel[5], &goal_pos[5], Kp[5], Ki[5], Kd[5], DIRECT);
-PID PID_6(&actual_pos[6], &vel[6], &goal_pos[6], Kp[6], Ki[6], Kd[6], DIRECT);
+PID PID_0(&actual_pos_float[0], &vel[0], &goal_pos[0], Kp[0], Ki[0], Kd[0], DIRECT);
+PID PID_1(&actual_pos_float[1], &vel[1], &goal_pos[1], Kp[1], Ki[1], Kd[1], DIRECT);
+PID PID_2(&actual_pos_float[2], &vel[2], &goal_pos[2], Kp[2], Ki[2], Kd[2], DIRECT);
+PID PID_3(&actual_pos_float[3], &vel[3], &goal_pos[3], Kp[3], Ki[3], Kd[3], DIRECT);
+PID PID_4(&actual_pos_float[4], &vel[4], &goal_pos[4], Kp[4], Ki[4], Kd[4], DIRECT);
+PID PID_5(&actual_pos_float[5], &vel[5], &goal_pos[5], Kp[5], Ki[5], Kd[5], DIRECT);
+PID PID_6(&actual_pos_float[6], &vel[6], &goal_pos[6], Kp[6], Ki[6], Kd[6], DIRECT);
 
 void setup() {
     Serial.begin(115200);
@@ -47,12 +47,19 @@ void loop() {
 }
 
 void updatePID() {
+    actual_pos_float[0] = (double) actual_pos[0];
     PID_0.Compute();
+    actual_pos_float[1] = (double) actual_pos[1];
     PID_1.Compute();
+    actual_pos_float[2] = (double) actual_pos[2];
     PID_2.Compute();
+    actual_pos_float[3] = (double) actual_pos[3];
     PID_3.Compute();
+    actual_pos_float[4] = (double) actual_pos[4];
     PID_4.Compute();
+    actual_pos_float[5] = (double) actual_pos[5];
     PID_5.Compute();
+    actual_pos_float[6] = (double) actual_pos[6];
     PID_6.Compute();
 }
 
