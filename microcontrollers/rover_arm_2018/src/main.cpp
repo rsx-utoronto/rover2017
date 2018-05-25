@@ -1,6 +1,7 @@
 #include <Arduino.h>
+#include <Stream.h>
 #include <PID_v1.h>
-#include <digitalWriteFast.h>
+// #include <digitalWriteFast.h>
 #include <main.h>
 
 PID PID_0(&actual_pos_float[0], &vel[0], &goal_pos[0], Kp[0], Ki[0], Kd[0], DIRECT);
@@ -22,7 +23,7 @@ void setup() {
 
 void loop() {
     if (Serial.available()) {
-        switch (Serial.read();) {
+        switch (Serial.read()) {
             case 'p': // goal position update
                 update_goals();
                 break;
@@ -85,13 +86,12 @@ void update_goals() {
 void update_velocity() {
     for (int i = 0; i < 7; i++) {
         if (running) {
-            digitalWrite(dirPin[i], sign(shoulder_vel));
-            analogWrite(pwmPin[i], min(abs(shoulder_vel), spdLimit[i]));
+            digitalWrite(dirPin[i], vel[i] > 0);
+            analogWrite(pwmPin[i], min(abs(vel[i]), spdLimit[i]));
         } else {
             analogWrite(pwmPin[i], 0);
         }
     }
-}
 }
 
 void drivers_initilize() {
@@ -119,113 +119,113 @@ void setup_interrupts() {
 }
 
 void A0_handler() {
-    if (digitalReadFast(enc_A[0])) { // rising edge
-        digitalReadFast(enc_B[0]) ? actual_pos[0]-- : actual_pos[0]++;
+    if (digitalRead(enc_A[0])) { // rising edge
+        digitalRead(enc_B[0]) ? actual_pos[0]-- : actual_pos[0]++;
     } else { // falling edge
-        digitalReadFast(enc_B[0]) ? actual_pos[0]++ : actual_pos[0]--;
+        digitalRead(enc_B[0]) ? actual_pos[0]++ : actual_pos[0]--;
     }
 }
 
 void B0_handler() {
-    if (digitalReadFast(enc_B[0])) { // rising edge
-        digitalReadFast(enc_A[0]) ? actual_pos[0]++ : actual_pos[0]--;
+    if (digitalRead(enc_B[0])) { // rising edge
+        digitalRead(enc_A[0]) ? actual_pos[0]++ : actual_pos[0]--;
     } else { // falling edge
-        digitalReadFast(enc_A[0]) ? actual_pos[0]-- : actual_pos[0]++;
+        digitalRead(enc_A[0]) ? actual_pos[0]-- : actual_pos[0]++;
     }
 }
 
 void A1_handler() {
-    if (digitalReadFast(enc_A[1])) { // rising edge
-        digitalReadFast(enc_B[1]) ? actual_pos[1]-- : actual_pos[1]++;
+    if (digitalRead(enc_A[1])) { // rising edge
+        digitalRead(enc_B[1]) ? actual_pos[1]-- : actual_pos[1]++;
     } else { // falling edge
-        digitalReadFast(enc_B[1]) ? actual_pos[1]++ : actual_pos[1]--;
+        digitalRead(enc_B[1]) ? actual_pos[1]++ : actual_pos[1]--;
     }
 }
 
 void B1_handler() {
-    if (digitalReadFast(enc_B[1])) { // rising edge
-        digitalReadFast(enc_A[1]) ? actual_pos[1]++ : actual_pos[1]--;
+    if (digitalRead(enc_B[1])) { // rising edge
+        digitalRead(enc_A[1]) ? actual_pos[1]++ : actual_pos[1]--;
     } else { // falling edge
-        digitalReadFast(enc_A[1]) ? actual_pos[1]-- : actual_pos[1]++;
+        digitalRead(enc_A[1]) ? actual_pos[1]-- : actual_pos[1]++;
     }
 }
 
 void A2_handler() {
-    if (digitalReadFast(enc_A[2])) { // rising edge
-        digitalReadFast(enc_B[2]) ? actual_pos[2]-- : actual_pos[2]++;
+    if (digitalRead(enc_A[2])) { // rising edge
+        digitalRead(enc_B[2]) ? actual_pos[2]-- : actual_pos[2]++;
     } else { // falling edge
-        digitalReadFast(enc_B[2]) ? actual_pos[2]++ : actual_pos[2]--;
+        digitalRead(enc_B[2]) ? actual_pos[2]++ : actual_pos[2]--;
     }
 }
 
 void B2_handler() {
-    if (digitalReadFast(enc_B[2])) { // rising edge
-        digitalReadFast(enc_A[2]) ? actual_pos[2]++ : actual_pos[2]--;
+    if (digitalRead(enc_B[2])) { // rising edge
+        digitalRead(enc_A[2]) ? actual_pos[2]++ : actual_pos[2]--;
     } else { // falling edge
-        digitalReadFast(enc_A[2]) ? actual_pos[2]-- : actual_pos[2]++;
+        digitalRead(enc_A[2]) ? actual_pos[2]-- : actual_pos[2]++;
     }
 }
 
 void A3_handler() {
-    if (digitalReadFast(enc_A[3])) { // rising edge
-        digitalReadFast(enc_B[3]) ? actual_pos[3]-- : actual_pos[3]++;
+    if (digitalRead(enc_A[3])) { // rising edge
+        digitalRead(enc_B[3]) ? actual_pos[3]-- : actual_pos[3]++;
     } else { // falling edge
-        digitalReadFast(enc_B[3]) ? actual_pos[3]++ : actual_pos[3]--;
+        digitalRead(enc_B[3]) ? actual_pos[3]++ : actual_pos[3]--;
     }
 }
 
 void B3_handler() {
-    if (digitalReadFast(enc_B[3])) { // rising edge
-        digitalReadFast(enc_A[3]) ? actual_pos[3]++ : actual_pos[3]--;
+    if (digitalRead(enc_B[3])) { // rising edge
+        digitalRead(enc_A[3]) ? actual_pos[3]++ : actual_pos[3]--;
     } else { // falling edge
-        digitalReadFast(enc_A[3]) ? actual_pos[3]-- : actual_pos[3]++;
+        digitalRead(enc_A[3]) ? actual_pos[3]-- : actual_pos[3]++;
     }
 }
 
 void A4_handler() {
-    if (digitalReadFast(enc_A[4])) { // rising edge
-        digitalReadFast(enc_B[4]) ? actual_pos[4]-- : actual_pos[4]++;
+    if (digitalRead(enc_A[4])) { // rising edge
+        digitalRead(enc_B[4]) ? actual_pos[4]-- : actual_pos[4]++;
     } else { // falling edge
-        digitalReadFast(enc_B[4]) ? actual_pos[4]++ : actual_pos[4]--;
+        digitalRead(enc_B[4]) ? actual_pos[4]++ : actual_pos[4]--;
     }
 }
 
 void B4_handler() {
-    if (digitalReadFast(enc_B[4])) { // rising edge
-        digitalReadFast(enc_A[4]) ? actual_pos[4]++ : actual_pos[4]--;
+    if (digitalRead(enc_B[4])) { // rising edge
+        digitalRead(enc_A[4]) ? actual_pos[4]++ : actual_pos[4]--;
     } else { // falling edge
-        digitalReadFast(enc_A[4]) ? actual_pos[4]-- : actual_pos[4]++;
+        digitalRead(enc_A[4]) ? actual_pos[4]-- : actual_pos[4]++;
     }
 }
 
 void A5_handler() {
-    if (digitalReadFast(enc_A[5])) { // rising edge
-        digitalReadFast(enc_B[5]) ? actual_pos[5]-- : actual_pos[5]++;
+    if (digitalRead(enc_A[5])) { // rising edge
+        digitalRead(enc_B[5]) ? actual_pos[5]-- : actual_pos[5]++;
     } else { // falling edge
-        digitalReadFast(enc_B[5]) ? actual_pos[5]++ : actual_pos[5]--;
+        digitalRead(enc_B[5]) ? actual_pos[5]++ : actual_pos[5]--;
     }
 }
 
 void B5_handler() {
-    if (digitalReadFast(enc_B[5])) { // rising edge
-        digitalReadFast(enc_A[5]) ? actual_pos[5]++ : actual_pos[5]--;
+    if (digitalRead(enc_B[5])) { // rising edge
+        digitalRead(enc_A[5]) ? actual_pos[5]++ : actual_pos[5]--;
     } else { // falling edge
-        digitalReadFast(enc_A[5]) ? actual_pos[5]-- : actual_pos[5]++;
+        digitalRead(enc_A[5]) ? actual_pos[5]-- : actual_pos[5]++;
     }
 }
 
 void A6_handler() {
-    if (digitalReadFast(enc_A[6])) { // rising edge
-        digitalReadFast(enc_B[6]) ? actual_pos[6]-- : actual_pos[6]++;
+    if (digitalRead(enc_A[6])) { // rising edge
+        digitalRead(enc_B[6]) ? actual_pos[6]-- : actual_pos[6]++;
     } else { // falling edge
-        digitalReadFast(enc_B[6]) ? actual_pos[6]++ : actual_pos[6]--;
+        digitalRead(enc_B[6]) ? actual_pos[6]++ : actual_pos[6]--;
     }
 }
 
 void B6_handler() {
-    if (digitalReadFast(enc_B[6])) { // rising edge
-        digitalReadFast(enc_A[6]) ? actual_pos[6]++ : actual_pos[6]--;
+    if (digitalRead(enc_B[6])) { // rising edge
+        digitalRead(enc_A[6]) ? actual_pos[6]++ : actual_pos[6]--;
     } else { // falling edge
-        digitalReadFast(enc_A[6]) ? actual_pos[6]-- : actual_pos[6]++;
+        digitalRead(enc_A[6]) ? actual_pos[6]-- : actual_pos[6]++;
     }
 }

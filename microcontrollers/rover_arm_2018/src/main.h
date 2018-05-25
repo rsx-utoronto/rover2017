@@ -1,6 +1,9 @@
 #ifndef main_h
 #define main_h
 
+double low_pos_limit[7] = {-1000000, -1000000, -1000000, -1000000, -1000000, -1000000, -1000000};
+double high_pos_limit[7] = {-1000000, -1000000, -1000000, -1000000, -1000000, -1000000, -1000000};
+
 double goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};            // position vector
 volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
 double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
