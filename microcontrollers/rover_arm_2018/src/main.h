@@ -21,8 +21,8 @@ const bool reversed[7] = {0, 0, 0, 0, 0, 0, 0};
 
 bool running = true;
 
-const char enc_A[7] = {0, 1, 2, 3, 4, 5, 6};
-const char enc_B[7] = {0, 1, 2, 3, 4, 5, 6};
+const char enc_A[7] = {38, 24, 21, 32, 46, 52, 34};
+const char enc_B[7] = {44, 26, 20, 48, 50, 42, 30};
 
 void updatePID();
 void drivers_initilize();
@@ -45,4 +45,7 @@ void A5_handler();
 void B5_handler();
 void A6_handler();
 void B6_handler();
+
+void TEST_find_encoder_pins();
+void TEST_print_encoder_pins();
 #endif

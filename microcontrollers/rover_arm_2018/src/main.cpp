@@ -16,9 +16,13 @@ void setup() {
     Serial.begin(115200);
     while (!Serial)
         ;
-    Serial.setTimeout(2);
-    drivers_initilize();
-    setup_interrupts();
+    //Serial.setTimeout(2);
+    Serial.println("Serial initialized.");
+    // drivers_initilize();
+    // setup_interrupts();
+    Serial.println("drivers and encoders initialized.");
+    // TEST_find_encoder_pins();
+    // TEST_print_encoder_pins();
 }
 
 void loop() {
@@ -102,6 +106,11 @@ void drivers_initilize() {
 }
 
 void setup_interrupts() {
+    for(int i = 0; i < 7; i++) {
+        pinMode(enc_A[i], INPUT);
+        pinMode(enc_B[i], INPUT);
+    }
+    // same with 
     attachInterrupt(digitalPinToInterrupt(enc_A[0]), A0_handler, CHANGE);
     attachInterrupt(digitalPinToInterrupt(enc_B[0]), B0_handler, CHANGE);
     attachInterrupt(digitalPinToInterrupt(enc_A[1]), A1_handler, CHANGE);
@@ -227,5 +236,38 @@ void B6_handler() {
         digitalRead(enc_A[6]) ? actual_pos[6]++ : actual_pos[6]--;
     } else { // falling edge
         digitalRead(enc_A[6]) ? actual_pos[6]-- : actual_pos[6]++;
+    }
+}
+
+// Testing functions
+void TEST_find_encoder_pins() {
+    while(true){
+        for(int i = 2; i <= 53; i++){
+            pinMode(i, INPUT);
+        }
+        for(int i = 2; i <= 53; i++){
+            Serial.print(i);
+            Serial.print(digitalRead(i) ? 'X' : ' ');
+            Serial.print(' ');
+        }
+        Serial.println();
+    }
+}
+
+void TEST_print_encoder_pins(){
+    for(int i = 0; i < 7; i++) {
+        pinMode(enc_A[i], INPUT);
+        pinMode(enc_B[i], INPUT);
+    }
+    while(true){
+        Serial.print("A: ");
+        for(int i = 0; i < 7; i++) {
+            Serial.print(digitalRead(enc_A[i]));
+        }
+        Serial.print(" B: ");
+        for(int i = 0; i < 7; i++) {
+            Serial.print(digitalRead(enc_B[i]));
+        }
+        Serial.println();
     }
 }
