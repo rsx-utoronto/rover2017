@@ -9,7 +9,7 @@ volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
 double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
 double vel[7] = {0, 0, 0, 0, 0, 0, 0};
 
-double Kp[7] = {2, 2, 2, 2, 2, 2, 2};
+double Kp[7] = {0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3};
 double Ki[7] = {0, 0, 0, 0, 0, 0, 0};
 double Kd[7] = {1, 1, 1, 1, 1, 1, 1};
 
@@ -30,6 +30,7 @@ void update_velocity();
 void update_encoders();
 void update_goals();
 void setup_interrupts();
+void setup_PID();
 
 void A0_handler();
 void B0_handler();

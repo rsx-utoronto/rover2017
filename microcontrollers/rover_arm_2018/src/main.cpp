@@ -20,10 +20,12 @@ void setup() {
     Serial.println("Serial initialized.");
     // drivers_initilize();
     setup_interrupts();
+    setup_PID();
     Serial.println("drivers and encoders initialized.");
     // TEST_find_encoder_pins();
     // TEST_print_encoder_pins();
-    TEST_encoder_positions();
+    // TEST_encoder_positions();
+    TEST_PID();
 }
 
 void loop() {
@@ -92,7 +94,7 @@ void update_velocity() {
     for (int i = 0; i < 7; i++) {
         if (running) {
             digitalWrite(dirPin[i], vel[i] > 0);
-            analogWrite(pwmPin[i], min(abs(vel[i]), spdLimit[i]));
+            analogWrite(pwmPin[i], abs(vel[i]));
         } else {
             analogWrite(pwmPin[i], 0);
         }
@@ -126,6 +128,23 @@ void setup_interrupts() {
     attachInterrupt(digitalPinToInterrupt(enc_B[5]), B5_handler, CHANGE);
     attachInterrupt(digitalPinToInterrupt(enc_A[6]), A6_handler, CHANGE);
     attachInterrupt(digitalPinToInterrupt(enc_B[6]), B6_handler, CHANGE);
+}
+
+void setup_PID(){
+    PID_0.SetMode(AUTOMATIC);
+    PID_0.SetOutputLimits(-spdLimit[0], spdLimit[0]);
+    PID_1.SetMode(AUTOMATIC);
+    PID_1.SetOutputLimits(-spdLimit[1], spdLimit[1]);
+    PID_2.SetMode(AUTOMATIC);
+    PID_2.SetOutputLimits(-spdLimit[2], spdLimit[2]);
+    PID_3.SetMode(AUTOMATIC);
+    PID_3.SetOutputLimits(-spdLimit[3], spdLimit[3]);
+    PID_4.SetMode(AUTOMATIC);
+    PID_4.SetOutputLimits(-spdLimit[4], spdLimit[4]);
+    PID_5.SetMode(AUTOMATIC);
+    PID_5.SetOutputLimits(-spdLimit[5], spdLimit[5]);
+    PID_6.SetMode(AUTOMATIC);
+    PID_6.SetOutputLimits(-spdLimit[6], spdLimit[6]);
 }
 
 void A0_handler() {
@@ -285,22 +304,30 @@ void TEST_encoder_positions(){
 
 void TEST_PID(){
     unsigned long last_goal_change = millis();
+    for(int i = 0; i < 7; i++){
+        goal_pos[i] = 1000;
+    }
     while(true) {
-        if(last_goal_change - millis() > 1000){
+        // change goal ever second for testing
+        if(millis() - last_goal_change > 1000){
             for(int i = 0; i < 7; i++){
-                Serial.print(actual_pos[i]);
-                Serial.print(' ');
+                goal_pos[i] = -goal_pos[i];
             }
+            last_goal_change = millis();
         }
+        Serial.println("goal: ");
+        Serial.print(goal_pos[0]);
+        Serial.print(" actual_pos: ");
         for(int i = 0; i < 7; i++){
             Serial.print(actual_pos[i]);
             Serial.print(' ');
         }
-        Serial.print("   ");
+        Serial.print(" vel: ");
         updatePID();
         for(int i = 0; i < 7; i++){
             Serial.print(vel[i]);
             Serial.print(' ');
         }
+        Serial.println();
     }
 }
