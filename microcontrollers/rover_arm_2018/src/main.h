@@ -9,14 +9,14 @@ volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
 double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
 double vel[7] = {0, 0, 0, 0, 0, 0, 0};
 
-double Kp[7] = {0.2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
-double Ki[7] = {0, 0, 0, 0, 0, 0, 0};
-double Kd[7] = {0, 0, 0, 0, 0, 0, 0};
+double Kp[7] = {0.4, 0.5, 0.5, 0.8, 0.8, 0.8, 0.5};
+double Ki[7] = {0, 0, 0, 0.05, 0.05, 0.05, 0};
+double Kd[7] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0};
 
 const char dirPin[7] = {12, 10, 13, 9, 11, 15, 14};
 const char pwmPin[7] = {7, 5, 8, 4, 6, 2, 3};
 
-const char spdLimit[7] = {255, 255, 255, 60, 60, 60, 255};
+const char spdLimit[7] = {255, 255, 255, 255, 255, 255, 255};
 const bool reversed[7] = {0, 0, 0, 0, 0, 0, 0};
 
 bool running = true;
