@@ -33,8 +33,11 @@ void setup() {
 void loop() {
     if (Serial.available()) {
         switch (Serial.read()) {
-            case 'p': // goal position update
-                update_goals();
+            case 'p': // goal position update with limits
+                update_goals(false);
+                break;
+            case 'f': // goal position update NO LIMITS
+                update_goals(true);
                 break;
             case 'e': // e-stop
                 running = 0;
@@ -73,13 +76,17 @@ void updatePID() {
     PID_6.Compute();
 }
 
-void update_goals() {
+void update_goals(bool no_limits = false) {
     int raw_pos[7];
     for (int i = 0; i < 7; i++) {
-        // parse incoming integer
+        // Parse incoming integer. raw_pos holds the angles of the IK model.
+        // These angles will be translated to output joints so that the
+        // differential spherical wrist and gripper can operate
         raw_pos[i] = Serial.parseInt();
-        // apply constraints at raw joint angle level
-        raw_pos[i] = constrain(raw_pos[i], low_pos_limit[i], high_pos_limit[i]);
+        // apply constraints at raw joint angle level (if applicable)
+        if (!no_limits) {
+            raw_pos[i] = constrain(raw_pos[i], low_pos_limit[i], high_pos_limit[i]);
+        }
     }
     for (int i = 0; i <= 3; i++) {
         // 0-3 joints translate directly
@@ -88,8 +95,9 @@ void update_goals() {
     // Translate IK spherical model to differential wrist
     goal_pos[4] = raw_pos[4] + raw_pos[5];  // tilt + rot
     goal_pos[5] = -raw_pos[4] + raw_pos[5]; // - til + rot
-    // Gripper position must take into account spherical wrist rotaiton
+    // Take into account spherical wrist rotation for the gripper output
     goal_pos[6] = raw_pos[6] - ((double) raw_pos[5] * 2 * 1680.0/(26.9*64));
+    // TESTING
     for (int i = 0; i < 7; i++) {
         Serial.print(goal_pos[i]);
         Serial.print(' ');
