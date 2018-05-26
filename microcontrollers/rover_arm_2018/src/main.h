@@ -4,19 +4,19 @@
 double low_pos_limit[7] = {-1000000, -1000000, -1000000, -1000000, -1000000, -1000000, -1000000};
 double high_pos_limit[7] = {1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000};
 
-double goal_pos[7] = {1000, 1000, 1000, 1000, 1000, 1000, 1000};            // position vector
+double goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};            // position vector
 volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
 double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
 double vel[7] = {0, 0, 0, 0, 0, 0, 0};
 
-double Kp[7] = {0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3};
+double Kp[7] = {0.2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
 double Ki[7] = {0, 0, 0, 0, 0, 0, 0};
-double Kd[7] = {1, 1, 1, 1, 1, 1, 1};
+double Kd[7] = {0, 0, 0, 0, 0, 0, 0};
 
-const char dirPin[7] = {0, 1, 2, 3, 4, 5, 6};
-const char pwmPin[7] = {0, 1, 2, 3, 4, 5, 6};
+const char dirPin[7] = {12, 10, 13, 9, 11, 15, 14};
+const char pwmPin[7] = {7, 5, 8, 4, 6, 2, 3};
 
-const char spdLimit[7] = {255, 255, 255, 255, 255, 255, 255};
+const char spdLimit[7] = {255, 255, 255, 60, 60, 60, 255};
 const bool reversed[7] = {0, 0, 0, 0, 0, 0, 0};
 
 bool running = true;
@@ -51,4 +51,5 @@ void TEST_find_encoder_pins();
 void TEST_print_encoder_pins();
 void TEST_encoder_positions();
 void TEST_PID();
+void TEST_motor_pins();
 #endif

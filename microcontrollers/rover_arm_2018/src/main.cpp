@@ -4,13 +4,14 @@
 // #include <digitalWriteFast.h>
 #include <main.h>
 
+// change to REVERSE if needed
 PID PID_0(&actual_pos_float[0], &vel[0], &goal_pos[0], Kp[0], Ki[0], Kd[0], DIRECT);
 PID PID_1(&actual_pos_float[1], &vel[1], &goal_pos[1], Kp[1], Ki[1], Kd[1], DIRECT);
 PID PID_2(&actual_pos_float[2], &vel[2], &goal_pos[2], Kp[2], Ki[2], Kd[2], DIRECT);
-PID PID_3(&actual_pos_float[3], &vel[3], &goal_pos[3], Kp[3], Ki[3], Kd[3], DIRECT);
+PID PID_3(&actual_pos_float[3], &vel[3], &goal_pos[3], Kp[3], Ki[3], Kd[3], REVERSE);
 PID PID_4(&actual_pos_float[4], &vel[4], &goal_pos[4], Kp[4], Ki[4], Kd[4], DIRECT);
-PID PID_5(&actual_pos_float[5], &vel[5], &goal_pos[5], Kp[5], Ki[5], Kd[5], DIRECT);
-PID PID_6(&actual_pos_float[6], &vel[6], &goal_pos[6], Kp[6], Ki[6], Kd[6], DIRECT);
+PID PID_5(&actual_pos_float[5], &vel[5], &goal_pos[5], Kp[5], Ki[5], Kd[5], REVERSE);
+PID PID_6(&actual_pos_float[6], &vel[6], &goal_pos[6], Kp[6], Ki[6], Kd[6], REVERSE);
 
 void setup() {
     Serial.begin(115200);
@@ -18,14 +19,15 @@ void setup() {
         ;
     //Serial.setTimeout(2);
     Serial.println("Serial initialized.");
-    // drivers_initilize();
+    drivers_initilize();
     setup_interrupts();
     setup_PID();
     Serial.println("drivers and encoders initialized.");
     // TEST_find_encoder_pins();
     // TEST_print_encoder_pins();
     // TEST_encoder_positions();
-    TEST_PID();
+    // TEST_PID();
+    // TEST_motor_pins();
 }
 
 void loop() {
@@ -329,5 +331,27 @@ void TEST_PID(){
             Serial.print(' ');
         }
         Serial.println();
+    }
+}
+
+void TEST_motor_pins(){
+    while(true){
+        for(int i = 0; i < 7; i++) {
+            Serial.println(i);
+            // forwards
+            digitalWrite(dirPin[i], 0);
+            analogWrite(pwmPin[i], spdLimit[i]);
+            delay(200);
+            // stop
+            analogWrite(pwmPin[i], 0);
+            delay(1000);
+            // back
+            digitalWrite(dirPin[i], 1);
+            analogWrite(pwmPin[i], spdLimit[i]);
+            delay(200);
+            // stop
+            analogWrite(pwmPin[i], 0);
+            delay(3000);
+        }
     }
 }
