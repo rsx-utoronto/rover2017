@@ -492,7 +492,7 @@ def sendAngleValues(qVect, start = 0):
     q4String = str( int(qVect[3] * q4Steps/(2*math.pi) ) )
     q5String = str( int(qVect[4] * q5Steps/(2*math.pi) ) )
     q6String = str( int(qVect[5] * q6Steps/(2*math.pi) ) )
-    q7String = str( int(qVect[6] * q7Steps/(2*math.pi) ) ) # gripper
+    q7String = str( int(qVect[6] * q7Steps ) ) # gripper
 
     command = 'p'
     #if start == 1:
