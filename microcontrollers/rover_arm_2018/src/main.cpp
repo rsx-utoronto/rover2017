@@ -17,7 +17,7 @@ void setup() {
     Serial.begin(115200);
     while (!Serial)
         ;
-    //Serial.setTimeout(2);
+    Serial.setTimeout(2);
     Serial.println("Serial initialized.");
     drivers_initilize();
     setup_interrupts();
@@ -45,7 +45,7 @@ void loop() {
             case 'z': // zero out encoders
                 for (int i = 0; i < 7; i++) {
                     actual_pos[i] = 0;
-                    goal_pos[0] = 0;
+                    goal_pos[i] = 0;
                 }
                 break;
             default:
@@ -89,7 +89,12 @@ void update_goals() {
     goal_pos[4] = raw_pos[4] + raw_pos[5];  // tilt + rot
     goal_pos[5] = -raw_pos[4] + raw_pos[5]; // - til + rot
     // Gripper position must take into account spherical wrist rotaiton
-    goal_pos[6] = raw_pos[6] - (int)((float)raw_pos[5] * 1.0);
+    goal_pos[6] = raw_pos[6] - ((double) raw_pos[5] * 2 * 1680.0/(26.9*64));
+    for (int i = 0; i < 7; i++) {
+        Serial.print(goal_pos[i]);
+        Serial.print(' ');
+    }
+    Serial.println();
 }
 
 void update_velocity() {

@@ -1,15 +1,15 @@
 #ifndef main_h
 #define main_h
 
-double low_pos_limit[7] = {-1000000, -1000000, -1000000, -1000000, -1000000, -1000000, -1000000};
-double high_pos_limit[7] = {1000000, 1000000, 1000000, 1000000, 1000000, 1000000, 1000000};
+double low_pos_limit[7] = {-1000000, -1000000, -1000000, -1000000, -1000000, -550, 0};
+double high_pos_limit[7] = {1000000, 1000000, 1000000, 1000000, 1000000, 400, 21000};
 
 double goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};            // position vector
 volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
 double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
 double vel[7] = {0, 0, 0, 0, 0, 0, 0};
 
-double Kp[7] = {0.4, 0.5, 0.5, 0.8, 0.8, 0.8, 0.5};
+double Kp[7] = {0.4, 1, 1, 0.8, 0.8, 0.8, 0.5};
 double Ki[7] = {0, 0, 0, 0.05, 0.05, 0.05, 0};
 double Kd[7] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0};
 
