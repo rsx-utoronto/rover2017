@@ -28,7 +28,7 @@ void updatePID();
 void drivers_initilize();
 void update_velocity();
 void update_encoders();
-void update_goals();
+void update_goals(bool no_limits);
 void setup_interrupts();
 void setup_PID();
 
