@@ -1,7 +1,8 @@
 #ifndef main_h
 #define main_h
 
-double low_pos_limit[7] = {-1000000, -1000000, -1000000, -1000000, -1000000, -550, 0};
+// angle limits of IK model
+double low_pos_limit[7] = {-1000000, -2124, -1000000, -1000000, -1000000, -550, 0};
 double high_pos_limit[7] = {1000000, 1000000, 1000000, 1000000, 1000000, 400, 21000};
 
 double goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};            // position vector
@@ -9,9 +10,9 @@ volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
 double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
 double vel[7] = {0, 0, 0, 0, 0, 0, 0};
 
-double Kp[7] = {0.4, 1, 1, 0.8, 0.8, 0.8, 0.5};
-double Ki[7] = {0, 0, 0, 0.05, 0.05, 0.05, 0};
-double Kd[7] = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0};
+double Kp[7] = {0.4, 2, 2, 0.8, 1.5, 1.5, 0.5};
+double Ki[7] = {0, 0, 0, 0.05, 0, 0, 0};
+double Kd[7] = {0.05, 0.05, 0.05, 0.05, 0.00, 0.00, 0};
 
 const char dirPin[7] = {12, 10, 13, 9, 11, 15, 14};
 const char pwmPin[7] = {7, 5, 8, 4, 6, 2, 3};
@@ -28,7 +29,7 @@ void updatePID();
 void drivers_initilize();
 void update_velocity();
 void update_encoders();
-void update_goals(bool no_limits);
+void update_goals(bool no_limits, bool absolute);
 void setup_interrupts();
 void setup_PID();
 
@@ -49,7 +50,7 @@ void B6_handler();
 
 void TEST_find_encoder_pins();
 void TEST_print_encoder_pins();
-void TEST_encoder_positions();
+void PRINT_encoder_positions();
 void TEST_PID();
 void TEST_motor_pins();
 #endif

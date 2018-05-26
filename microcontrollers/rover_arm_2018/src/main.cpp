@@ -25,7 +25,7 @@ void setup() {
     Serial.println("drivers and encoders initialized.");
     // TEST_find_encoder_pins();
     // TEST_print_encoder_pins();
-    // TEST_encoder_positions();
+    // PRINT_encoder_positions();
     // TEST_PID();
     // TEST_motor_pins();
 }
@@ -33,23 +33,43 @@ void setup() {
 void loop() {
     if (Serial.available()) {
         switch (Serial.read()) {
-            case 'p': // goal position update with limits
-                update_goals(false);
+            case 'p': // limited absolute
+                update_goals(false, true);
                 break;
-            case 'f': // goal position update NO LIMITS
-                update_goals(true);
+            case 'f': // No limit absolute
+                update_goals(true, true);
+                break;
+            case 'r': // no limit relative
+                update_goals(true, false);
                 break;
             case 'e': // e-stop
                 running = 0;
                 break;
-            case 'r': // resume operation
+            case 'c': // continue operation
                 running = 1;
+                // update PID twice so D term does not explode
+                updatePID();
                 break;
             case 'z': // zero out encoders
                 for (int i = 0; i < 7; i++) {
                     actual_pos[i] = 0;
                     goal_pos[i] = 0;
                 }
+                // update PID twice so D term does not explode
+                updatePID();
+                break;
+            case 's': // starting position (fully upright and center)
+                actual_pos[0] = 0;
+                goal_pos[0] = 0;
+                actual_pos[1] = 0;
+                goal_pos[1] = 0;
+                actual_pos[2] = 0;
+                goal_pos[2] = 0;
+                // update PID twice so D term does not explode
+                updatePID();
+                break;
+            case 'a': // print encoder positions
+                PRINT_encoder_positions();
                 break;
             default:
                 Serial.println("parse err");
@@ -76,7 +96,7 @@ void updatePID() {
     PID_6.Compute();
 }
 
-void update_goals(bool no_limits = false) {
+void update_goals(bool no_limits = false, bool absolute = true) {
     int raw_pos[7];
     for (int i = 0; i < 7; i++) {
         // Parse incoming integer. raw_pos holds the angles of the IK model.
@@ -88,21 +108,35 @@ void update_goals(bool no_limits = false) {
             raw_pos[i] = constrain(raw_pos[i], low_pos_limit[i], high_pos_limit[i]);
         }
     }
-    for (int i = 0; i <= 3; i++) {
-        // 0-3 joints translate directly
-        goal_pos[i] = raw_pos[i];
+    if (absolute) {
+        goal_pos[0] = raw_pos[0];
+        goal_pos[1] = -raw_pos[1];
+        goal_pos[2] = raw_pos[2];
+        goal_pos[3] = -raw_pos[3];
+        // Translate IK spherical model to differential wrist
+        goal_pos[4] = - raw_pos[4] + raw_pos[5];  // tilt + rot
+        goal_pos[5] = - raw_pos[4] - raw_pos[5]; // tilt + rot
+        // Take into account spherical wrist rotation for the gripper output
+        goal_pos[6] = raw_pos[6] - ((double) raw_pos[5] * 1680.0/(26.9*64.0));
+    } else {
+        // RELATIVE mode, just add the values.
+        goal_pos[0] += raw_pos[0];
+        goal_pos[1] += -raw_pos[1];
+        goal_pos[2] += raw_pos[2];
+        goal_pos[3] += -raw_pos[3];
+        // Translate IK spherical model to differential wrist
+        goal_pos[4] += - raw_pos[4] + raw_pos[5];  // tilt + rot
+        goal_pos[5] += - raw_pos[4] - raw_pos[5]; // tilt + rot
+        // Take into account spherical wrist rotation for the gripper output
+        goal_pos[6] += raw_pos[6] - ((double) raw_pos[5] * 1680.0/(26.9*64.0));
     }
-    // Translate IK spherical model to differential wrist
-    goal_pos[4] = raw_pos[4] + raw_pos[5];  // tilt + rot
-    goal_pos[5] = -raw_pos[4] + raw_pos[5]; // - til + rot
-    // Take into account spherical wrist rotation for the gripper output
-    goal_pos[6] = raw_pos[6] - ((double) raw_pos[5] * 2 * 1680.0/(26.9*64));
     // TESTING
     for (int i = 0; i < 7; i++) {
         Serial.print(goal_pos[i]);
         Serial.print(' ');
     }
     Serial.println();
+    PRINT_encoder_positions();
 }
 
 void update_velocity() {
@@ -307,14 +341,13 @@ void TEST_print_encoder_pins(){
     }
 }
 
-void TEST_encoder_positions(){
-    while(true){
-        for(int i = 0; i < 7; i++){
-            Serial.print(actual_pos[i]);
-            Serial.print(' ');
-        }
-        Serial.println();
+void PRINT_encoder_positions(){
+    Serial.print("Encoders: ");
+    for(int i = 0; i < 7; i++){
+        Serial.print(actual_pos[i]);
+        Serial.print(' ');
     }
+    Serial.println();
 }
 
 void TEST_PID(){
