@@ -33,10 +33,11 @@ void setup() {
 unsigned long last_print = millis();
 
 void loop() {
-    // if (millis() - last_print > 5) {
-    //     int x = actual_pos[4];
+    // oscilloscope
+    // if (millis() - last_print > 15) {
+    //     int x = actual_pos[6];
     //     for (int i = 0; i < 200; i++){
-    //         if (i == goal_pos[4]){
+    //         if (i == goal_pos[6]){
     //             Serial.print('|');
     //         } else if (i == x) {
     //             Serial.print('#');
@@ -151,7 +152,6 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         Serial.print(goal_pos[i]);
         Serial.print(' ');
     }
-    Serial.println();
     PRINT_encoder_positions();
 }
 
