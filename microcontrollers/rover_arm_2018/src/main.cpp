@@ -30,7 +30,23 @@ void setup() {
     // TEST_motor_pins();
 }
 
+unsigned long last_print = millis();
+
 void loop() {
+    // if (millis() - last_print > 5) {
+    //     int x = actual_pos[4];
+    //     for (int i = 0; i < 200; i++){
+    //         if (i == goal_pos[4]){
+    //             Serial.print('|');
+    //         } else if (i == x) {
+    //             Serial.print('#');
+    //         } else {
+    //             Serial.print(' ');
+    //         }
+    //     }
+    //     last_print = millis();
+    //     Serial.println(last_print);
+    // }
     if (Serial.available()) {
         switch (Serial.read()) {
             case 'p': // limited absolute

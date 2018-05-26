@@ -10,9 +10,10 @@ volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
 double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
 double vel[7] = {0, 0, 0, 0, 0, 0, 0};
 
-double Kp[7] = {0.4, 2, 2, 0.8, 1.5, 1.5, 0.5};
-double Ki[7] = {0, 0, 0, 0.05, 0, 0, 0};
-double Kd[7] = {0.05, 0.05, 0.05, 0.05, 0.00, 0.00, 0};
+// for spherical wrist, Ku = 2.2, Tu = 0.25
+double Kp[7] = {0.4, 2, 2, 0.8, 1.32, 1.32, 0.5};
+double Ki[7] = {0, 0, 0, 0.05, 1, 1, 0};
+double Kd[7] = {0.05, 0.05, 0.05, 0.05, 0.04, 0.04, 0};
 
 const char dirPin[7] = {12, 10, 13, 9, 11, 15, 14};
 const char pwmPin[7] = {7, 5, 8, 4, 6, 2, 3};
