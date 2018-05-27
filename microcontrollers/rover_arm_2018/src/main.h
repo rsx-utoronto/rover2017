@@ -23,6 +23,7 @@ const char spdLimit[7] = {255, 255, 255, 255, 255, 255, 255};
 const bool reversed[7] = {0, 0, 0, 0, 0, 0, 0};
 
 bool running = true;
+bool manual_override = false;
 
 const char enc_A[7] = {38, 24, 21, 32, 46, 52, 34};
 const char enc_B[7] = {44, 26, 20, 48, 50, 42, 30};

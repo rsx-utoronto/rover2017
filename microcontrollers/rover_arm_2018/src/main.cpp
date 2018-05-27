@@ -23,16 +23,13 @@ void setup() {
     setup_interrupts();
     setup_PID();
     Serial.println("drivers and encoders initialized.");
-    // TEST_find_encoder_pins();
-    // TEST_print_encoder_pins();
-    // PRINT_encoder_positions();
-    // TEST_PID();
-    // TEST_motor_pins();
 }
 
 unsigned long last_print = millis();
 
 void loop() {
+    int last_override;
+
     if (Serial.available()) {
         switch (Serial.read()) {
             case 'p': // limited absolute
@@ -60,6 +57,10 @@ void loop() {
                 // update PID twice so D term does not explode
                 updatePID();
                 break;
+            case 'm':
+                last_override = millis();
+                manual_override = true;
+                break;
             case 's': // starting position (fully upright and center)
                 actual_pos[0] = 0;
                 goal_pos[0] = 0;
@@ -77,8 +78,16 @@ void loop() {
                 Serial.println("parse err");
         }
     }
-    updatePID();
-    update_velocity();
+    if (manual_override) {
+        if (running) {
+
+        } else {
+
+        }
+    } else {
+        updatePID();
+        update_velocity();
+    }
 }
 
 void updatePID() {
@@ -99,6 +108,9 @@ void updatePID() {
 }
 
 void update_goals(bool no_limits = false, bool absolute = true) {
+    // disable manual override
+    manual_override = false;
+
     int raw_pos[7];
     for (int i = 0; i < 7; i++) {
         // Parse incoming integer. raw_pos holds the angles of the IK model.
