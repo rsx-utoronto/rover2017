@@ -151,10 +151,10 @@ class AutonomousRover:
         print("angle from rover: ")
         print(angle_from_rover)
 
-        self.motor_controller(angle_from_rover, x, y)
+        self.motor_controller(angle_from_rover)
         return False
 
-    def motor_controller(self, angle_from_rover, x, y):
+    def motor_controller(self, angle_from_rover):
         if angle_from_rover >= 0:
             #Turn right
             if angle_from_rover < 85:
@@ -188,9 +188,9 @@ class AutonomousRover:
         #print("Right speed")
         print(right_speed)
 
-        conn = http.client.HTTPConnection(self.serverLocation)
+        #conn = http.client.HTTPConnection(self.serverLocation)
         #conn.request("PUT", "/drive/stop")
 
-        conn.request("PUT", "/drive/speed/" + str(right_speed) + "/" + str(left_speed))
+        #conn.request("PUT", "/drive/speed/" + str(right_speed) + "/" + str(left_speed))
         #time.sleep()
 

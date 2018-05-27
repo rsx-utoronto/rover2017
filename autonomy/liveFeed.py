@@ -14,7 +14,7 @@ from autonomousrover import *
 if __name__ == '__main__':
     while(True):
         # Get current GPS coordinate
-        conn = http.client.HTTPConnection("192.168.0.4:8080")
+        conn = http.client.HTTPConnection("localhost:8080")
         conn.request("GET", "/gps")
 
         r_gps = conn.getresponse()
@@ -24,4 +24,4 @@ if __name__ == '__main__':
         #print("longitude: " + str(json_gps["longitude"]))
         #print("latitude: " + str(json_gps["latitude"]))
         print("head: " + str(float(json_gps["heading"])))
-
+        #print("pitch: " + str(float(json_gps["pitch"])))
