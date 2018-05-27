@@ -2,8 +2,8 @@
 #define main_h
 
 // angle limits of IK model
-double high_pos_limit[7] = {3000,  1956,  1263, 1000000, 1000000, 400, 21000};
-double low_pos_limit[7] = {-1400, -2158, -1180, -1000000, -1000000, -550, 0};
+double high_pos_limit[7] = {3000,  1956,  1263, 840, 400, 1e10, 21000};
+double low_pos_limit[7] = {-1400, -2158, -1180, -840, -550, -1e10, 0};
 
 double goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};            // position vector
 volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
@@ -55,4 +55,5 @@ void TEST_print_encoder_pins();
 void PRINT_encoder_positions();
 void TEST_PID();
 void TEST_motor_pins();
+void PRINT_oscilloscope(int motor);
 #endif
