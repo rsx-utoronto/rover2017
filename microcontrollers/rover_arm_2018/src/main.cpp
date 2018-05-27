@@ -33,21 +33,6 @@ void setup() {
 unsigned long last_print = millis();
 
 void loop() {
-    // oscilloscope
-    // if (millis() - last_print > 15) {
-    //     int x = actual_pos[6];
-    //     for (int i = 0; i < 200; i++){
-    //         if (i == goal_pos[6]){
-    //             Serial.print('|');
-    //         } else if (i == x) {
-    //             Serial.print('#');
-    //         } else {
-    //             Serial.print(' ');
-    //         }
-    //     }
-    //     last_print = millis();
-    //     Serial.println(last_print);
-    // }
     if (Serial.available()) {
         switch (Serial.read()) {
             case 'p': // limited absolute
@@ -415,5 +400,22 @@ void TEST_motor_pins(){
             analogWrite(pwmPin[i], 0);
             delay(3000);
         }
+    }
+}
+
+void PRINT_oscilloscope(int motor){
+    if (millis() - last_print > 15) {
+        int x = actual_pos[motor];
+        for (int i = 0; i < 200; i++){
+            if (i == goal_pos[motor]){
+                Serial.print('|');
+            } else if (i == x) {
+                Serial.print('#');
+            } else {
+                Serial.print(' ');
+            }
+        }
+        last_print = millis();
+        Serial.println(last_print);
     }
 }
