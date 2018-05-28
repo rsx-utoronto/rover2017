@@ -62,12 +62,18 @@ void loop() {
                 manual_override = true;
                 break;
             case 's': // starting position (fully upright and center)
+                // shoulder rotation centered
                 actual_pos[0] = 0;
                 goal_pos[0] = 0;
-                actual_pos[1] = 0;
-                goal_pos[1] = 0;
-                actual_pos[2] = 0;
-                goal_pos[2] = 0;
+                // shoulder and elbow fully upright
+                actual_pos[1] = high_pos_limit[1];
+                goal_pos[1] = high_pos_limit[1];
+                actual_pos[2] = high_pos_limit[2];
+                goal_pos[2] = high_pos_limit[2];
+                for (int i = 3; i <= 6; i++){
+                    actual_pos[i] = 0;
+                    goal_pos[i] = 0;
+                }
                 // update PID twice so D term does not explode
                 updatePID();
                 break;
