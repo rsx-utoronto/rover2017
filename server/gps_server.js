@@ -11,7 +11,7 @@ var express = require('express');
 
 var phoneURL;
 
-const SMOOTHING = 10; // number of readings to average over
+const SMOOTHING = 5; // number of readings to average over
 
 function toDegrees(x) {
 	return x * 180 / Math.PI;
