@@ -13,25 +13,22 @@ from angle_calc_cv import angle_cal
 from ball_trackingrw import *
 from autonomousrover import *
 
-def move_towards_the_ball(server, destination_markers):
-
-    xError = 0.00005
-    yError = 0.00005
-    headError = 10
+def move_towards_the_ball(server, destination_markers, xError, yError, headError, center_of_frame, time_delay_between_markers, DIST_FROM_TENNISBALL):
 
     rover = AutonomousRover(datetime.now(), xError, yError, server)
     marker_number = 0
     for marker in destination_markers:
-        time.sleep(5)
+
         marker_number += 1
         print("marker: " + str(marker_number))
-        #arrived_at_destination = False
-        #while (not arrived_at_destination):
-        #    arrived_at_destination = rover.move_towards_gps_Location(marker)
+
+        #GPS Maneuver.
+        arrived_at_destination = False
+        while (not arrived_at_destination):
+            arrived_at_destination = rover.move_towards_gps_Location(marker)
 
         print("Arrived at the GPS Destination")
         # Start searching for the ball.
-
         # construct the argument parse and parse the arguments
         ap = argparse.ArgumentParser()
         ap.add_argument("-v", "--video",
@@ -42,14 +39,10 @@ def move_towards_the_ball(server, destination_markers):
 
         # if a video path was not supplied, grab the reference to the webcam
         if not args.get("video", False):
-            # camera = cv2.VideoCapture(0)
-            camera = cv2.VideoCapture(
-                'http://192.168.0.101:15213/videostream.cgi?loginuse=admin&loginpas=wavesharespotpear')
-
+            camera = cv2.VideoCapture('http://192.168.0.101:15213/videostream.cgi?loginuse=admin&loginpas=wavesharespotpear')
         # otherwise, grab a reference to the video file
         else:
             camera = cv2.VideoCapture(args["video"])
-
         # ------- camera matrix comes from calibration algorithm from distance_calc_cv.py (find_intrinsic_matrix function)
         # or found in camera's doc ------------------
         # kmtx = np.load('C:/Users/rache/PycharmProjects/rsx/k_matrix.npy') #reading in the camera matrix from sally's iphone
@@ -60,6 +53,10 @@ def move_towards_the_ball(server, destination_markers):
         while(dis > DIST_FROM_TENNISBALL):
             print("Closing on the distance")
             while(True):
+
+                #dis is the distance of the rover from the tennis ball
+                #ang is the angle location of the tennis ball relative to the rover's heading.
+                #From the frame perspective, angle starts from the right edge of the frame.
                 (dis, ang, ball_found) = BallTrack(camera, args,calib_list)
                 #Angle is from 0 to 53 degrees
                 if (not ball_found):
@@ -69,10 +66,10 @@ def move_towards_the_ball(server, destination_markers):
                 else:
                     print("angle from the right edge: " + str(ang))
                     #desired angle reached
-                    if (abs(ang - 30) < 15):
+                    if (abs(ang - center_of_frame) < headError):
                         break
                     #Move towards the desired angle (Not completely necessary)
-                    if ((ang - 30) > 0):
+                    if ((ang - center_of_frame) > 0):
                         #Turn right
                         left_speed = rover.speed
                         right_speed = 0
@@ -81,19 +78,23 @@ def move_towards_the_ball(server, destination_markers):
                         left_speed = 0
                         right_speed = rover.speed
                 # Turn the rover until angle from the rover is oriented towards the tennis ball
-                # conn = http.client.HTTPConnection(server)
-                # conn.request("PUT", "/drive/speed/" + str(right_speed) + "/" + str(left_speed))
+                conn = rover.serverLocation
+                conn.request("PUT", "/drive/speed/" + str(right_speed) + "/" + str(left_speed))
             print("distance to the ball: " + str(dis))
 
             #Drive the rover forward towards the ball
-            #conn = http.client.HTTPConnection(server)
-            #conn.request("PUT", "/drive/speed/" + str(rover.speed) + "/" + str(rover.speed))
+            conn = rover.serverLocation
+            conn.request("PUT", "/drive/speed/" + str(rover.speed) + "/" + str(rover.speed))
 
         print("Arrived at the destination")
 
-        #Stop the rover, onto the next gps_coordinates
-        #conn = http.client.HTTPConnection(server)
-        #conn.request("PUT", "/drive/stop")
+        #Stop the rover, onto the next marker
+        conn = rover.serverLocation
+        conn.request("PUT", "/drive/stop")
+
+        #Stop for ~30 sec. just to show that the task has been accomplished
+        time.sleep(time_delay_between_markers)
+
     print("task finished")
     # cleanup the camera and close any open windows
     camera.release()
@@ -102,9 +103,23 @@ def move_towards_the_ball(server, destination_markers):
 
 
 if __name__ == '__main__':
-    # Server location of the laptop on the rover. Alternative location: "100.64.104.140:8080"
+    # Server IP Address of the laptop on the rover.
     server = "192.168.0.3:8080"
-    DIST_FROM_TENNISBALL = 300
+
+    #Time (sec) delay between each marker.
+    time_delay_between_markers = 30
+
+    #~5 meters within the gps coordinate
+    xError = 0.00005
+    yError = 0.00005
+
+    #For CV: allowable angle of the tennis ball offset from the centre of the camera.
+    error_range_of_tennisball = 10
+    #Angle of the center of the camera.
+    #Angle starts from the right side of the frame.
+    center_of_frame = 30
+
+    error_dist_of_tennisball_from_rover = 300
 
     # First Destination
     longitude = -79.403739
@@ -114,7 +129,7 @@ if __name__ == '__main__':
     # You can add more markers onto the destination_markers array.
     destination_markers = [( longitude,  latitude), (1,1)]
 
-    move_towards_the_ball(server, destination_markers)
+    move_towards_the_ball(server, destination_markers, xError, yError, error_range_of_tennisball, center_of_frame, time_delay_between_markers, error_dist_of_tennisball_from_rover)
 
     conn = http.client.HTTPConnection(server)
     conn.request("PUT", "/drive/stop")
