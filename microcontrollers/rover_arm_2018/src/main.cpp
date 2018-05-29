@@ -60,8 +60,7 @@ void loop() {
     if (Serial.available()) {
         switch (Serial.read()) {
             case 'p': // limited absolute
-                // there should be a space, discard it.
-                Serial.read();
+                Serial.read(); // there should be a space, discard it.
                 update_goals(false, true);
                 break;
             case 'f': // No limit absolute
@@ -123,8 +122,13 @@ void loop() {
     if (!manual_override) {
         updatePID();
     } else {
+        // we are in manual mode, so we already set the velocities we want.
         if (millis() - last_override > 100) {
-
+            // if we have not recieved an update for a while, set all velocities to zero
+            // to prevent damage
+            for (int i = 0; i < 7; i++) {
+                    vel[i] = 0;
+                }
         }
     }
     update_velocity();
