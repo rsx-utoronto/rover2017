@@ -1,0 +1,30 @@
+import http.client
+import time
+from datetime import datetime
+import json
+import math
+
+### SCRIPT FOR DISPLAYING CURRENT GPS LOCATION OF THE ROVER ON GOOGLE EARTH ###
+
+if __name__ == '__main__':
+	  #Server ip address (Laptop)
+    conn = http.client.HTTPConnection("192.168.0.3:8080")
+    while(True):
+        # Get current GPS coordinate
+        conn.request("GET", "/gps")
+
+        r_gps = conn.getresponse()
+        gps_string = r_gps.read().decode('utf-8')
+        json_gps = json.loads(gps_string)
+
+        #Open Google Earth
+        with open("position.kml", "w", ) as pos:
+            pos.write("""<kml xmlns="http://www.opengis.net/kml/2.2"
+         xmlns:gx="http://www.google.com/kml/ext/2.2"><Placemark>
+          <name>Live GPS from Python</name>
+          <description>Live Description</description>
+          <Point>
+            <coordinates>%s,%s,0</coordinates>
+          </Point>
+        </Placemark></kml>""" % (json_gps["longitude"], json_gps["latitude"]))
+        
