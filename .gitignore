@@ -46,4 +46,4 @@ jspm_packages
 RoverDashboard/build
 
 # vscode config files
-*/.vscode
+.vscode
