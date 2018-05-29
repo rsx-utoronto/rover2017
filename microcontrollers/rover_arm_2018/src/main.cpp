@@ -33,12 +33,16 @@ void loop() {
     if (Serial.available()) {
         switch (Serial.read()) {
             case 'p': // limited absolute
+                // there should be a space, discard it.
+                Serial.read();
                 update_goals(false, true);
                 break;
             case 'f': // No limit absolute
+                Serial.read();
                 update_goals(true, true);
                 break;
             case 'r': // no limit relative
+                Serial.read();
                 update_goals(true, false);
                 break;
             case 'e': // e-stop
