@@ -55,17 +55,21 @@ void setup() {
 unsigned long last_print = millis();
 
 void loop() {
-    int last_override;
+    unsigned long last_override;
 
     if (Serial.available()) {
         switch (Serial.read()) {
             case 'p': // limited absolute
+                // there should be a space, discard it.
+                Serial.read();
                 update_goals(false, true);
                 break;
             case 'f': // No limit absolute
+                Serial.read();
                 update_goals(true, true);
                 break;
             case 'r': // no limit relative
+                Serial.read();
                 update_goals(true, false);
                 break;
             case 'e': // e-stop
@@ -84,9 +88,14 @@ void loop() {
                 // update PID twice so D term does not explode
                 updatePID();
                 break;
-            case 'm':
+            case 'm': // manual motor control
+                // EXAMPLE: m 2 -255
+                // move the elbow with velocity -255
                 last_override = millis();
                 manual_override = true;
+                Serial.read(); // discard spacew
+                int motor_id = Serial.parseInt();
+                vel[motor_id] = Serial.parseInt();
                 break;
             case 's': // starting position (fully upright and center)
                 // shoulder rotation centered
@@ -111,16 +120,14 @@ void loop() {
                 Serial.println("parse err");
         }
     }
-    if (manual_override) {
-        if (running) {
-
-        } else {
+    if (!manual_override) {
+        updatePID();
+    } else {
+        if (millis() - last_override > 100) {
 
         }
-    } else {
-        updatePID();
-        update_velocity();
     }
+    update_velocity();
 }
 
 void updatePID() {
@@ -191,6 +198,7 @@ void update_velocity() {
             digitalWrite(dirPin[i], vel[i] > 0);
             analogWrite(pwmPin[i], abs(vel[i]));
         } else {
+            // e-stop activated, stop running
             analogWrite(pwmPin[i], 0);
         }
     }
