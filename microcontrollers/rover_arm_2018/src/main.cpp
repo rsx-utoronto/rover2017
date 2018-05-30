@@ -53,10 +53,9 @@ void setup() {
 }
 
 unsigned long last_print = millis();
+unsigned long last_override = 0;
 
 void loop() {
-    unsigned long last_override;
-
     if (Serial.available()) {
         switch (Serial.read()) {
             case 'p': // limited absolute
@@ -92,9 +91,8 @@ void loop() {
                 // move the elbow with velocity -255
                 last_override = millis();
                 manual_override = true;
-                Serial.read(); // discard spacew
-                int motor_id = Serial.parseInt();
-                vel[motor_id] = Serial.parseInt();
+                Serial.read(); // discard space
+                vel[Serial.parseInt()] = Serial.parseInt();
                 break;
             case 's': // starting position (fully upright and center)
                 // shoulder rotation centered
