@@ -17,7 +17,7 @@ void setup() {
   for (int i = 0; i < 6; i++) {
     pinMode(speedPins[i], OUTPUT);
     pinMode(directionPins[i], OUTPUT);
-    analogWrite(speedPins[i], 128);
+    analogWrite(speedPins[i], 0);
     digitalWrite(directionPins[i], LOW);
   }
 
@@ -89,6 +89,9 @@ void processData() {
   int speedl = atoi(lSpeedBuffer);
   int speedr = atoi(rSpeedBuffer);
   int pivot = atoi(pivotBuffer);
+//  Serial.println(lSpeedBuffer);///
+//  Serial.println(rSpeedBuffer);/
+//  Serial.println(pivotBuffer);/
 
   if (driveMode == '1') {
     forward(-speedl, -speedr);

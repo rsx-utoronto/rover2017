@@ -11,7 +11,7 @@ function init(model, config) {
 	}
 
 	var router = express.Router();
-	var port = new SerialPort('/dev/tty-usbserial1');
+	var port = new SerialPort('/dev/ttyACM0', {baudRate: 115200});
 	var portOpen = false; 
 
 	port.on('open', function() {
@@ -34,7 +34,8 @@ function init(model, config) {
 					console.error("Serial port didn't write correctly"); 
 				}
 				else { 
-					console.log("Serial port written"); 
+					console.log("Serial port written");
+					console.log(model.arm.desired.message); 
 				}
 			})
 	})
