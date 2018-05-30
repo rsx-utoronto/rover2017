@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <Stream.h>
 #include <PID_v1.h>
-// #include <digitalWriteFast.h>
 #include <main.h>
 
 // IDs for each of the joints and motors
