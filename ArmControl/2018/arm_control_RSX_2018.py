@@ -171,34 +171,32 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
         rotationVector[ind] = t * rotationVector[ind]
 
 
-    ## TYPE0 fancy motions, relative to the camera
-    ## update movement in end effector camera frame
+    ## TYPE0 fancy motions, relative to the camera reference frame
+    ## update movement in the end effector camera frame
     x0 = np.matrix( [1, 0, 0] ).transpose()
     y0 = np.matrix( [0, 1, 0] ).transpose()
     z0 = np.matrix( [0, 0, 1] ).transpose()
-    R06 = np.matrix( [ updatedHomTransMatrix[0][:3], updatedHomTransMatrix[1][:3], updatedHomTransMatrix[2][:3] ] )
-    # get z3
+
+    # get z4
     A1 = np.matrix( homogenousTransform(DHTable[0]) )
     A2 = np.matrix( homogenousTransform(DHTable[1]) )
     A3 = np.matrix( homogenousTransform(DHTable[2]) )
-    H03 = A1*A2*A3#*A4
-    R03 = H03[:3,:3]
-    z3 = R03 * z0
-    
-    #z6 = R06 * z0
-    # get z4
     A4 = np.matrix( homogenousTransform(DHTable[3]) )
-    #A5 = np.matrix( homogenousTransform(DHTable[4]) )
-    H04 = H03*A4
+    H04 = A1*A2*A3*A4
     R04 = H04[:3,:3]
     z4 = R04 * z0
+    
+    #get z6
+    R06 = np.matrix( [ updatedHomTransMatrix[0][:3], updatedHomTransMatrix[1][:3], updatedHomTransMatrix[2][:3] ] )
+    z6 = R06 * z0
+
     # define the end effector camera frame
-    x0_tilda = z3.transpose().tolist()[0]
-    z0_tilda = z4.transpose().tolist()[0]#np.cross(x0_tilda, y0_tilda)
-    y0_tilda = np.cross(z0_tilda,x0_tilda)#(-z5.transpose()).tolist()[0]
-    y0_tildaNorm = np.linalg.norm(y0_tilda)
+    z0_tilda = z6.transpose().tolist()[0]
+    y0_tilda = z4.transpose().tolist()[0]
+    x0_tilda = np.cross(y0_tilda,z0_tilda)
+    x0_tildaNorm = np.linalg.norm(x0_tilda)
     for i in range(len(z0_tilda)):
-        y0_tilda[i] = y0_tilda[i]/y0_tildaNorm
+        x0_tilda[i] = x0_tilda[i]/x0_tildaNorm
 
     #print(x0_tilda)
     #print(y0_tilda)
@@ -212,16 +210,16 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
                             [np.dot(x0_tilda,y0), np.dot(y0_tilda,y0), np.dot(z0_tilda,y0)], 
                             [np.dot(x0_tilda,z0), np.dot(y0_tilda,z0), np.dot(z0_tilda,z0)] ] )
     # update translation
-    xMovement = R00_tilda * np.matrix( [translationVector[0], 0, 0] ).transpose()
-    yMovement = R00_tilda * np.matrix( [0, translationVector[1], 0] ).transpose()
-    zMovement = R00_tilda * np.matrix( [0, 0, translationVector[2]] ).transpose()
+    xMovement = R00_tilda * np.matrix( [translationVector[2], 0, 0] ).transpose()
+    yMovement = R00_tilda * np.matrix( [0, -translationVector[1], 0] ).transpose()
+    zMovement = R00_tilda * np.matrix( [0, 0, translationVector[0]] ).transpose()
     # update rotation
     Rx = np.matrix( [ [1, 0, 0], 
-                        [0, math.cos(rotationVector[0]), -math.sin(rotationVector[0])], 
-                        [0, math.sin(rotationVector[0]), math.cos(rotationVector[0])] ] )
-    Ry = np.matrix( [ [math.cos(rotationVector[1]), 0, math.sin(rotationVector[1])], 
+                        [0, math.cos(rotationVector[1]), -math.sin(rotationVector[1])], 
+                        [0, math.sin(rotationVector[1]), math.cos(rotationVector[1])] ] )
+    Ry = np.matrix( [ [math.cos(rotationVector[0]), 0, math.sin(rotationVector[0])], 
                         [0, 1, 0], 
-                        [-math.sin(rotationVector[1]), 0, math.cos(rotationVector[1])] ] )
+                        [-math.sin(rotationVector[0]), 0, math.cos(rotationVector[0])] ] )
     Rz = np.matrix( [ [math.cos(rotationVector[2]), -math.sin(rotationVector[2]), 0], 
                         [math.sin(rotationVector[2]), math.cos(rotationVector[2]), 0], 
                         [0, 0, 1] ] )
@@ -237,41 +235,41 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
     #print R06_updated
 
 
-    ### TYPE 1 fancy motions
-    # update translation (in the tip reference frame)
-    R06 = np.matrix( [ updatedHomTransMatrix[0][:3], updatedHomTransMatrix[1][:3], updatedHomTransMatrix[2][:3] ] )
-    # forward-backward movement update
-    xMovement = R06 * np.matrix( [0, 0, translationVector[0]] ).transpose()
-    updatedHomTransMatrix[0][3] += xMovement.tolist()[0][0]
-    updatedHomTransMatrix[1][3] += xMovement.tolist()[1][0]
-    updatedHomTransMatrix[2][3] += xMovement.tolist()[2][0]
-    # left-right movement update
-    yMovement = R06 * np.matrix( [0, -translationVector[1], 0] ).transpose() # put "-" for the right movement direction
-    updatedHomTransMatrix[0][3] += yMovement.tolist()[0][0]
-    updatedHomTransMatrix[1][3] += yMovement.tolist()[1][0]
-    updatedHomTransMatrix[2][3] += yMovement.tolist()[2][0]
-    # up-down movement update
-    zMovement = R06 * np.matrix( [translationVector[2], 0, 0] ).transpose()
-    updatedHomTransMatrix[0][3] += zMovement.tolist()[0][0]
-    updatedHomTransMatrix[1][3] += zMovement.tolist()[1][0]
-    updatedHomTransMatrix[2][3] += zMovement.tolist()[2][0]
+    # ### TYPE 1 fancy motions
+    # # update translation (in the tip reference frame)
+    # R06 = np.matrix( [ updatedHomTransMatrix[0][:3], updatedHomTransMatrix[1][:3], updatedHomTransMatrix[2][:3] ] )
+    # # forward-backward movement update
+    # xMovement = R06 * np.matrix( [0, 0, translationVector[0]] ).transpose()
+    # updatedHomTransMatrix[0][3] += xMovement.tolist()[0][0]
+    # updatedH        momTransMatrix[1][3] += xMovement.tolist()[1][0]
+    # updatedHomTransMatrix[2][3] += xMovement.tolist()[2][0]
+    # # left-right movement update
+    # yMovement = R06 * np.matrix( [0, -translationVector[1], 0] ).transpose() # put "-" for the right movement direction
+    # updatedHomTransMatrix[0][3] += yMovement.tolist()[0][0]
+    # updatedHomTransMatrix[1][3] += yMovement.tolist()[1][0]
+    # updatedHomTransMatrix[2][3] += yMovement.tolist()[2][0]
+    # # up-down movement update
+    # zMovement = R06 * np.matrix( [translationVector[2], 0, 0] ).transpose()
+    # updatedHomTransMatrix[0][3] += zMovement.tolist()[0][0]
+    # updatedHomTransMatrix[1][3] += zMovement.tolist()[1][0]
+    # updatedHomTransMatrix[2][3] += zMovement.tolist()[2][0]
 
 
-    # update rotation (in the tip reference frame)
-    # basic rotations
-    Rx = np.matrix( [ [1, 0, 0], 
-                        [0, math.cos(rotationVector[1]), -math.sin(rotationVector[1])], 
-                        [0, math.sin(rotationVector[1]), math.cos(rotationVector[1])] ] )
-    Ry = np.matrix( [ [math.cos(rotationVector[0]), 0, math.sin(rotationVector[0])], 
-                        [0, 1, 0], 
-                        [-math.sin(rotationVector[0]), 0, math.cos(rotationVector[0])] ] )
-    Rz = np.matrix( [ [math.cos(rotationVector[2]), -math.sin(rotationVector[2]), 0], 
-                        [math.sin(rotationVector[2]), math.cos(rotationVector[2]), 0], 
-                        [0, 0, 1] ] )
-    # update rotation matrix
-    # rotation is happening in the order: around x -> around y -> around z
-    R06_updated = (R06 * Rx * Ry * Rz).tolist()
-    #print R06_updated
+    # # update rotation (in the tip reference frame)
+    # # basic rotations
+    # Rx = np.matrix( [ [1, 0, 0], 
+    #                     [0, math.cos(rotationVector[1]), -math.sin(rotationVector[1])], 
+    #                     [0, math.sin(rotationVector[1]), math.cos(rotationVector[1])] ] )
+    # Ry = np.matrix( [ [math.cos(rotationVector[0]), 0, math.sin(rotationVector[0])], 
+    #                     [0, 1, 0], 
+    #                     [-math.sin(rotationVector[0]), 0, math.cos(rotationVector[0])] ] )
+    # Rz = np.matrix( [ [math.cos(rotationVector[2]), -math.sin(rotationVector[2]), 0], 
+    #                     [math.sin(rotationVector[2]), math.cos(rotationVector[2]), 0], 
+    #                     [0, 0, 1] ] )
+    # # update rotation matrix
+    # # rotation is happening in the order: around x -> around y -> around z
+    # R06_updated = (R06 * Rx * Ry * Rz).tolist()
+    # #print R06_updated
 
 
     ###!!! move the end effector to the specific predAll DOFs modeefined orientation, based on the predefined rotation matrices
@@ -431,7 +429,7 @@ def getJoystickButtons():
 def sendAngleValues(qVect, start = 0):
 
     # encoder steps per 2*pi rotation
-    q1Steps = 1680 * 60/24
+    q1Steps = 1680.0 * 60/24
     q2Steps = 2048*4
     q3Steps = 2048*4
     q4Steps = 1680
@@ -450,7 +448,7 @@ def sendAngleValues(qVect, start = 0):
     command = 'p'
     #if start == 1:
 	#   command = 'g'
-    message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String+"%20"+q7String+"%20"
+    message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String+"%20"+q7String
 
     sendMessage(message)
 
@@ -601,7 +599,7 @@ def sendMessage(message):
     
     global conn
 
-    # conn.request("PUT","/arm/"+message+"/")
+    conn.request("PUT","/arm/"+message+"/")
 
     # r1 = conn.getresponse()
     # print r1.status, r1.reason
@@ -614,7 +612,7 @@ def sendMessage(message):
     # data2 = r2.read()
     # print data2
 
-    # conn.close()
+    conn.close()
     
 def makeDHTable(jointAngles):
     #print("Current joint angles: {}".format(jointAngles))
@@ -926,8 +924,10 @@ def main():
     # resetting the IK model to zero position upon request 
     global savedJointAngles
     buttons = getJoystickButtons()
-    if buttons[11] == 1: # reset model to complete zero position
-        savedJointAngles = [0,0,0,0,0,0]
+    if buttons[11] == 1: # reset model to complete initial position
+        init_q2 = 1956.0/(2048*4)*360
+        init_q3 = 1263.0/(2048*4)*360
+        savedJointAngles = np.array([0,init_q2,init_q3,0,0,0]) * math.pi/180 # degrees
         print("Arm reset to Zero pose")
 
     updateOperationMode()
@@ -955,21 +955,36 @@ if __name__ == "__main__":
     global k, t # velocity coefficients for translational and rotational motions
     global qlim
     global maxRot # determines max rotation by a joint per turn
-    maxRot = 2*math.pi*1000/360 
+    maxRot = 2*math.pi*10000/360 
     k = 0.6
     t = 0.03
     modeOfMovement = 0 # all DOFs mode by default
     modeOfOperation = 2 # positional IK mode by default
 
-    serverIP = '192.168.0.123'
+    serverIP = '192.168.0.3'
     serverHttpPort = '8080'
     global conn
     conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
 
-    savedJointAngles = np.array([0,0,0,0,0,0]) * math.pi/180
+    init_q2 = 1956.0/(2048*4)*360
+    init_q3 = 1263.0/(2048*4)*360
+    savedJointAngles = np.array([0,init_q2,init_q3,0,0,0]) * math.pi/180 # degrees
 
     #In the order of q1lim to q6lim [min,max]
-    qlim = np.array([[-180, 180], [-45, 70], [-20, 80], [-175, 175], [-175, 175], [-10000, 10000]]) * math.pi/180
+    lim_q1_min = -1400.0/(1680.0 * 60/24) *360
+    lim_q1_max = 3000.0/(1680.0 * 60/24) *360
+    lim_q2_min = -2158.0/(2048*4) *360
+    lim_q2_max = 1956.0/(2048*4) *360
+    lim_q3_min = -1180.0/(2048*4) *360
+    lim_q3_max = 1263.0/(2048*4) *360
+    lim_q4_min = -840.0/(1680) *360
+    lim_q4_max = 840.0/(1680) *360
+    lim_q5_min = -550.0/(1680) *360
+    lim_q5_max = 400/(1680) *360
+    lim_q6_min = -10000000000.0/(1680) *360
+    lim_q6_max = 10000000000.0/(1680) *360
+
+    qlim = np.array([[lim_q1_min, lim_q1_max], [lim_q2_min, lim_q2_max], [lim_q3_min, lim_q3_max], [lim_q4_min, lim_q4_max], [lim_q5_min, lim_q5_max], [lim_q6_min, lim_q6_max]]) * math.pi/180 # degrees
     #qlim = np.array([[-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000]]) * math.pi/180
     savedGripperAngle = 0
     setupVisualEnv()
