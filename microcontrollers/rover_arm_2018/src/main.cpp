@@ -1,36 +1,42 @@
 #include <Arduino.h>
 #include <Stream.h>
 #include <PID_v1.h>
-// #include <digitalWriteFast.h>
 #include <main.h>
 
-// angle limits of IK model
+// IDs for each of the joints and motors
+typedef enum joint {  SHR,   SHP,   ELB,   FAR,   WPI,   WRO,   GRP};
+typedef enum motor {M_SHR, M_SHP, M_ELB, M_FAR, M_WRL, M_WRR, M_GRP};
+
+double goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};         // The goal position for each MOTOR
+volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // The reading of each MOTOR encoder
+double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0}; // Floating point copy of above for PID lib
+double vel[7] = {0, 0, 0, 0, 0, 0, 0};              // The PWM voltage to apply to each MOTOR
+
+// Angle limits for each JOINT
 double high_pos_limit[7] = {3000,  1956,  1263, 840, 400, 1e10, 21000};
 double low_pos_limit[7] = {-1400, -2158, -1180, -840, -550, -1e10, 0};
 
-double goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};            // position vector
-volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
-double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
-double vel[7] = {0, 0, 0, 0, 0, 0, 0};
-
-// for spherical wrist, Ku = 2.2, Tu = 0.25
-//
+// PID parameters for each MOTOR
 double Kp[7] = {0.7,     8,   10,  1.0, 1.32, 1.32,   1};
 double Ki[7] = {1,     0.8,    0,  1.0,    1,    1,   0};
 double Kd[7] = {0.06, 0.05, 0.05, 0.05, 0.04, 0.04,   0};
 
+// Pins for each motor
 const char dirPin[7] = {12, 10, 13, 9, 11, 15, 14};
 const char pwmPin[7] = {7, 5, 8, 4, 6, 2, 3};
 
 const char spdLimit[7] = {255, 255, 255, 255, 255, 255, 255};
 
-bool running = true;
-bool manual_override = false;
+// Flags
+bool running = true;          // Used for emergency stopping
+bool manual_override = false; // Used for the 'm' command
 
+// Pins for A and B output of each encoder
 const char enc_A[7] = {38, 24, 21, 32, 46, 52, 34};
 const char enc_B[7] = {44, 26, 20, 48, 50, 42, 30};
 
-// change to REVERSE if needed
+// PID objects operate on the values of vel[] directly
+// Change to REVERSE if PID control is backwards
 PID PID_0(&actual_pos_float[0], &vel[0], &goal_pos[0], Kp[0], Ki[0], Kd[0], DIRECT);
 PID PID_1(&actual_pos_float[1], &vel[1], &goal_pos[1], Kp[1], Ki[1], Kd[1], DIRECT);
 PID PID_2(&actual_pos_float[2], &vel[2], &goal_pos[2], Kp[2], Ki[2], Kd[2], DIRECT);
@@ -43,7 +49,7 @@ void setup() {
     Serial.begin(115200);
     while (!Serial)
         ;
-    Serial.setTimeout(2);
+    Serial.setTimeout(2); // Set the timeout to 2ms, otherwise parsing can hang for up to a second
     Serial.println("Serial initialized.");
     drivers_initilize();
     setup_interrupts();
@@ -58,48 +64,42 @@ unsigned long last_override = 0;
 void loop() {
     if (Serial.available()) {
         switch (Serial.read()) {
-            case 'p': // limited absolute
+            case 'p': // Move to absolute position within limits
                 Serial.read(); // there should be a space, discard it.
                 update_goals(false, true);
                 break;
-            case 'f': // No limit absolute
+            case 'f': // Move to position with NO LIMITS
                 Serial.read();
                 update_goals(true, true);
                 break;
-            case 'r': // no limit relative
+            case 'r': // Relative move
                 Serial.read();
                 update_goals(true, false);
                 break;
-            case 'e': // e-stop
+            case 'e': // Emergency stop
                 running = 0;
                 break;
-            case 'c': // continue operation
+            case 'c': // Resume from emergency stop
                 running = 1;
-                // update PID twice so D term does not explode
-                updatePID();
+                updatePID(); // update PID twice so D term does not explode
                 break;
-            case 'z': // zero out encoders
+            case 'z': // Zero out encoders
                 for (int i = 0; i < 7; i++) {
                     actual_pos[i] = 0;
                     goal_pos[i] = 0;
                 }
-                // update PID twice so D term does not explode
                 updatePID();
                 break;
-            case 'm': // manual motor control
-                // EXAMPLE: m 2 -255
-                // move the elbow with velocity -255
+            case 'm':                      // direct manual control of joint velocities
                 last_override = millis();
                 manual_override = true;
-                Serial.read(); // discard space
-                vel[Serial.parseInt()] = Serial.parseInt();
+                direct_velocity_control(); // paser
                 break;
             case 's': // starting position (fully upright and center)
-                starting_position();
-                // update PID twice so D term does not explode
-                updatePID();
+                starting_position(); // calibrate encoders
+                updatePID();         // update PID twice so D term does not explode
                 break;
-            case 'a': // print encoder positions
+            case 'a':                // print encoder positions
                 PRINT_encoder_positions();
                 break;
             default:
