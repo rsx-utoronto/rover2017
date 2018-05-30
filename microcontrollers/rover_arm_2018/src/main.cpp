@@ -4,6 +4,32 @@
 // #include <digitalWriteFast.h>
 #include <main.h>
 
+// angle limits of IK model
+double high_pos_limit[7] = {3000,  1956,  1263, 840, 400, 1e10, 21000};
+double low_pos_limit[7] = {-1400, -2158, -1180, -840, -550, -1e10, 0};
+
+double goal_pos[7] = {0, 0, 0, 0, 0, 0, 0};            // position vector
+volatile int actual_pos[7] = {0, 0, 0, 0, 0, 0, 0}; // actual position vector
+double actual_pos_float[7] = {0, 0, 0, 0, 0, 0, 0};
+double vel[7] = {0, 0, 0, 0, 0, 0, 0};
+
+// for spherical wrist, Ku = 2.2, Tu = 0.25
+//
+double Kp[7] = {0.7,     8,   10,  1.0, 1.32, 1.32,   1};
+double Ki[7] = {1,     0.8,    0,  1.0,    1,    1,   0};
+double Kd[7] = {0.06, 0.05, 0.05, 0.05, 0.04, 0.04,   0};
+
+const char dirPin[7] = {12, 10, 13, 9, 11, 15, 14};
+const char pwmPin[7] = {7, 5, 8, 4, 6, 2, 3};
+
+const char spdLimit[7] = {255, 255, 255, 255, 255, 255, 255};
+
+bool running = true;
+bool manual_override = false;
+
+const char enc_A[7] = {38, 24, 21, 32, 46, 52, 34};
+const char enc_B[7] = {44, 26, 20, 48, 50, 42, 30};
+
 // change to REVERSE if needed
 PID PID_0(&actual_pos_float[0], &vel[0], &goal_pos[0], Kp[0], Ki[0], Kd[0], DIRECT);
 PID PID_1(&actual_pos_float[1], &vel[1], &goal_pos[1], Kp[1], Ki[1], Kd[1], DIRECT);
@@ -21,24 +47,27 @@ void setup() {
     Serial.println("Serial initialized.");
     drivers_initilize();
     setup_interrupts();
+    starting_position();
     setup_PID();
     Serial.println("drivers and encoders initialized.");
 }
 
 unsigned long last_print = millis();
+unsigned long last_override = 0;
 
 void loop() {
-    int last_override;
-
     if (Serial.available()) {
         switch (Serial.read()) {
             case 'p': // limited absolute
+                Serial.read(); // there should be a space, discard it.
                 update_goals(false, true);
                 break;
             case 'f': // No limit absolute
+                Serial.read();
                 update_goals(true, true);
                 break;
             case 'r': // no limit relative
+                Serial.read();
                 update_goals(true, false);
                 break;
             case 'e': // e-stop
@@ -57,23 +86,16 @@ void loop() {
                 // update PID twice so D term does not explode
                 updatePID();
                 break;
-            case 'm':
+            case 'm': // manual motor control
+                // EXAMPLE: m 2 -255
+                // move the elbow with velocity -255
                 last_override = millis();
                 manual_override = true;
+                Serial.read(); // discard space
+                vel[Serial.parseInt()] = Serial.parseInt();
                 break;
             case 's': // starting position (fully upright and center)
-                // shoulder rotation centered
-                actual_pos[0] = 0;
-                goal_pos[0] = 0;
-                // shoulder and elbow fully upright
-                actual_pos[1] = high_pos_limit[1];
-                goal_pos[1] = high_pos_limit[1];
-                actual_pos[2] = high_pos_limit[2];
-                goal_pos[2] = high_pos_limit[2];
-                for (int i = 3; i <= 6; i++){
-                    actual_pos[i] = 0;
-                    goal_pos[i] = 0;
-                }
+                starting_position();
                 // update PID twice so D term does not explode
                 updatePID();
                 break;
@@ -84,16 +106,19 @@ void loop() {
                 Serial.println("parse err");
         }
     }
-    if (manual_override) {
-        if (running) {
-
-        } else {
-
-        }
-    } else {
+    if (!manual_override) {
         updatePID();
-        update_velocity();
+    } else {
+        // we are in manual mode, so we already set the velocities we want.
+        if (millis() - last_override > 100) {
+            // if we have not recieved an update for a while, set all velocities to zero
+            // to prevent damage
+            for (int i = 0; i < 7; i++) {
+                    vel[i] = 0;
+            }
+        }
     }
+    update_velocity();
 }
 
 void updatePID() {
@@ -125,6 +150,7 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         raw_pos[i] = Serial.parseInt();
         // apply constraints at raw joint angle level (if applicable)
         if (!no_limits) {
+            // TODO: this is not working correctly???
             raw_pos[i] = constrain(raw_pos[i], low_pos_limit[i], high_pos_limit[i]);
         }
     }
@@ -134,10 +160,10 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         goal_pos[2] = raw_pos[2];
         goal_pos[3] = -raw_pos[3];
         // Translate IK spherical model to differential wrist
-        goal_pos[4] = - raw_pos[4] + raw_pos[5];  // tilt + rot
-        goal_pos[5] = - raw_pos[4] - raw_pos[5]; // tilt + rot
+        goal_pos[4] = -raw_pos[4] - raw_pos[5];  // tilt + rot
+        goal_pos[5] = -raw_pos[4] + raw_pos[5]; // tilt + rot
         // Take into account spherical wrist rotation for the gripper output
-        goal_pos[6] = raw_pos[6] - ((double) raw_pos[5] * 1680.0/(26.9*64.0));
+        goal_pos[6] = raw_pos[6] + ((double) raw_pos[5] * 1680.0/(26.9*64.0));
     } else {
         // RELATIVE mode, just add the values.
         goal_pos[0] += raw_pos[0];
@@ -145,17 +171,33 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         goal_pos[2] += raw_pos[2];
         goal_pos[3] += -raw_pos[3];
         // Translate IK spherical model to differential wrist
-        goal_pos[4] += - raw_pos[4] + raw_pos[5];  // tilt + rot
-        goal_pos[5] += - raw_pos[4] - raw_pos[5]; // tilt + rot
+        goal_pos[4] += -raw_pos[4] - raw_pos[5];  // tilt + rot
+        goal_pos[5] += -raw_pos[4] + raw_pos[5]; // tilt + rot
         // Take into account spherical wrist rotation for the gripper output
-        goal_pos[6] += raw_pos[6] - ((double) raw_pos[5] * 1680.0/(26.9*64.0));
+        goal_pos[6] += raw_pos[6] + ((double) raw_pos[5] * 1680.0/(26.9*64.0));
     }
     // TESTING
+    // for (int i = 0; i < 7; i++) {
+    //     Serial.print(goal_pos[i]);
+    //     Serial.print(' ');
+    // }
+    // PRINT_encoder_positions();
+}
+
+void direct_velocity_control(){
+    int raw_vel[7];
     for (int i = 0; i < 7; i++) {
-        Serial.print(goal_pos[i]);
-        Serial.print(' ');
+        raw_vel[i] = Serial.parseInt();
     }
-    PRINT_encoder_positions();
+    vel[0] = raw_vel[0];
+    vel[1] = -raw_vel[1];
+    vel[2] = raw_vel[2];
+    vel[3] = -raw_vel[3];
+    // Translate IK spherical model to differential wrist
+    vel[4] = -raw_vel[4] - raw_vel[5];  // tilt + rot
+    vel[5] = -raw_vel[4] + raw_vel[5]; // tilt + rot
+    // Take into account spherical wrist rotation for the gripper output
+    vel[6] = raw_vel[6] + ((double) raw_vel[5] * 1680.0/(26.9*64.0));
 }
 
 void update_velocity() {
@@ -164,6 +206,7 @@ void update_velocity() {
             digitalWrite(dirPin[i], vel[i] > 0);
             analogWrite(pwmPin[i], abs(vel[i]));
         } else {
+            // e-stop activated, stop running
             analogWrite(pwmPin[i], 0);
         }
     }
@@ -213,6 +256,21 @@ void setup_PID(){
     PID_5.SetOutputLimits(-spdLimit[5], spdLimit[5]);
     PID_6.SetMode(AUTOMATIC);
     PID_6.SetOutputLimits(-spdLimit[6], spdLimit[6]);
+}
+
+void starting_position() {
+    // shoulder rotation centered
+    actual_pos[0] = 0;
+    goal_pos[0] = 0;
+    // shoulder and elbow fully upright
+    actual_pos[1] = -high_pos_limit[1];
+    goal_pos[1] = -high_pos_limit[1];
+    actual_pos[2] = high_pos_limit[2];
+    goal_pos[2] = high_pos_limit[2];
+    for (int i = 3; i <= 6; i++){
+        actual_pos[i] = 0;
+        goal_pos[i] = 0;
+    }
 }
 
 void A0_handler() {
