@@ -160,10 +160,10 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         goal_pos[2] = raw_pos[2];
         goal_pos[3] = -raw_pos[3];
         // Translate IK spherical model to differential wrist
-        goal_pos[4] = raw_pos[4] + raw_pos[5];  // tilt + rot
-        goal_pos[5] = raw_pos[4] - raw_pos[5]; // tilt + rot
+        goal_pos[4] = -raw_pos[4] - raw_pos[5];  // tilt + rot
+        goal_pos[5] = -raw_pos[4] + raw_pos[5]; // tilt + rot
         // Take into account spherical wrist rotation for the gripper output
-        goal_pos[6] = raw_pos[6] - ((double) raw_pos[5] * 1680.0/(26.9*64.0));
+        goal_pos[6] = raw_pos[6] + ((double) raw_pos[5] * 1680.0/(26.9*64.0));
     } else {
         // RELATIVE mode, just add the values.
         goal_pos[0] += raw_pos[0];
@@ -171,17 +171,17 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         goal_pos[2] += raw_pos[2];
         goal_pos[3] += -raw_pos[3];
         // Translate IK spherical model to differential wrist
-        goal_pos[4] += raw_pos[4] + raw_pos[5];  // tilt + rot
-        goal_pos[5] += raw_pos[4] - raw_pos[5]; // tilt + rot
+        goal_pos[4] += -raw_pos[4] - raw_pos[5];  // tilt + rot
+        goal_pos[5] += -raw_pos[4] + raw_pos[5]; // tilt + rot
         // Take into account spherical wrist rotation for the gripper output
-        goal_pos[6] += raw_pos[6] - ((double) raw_pos[5] * 1680.0/(26.9*64.0));
+        goal_pos[6] += raw_pos[6] + ((double) raw_pos[5] * 1680.0/(26.9*64.0));
     }
     // TESTING
-    for (int i = 0; i < 7; i++) {
-        Serial.print(goal_pos[i]);
-        Serial.print(' ');
-    }
-    PRINT_encoder_positions();
+    // for (int i = 0; i < 7; i++) {
+    //     Serial.print(goal_pos[i]);
+    //     Serial.print(' ');
+    // }
+    // PRINT_encoder_positions();
 }
 
 void direct_velocity_control(){
@@ -194,10 +194,10 @@ void direct_velocity_control(){
     vel[2] = raw_vel[2];
     vel[3] = -raw_vel[3];
     // Translate IK spherical model to differential wrist
-    vel[4] = raw_vel[4] + raw_vel[5];  // tilt + rot
-    vel[5] = raw_vel[4] - raw_vel[5]; // tilt + rot
+    vel[4] = -raw_vel[4] - raw_vel[5];  // tilt + rot
+    vel[5] = -raw_vel[4] + raw_vel[5]; // tilt + rot
     // Take into account spherical wrist rotation for the gripper output
-    vel[6] = raw_vel[6] - ((double) raw_vel[5] * 1680.0/(26.9*64.0));
+    vel[6] = raw_vel[6] + ((double) raw_vel[5] * 1680.0/(26.9*64.0));
 }
 
 void update_velocity() {
