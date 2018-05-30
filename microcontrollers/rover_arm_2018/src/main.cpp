@@ -86,20 +86,16 @@ void loop() {
                 // update PID twice so D term does not explode
                 updatePID();
                 break;
-            case 'm': // manual motor control
-                // EXAMPLE: m 2 -255
-                // move the elbow with velocity -255
+            case 'm':                // direct manual control of joint velocities
                 last_override = millis();
                 manual_override = true;
-                Serial.read(); // discard space
-                vel[Serial.parseInt()] = Serial.parseInt();
+                direct_velocity_control(); // parer
                 break;
-            case 's': // starting position (fully upright and center)
-                starting_position();
-                // update PID twice so D term does not explode
-                updatePID();
+            case 's':                // starting position (fully upright and center)
+                starting_position(); // calibrate encoders
+                updatePID();         // update PID twice so D term does not explode
                 break;
-            case 'a': // print encoder positions
+            case 'a':                // print encoder positions
                 PRINT_encoder_positions();
                 break;
             default:
