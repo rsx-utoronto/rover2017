@@ -47,6 +47,7 @@ void setup() {
     Serial.println("Serial initialized.");
     drivers_initilize();
     setup_interrupts();
+    starting_position();
     setup_PID();
     Serial.println("drivers and encoders initialized.");
 }
@@ -94,18 +95,7 @@ void loop() {
                 vel[Serial.parseInt()] = Serial.parseInt();
                 break;
             case 's': // starting position (fully upright and center)
-                // shoulder rotation centered
-                actual_pos[0] = 0;
-                goal_pos[0] = 0;
-                // shoulder and elbow fully upright
-                actual_pos[1] = high_pos_limit[1];
-                goal_pos[1] = high_pos_limit[1];
-                actual_pos[2] = high_pos_limit[2];
-                goal_pos[2] = high_pos_limit[2];
-                for (int i = 3; i <= 6; i++){
-                    actual_pos[i] = 0;
-                    goal_pos[i] = 0;
-                }
+                starting_position();
                 // update PID twice so D term does not explode
                 updatePID();
                 break;
@@ -160,6 +150,7 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         raw_pos[i] = Serial.parseInt();
         // apply constraints at raw joint angle level (if applicable)
         if (!no_limits) {
+            // TODO: this is not working correctly???
             raw_pos[i] = constrain(raw_pos[i], low_pos_limit[i], high_pos_limit[i]);
         }
     }
@@ -169,8 +160,8 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         goal_pos[2] = raw_pos[2];
         goal_pos[3] = -raw_pos[3];
         // Translate IK spherical model to differential wrist
-        goal_pos[4] = - raw_pos[4] + raw_pos[5];  // tilt + rot
-        goal_pos[5] = - raw_pos[4] - raw_pos[5]; // tilt + rot
+        goal_pos[4] = raw_pos[4] + raw_pos[5];  // tilt + rot
+        goal_pos[5] = raw_pos[4] - raw_pos[5]; // tilt + rot
         // Take into account spherical wrist rotation for the gripper output
         goal_pos[6] = raw_pos[6] - ((double) raw_pos[5] * 1680.0/(26.9*64.0));
     } else {
@@ -180,8 +171,8 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         goal_pos[2] += raw_pos[2];
         goal_pos[3] += -raw_pos[3];
         // Translate IK spherical model to differential wrist
-        goal_pos[4] += - raw_pos[4] + raw_pos[5];  // tilt + rot
-        goal_pos[5] += - raw_pos[4] - raw_pos[5]; // tilt + rot
+        goal_pos[4] += raw_pos[4] + raw_pos[5];  // tilt + rot
+        goal_pos[5] += raw_pos[4] - raw_pos[5]; // tilt + rot
         // Take into account spherical wrist rotation for the gripper output
         goal_pos[6] += raw_pos[6] - ((double) raw_pos[5] * 1680.0/(26.9*64.0));
     }
@@ -191,6 +182,22 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         Serial.print(' ');
     }
     PRINT_encoder_positions();
+}
+
+void direct_velocity_control(){
+    int raw_vel[7];
+    for (int i = 0; i < 7; i++) {
+        raw_vel[i] = Serial.parseInt();
+    }
+    vel[0] = raw_vel[0];
+    vel[1] = -raw_vel[1];
+    vel[2] = raw_vel[2];
+    vel[3] = -raw_vel[3];
+    // Translate IK spherical model to differential wrist
+    vel[4] = raw_vel[4] + raw_vel[5];  // tilt + rot
+    vel[5] = raw_vel[4] - raw_vel[5]; // tilt + rot
+    // Take into account spherical wrist rotation for the gripper output
+    vel[6] = raw_vel[6] - ((double) raw_vel[5] * 1680.0/(26.9*64.0));
 }
 
 void update_velocity() {
@@ -249,6 +256,21 @@ void setup_PID(){
     PID_5.SetOutputLimits(-spdLimit[5], spdLimit[5]);
     PID_6.SetMode(AUTOMATIC);
     PID_6.SetOutputLimits(-spdLimit[6], spdLimit[6]);
+}
+
+void starting_position() {
+    // shoulder rotation centered
+    actual_pos[0] = 0;
+    goal_pos[0] = 0;
+    // shoulder and elbow fully upright
+    actual_pos[1] = -high_pos_limit[1];
+    goal_pos[1] = -high_pos_limit[1];
+    actual_pos[2] = high_pos_limit[2];
+    goal_pos[2] = high_pos_limit[2];
+    for (int i = 3; i <= 6; i++){
+        actual_pos[i] = 0;
+        goal_pos[i] = 0;
+    }
 }
 
 void A0_handler() {
