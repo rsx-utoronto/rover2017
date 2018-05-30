@@ -23,7 +23,6 @@ const char dirPin[7] = {12, 10, 13, 9, 11, 15, 14};
 const char pwmPin[7] = {7, 5, 8, 4, 6, 2, 3};
 
 const char spdLimit[7] = {255, 255, 255, 255, 255, 255, 255};
-const bool reversed[7] = {0, 0, 0, 0, 0, 0, 0};
 
 bool running = true;
 bool manual_override = false;
@@ -126,7 +125,7 @@ void loop() {
             // to prevent damage
             for (int i = 0; i < 7; i++) {
                     vel[i] = 0;
-                }
+            }
         }
     }
     update_velocity();
