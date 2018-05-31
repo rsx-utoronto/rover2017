@@ -42,7 +42,7 @@ def getJoystickAxes():
 def sendMessage(message):
     global conn
 
-    conn.request("PUT","/drive/"+message+"/")
+    conn.request("PUT", "/drive/" + message + "/")
     conn.close()
 
 
@@ -60,11 +60,11 @@ def loop():
                 left -= speed
                 right -= speed
             elif event.key == pygame.K_LEFT:
-                left += speed
-                right -= speed
-            elif event.key == pygame.K_RIGHT:
-                right += speed
                 left -= speed
+                right += speed
+            elif event.key == pygame.K_RIGHT:
+                right -= speed
+                left += speed
             elif event.key == pygame.K_SPACE:
                 right = 0
                 left = 0
@@ -98,11 +98,11 @@ def loop():
                 left += speed
                 right += speed
             elif event.key == pygame.K_LEFT:
-                left -= speed
-                right += speed
-            elif event.key == pygame.K_RIGHT:
-                right -= speed
                 left += speed
+                right -= speed
+            elif event.key == pygame.K_RIGHT:
+                right += speed
+                left -= speed
             elif event.key == pygame.K_SPACE:
                 right = 0
                 left = 0
