@@ -880,9 +880,9 @@ def directControl():
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         if buttons[22] == 1:
-            gripperSpeed = 255
-        elif buttons[25] == 1:
             gripperSpeed = -255
+        elif buttons[25] == 1:
+            gripperSpeed = 255
         else:
             gripperSpeed = 0
         sendSpeeds = [ int(joystickDirection[1] * 255), int(joystickDirection[2] * 255), int(joystickDirection[0] * 255), int(-joystickDirection[4] * 255), int(joystickDirection[5] * 255), int(joystickDirection[3] * 255), gripperSpeed ]
