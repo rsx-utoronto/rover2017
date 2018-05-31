@@ -1132,8 +1132,7 @@ if __name__ == "__main__":
         else:
             time.sleep(timeDelay)
 
-        # TODO
-        turnedOn = False #GET THE TURNED_ON MODE FROM SOMEWHERE
+        turnedOn = False
         axes = getJoystickAxes()
         buttons = getJoystickButtons()
         #print axes
