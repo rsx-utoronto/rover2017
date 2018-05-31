@@ -8,6 +8,8 @@ void update_encoders();
 void update_goals(bool no_limits, bool absolute);
 void setup_interrupts();
 void setup_PID();
+void direct_velocity_control();
+void starting_position();
 
 void A0_handler();
 void B0_handler();
