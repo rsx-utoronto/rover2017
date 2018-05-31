@@ -1,150 +1,50 @@
 var express = require('express');
 var _ = require('lodash');
-var net = require('net');
-var SerialPort = require('serialport');
-
-var client = undefined; // arduino tcp client
-var port = undefined;
+var fetch = require('node-fetch'); 
+var SerialPort = require('serialport')
 
 function init(model, config) {
-    model.drive = {
-        speed: [
-            0, 0
-        ], // -255 to 255
-        pivot: 0,
-        drive_mode: true, // drive mode vs pivot mode
-        ebrake: false,
-        connected: false
-    }
+	model.drive = {
+		desired: {
+			message: 0
+		}
+	}
 
-    var router = express.Router();
+	var router = express.Router();
+	var port = new SerialPort('/dev/ttyUSB0', {baudRate: 9600});
+	var portOpen = false; 
 
-    // gets rover speed and turning parameters
-    router.get('/', (req, res) => {
-        res.json(model.drive);
-    })
+	port.on('open', function() {
+		portOpen = true; 
+	})
 
-    // sets rover forward speed.
-    router.put('/speed/:speed', (req, res) => {
+	// gets drive velocity
+	router.get('/', (req, res) => {
+		res.json(model.drive);
+	});
 
-        if(!model.drive.ebrake) {
-          model.drive.speed[0] = model.drive.speed[1] = parseInt(req.params.speed);
-          model.drive.drive_mode = true;
-          res.json(model.drive);
-          
-          if(model.verbose) { 
-            console.log("Sending speed ", req.params.speed); 
-          }
-        } else {
-          res.status(500).send("EBrake Enabled")
-        }
+	// sets desired drive velocity
+	router.put('/:message', (req, res) => {
+		model.drive.desired = _.merge(model.drive.desired, req.params)
+		res.json(model.drive);
 
-    });
+		if (portOpen)
+			port.write(model.drive.desired.message, (err) => {
+				if (err) { 
+					console.error("Serial port didn't write correctly"); 
+				}
+				else { 
+					console.log("Serial port written");
+					console.log(model.drive.desired.message); 
+				}
+			})
+	})
 
-    // sets rover speed on both wheels.
-    router.put('/speed/:speed0/:speed1', (req, res) => {
-        if(!model.drive.ebrake) {
-          model.drive.speed[0] = parseInt(req.params.speed0);
-          model.drive.speed[1] = parseInt(req.params.speed1);
-          model.drive.drive_mode = true;
-          res.json(model.drive);
-        } else {
-          res.status(500).send("EBrake Enabled")
-        }
+	
 
-    });
-
-    // sets the pivot speed of the rover. pivoting requires us to turn off
-    // the middle wheels or the rocker bogie dies.
-    router.put('/pivot/:turn_speed', (req, res) => {
-      if(!model.drive.ebrake) {
-        model.drive.pivot = parseInt(req.params.turn_speed);
-        model.drive.drive_mode = false;
-        res.json(model.drive);
-      } else {
-        res.status(500).send("EBrake Enabled")
-      }
-
-    });
-
-    router.put('/stop', (req, res) => {
-        model.drive.speed[0] = model.drive.speed[1] = 0;
-        model.drive.pivot = 0;
-        // sends stop signal to the relays
-        for (var i = 0; i < 6; i++){
-          model.aux.relay[i] = false;
-        }
-        res.json(model.drive);
-    });
-
-    router.get('/ebrake', (req, res) => {
-      res.json(model.drive);
-    });
-
-    router.put('/ebrake', (req, res) => {
-      if (model.drive.ebrake) {
-        model.drive.ebrake = false;
-        model.drive.speed[0] = model.drive.speed[1] = 0;
-        model.drive.pivot = 0;
-      } else {
-        model.drive.ebrake = true;
-        model.drive.speed[0] = model.drive.speed[1] = 0;
-        model.drive.pivot = 0;
-      }
-      res.json(model.drive);
-    });
-
-    clear = () => {
-      port.write('0    0    0    0');
-      s = port.read();
-      if(s) {
-        console.log("received from arduino", s.toString())
-      }
-      else {
-        console.log('sent')
-      }
-    }
-
-    port = new SerialPort(config.drive_port, {
-      baudRate: 9600
-    }
-    , err => {
-      if(err) {
-        console.error("Error opening serial port", err.message);
-      }
-      else {
-        console.log("started serial port")
-      }
-    });
-
-    // send the current state of the rover over tcp
-    let sendState = function() {
-      port.write(
-        [_.padEnd(model.drive.speed[0], 5),
-        _.padEnd(model.drive.speed[1], 5),
-        _.padEnd(model.drive.pivot, 5),
-        _.toNumber(model.drive.drive_mode)].join(''),
-        err => {
-          if(err) {
-            console.error(err.message);
-            serialConnected = false;
-          }
-        }
-      );
-      let s = port.read();
-      if(s) {
-        console.log(s.toString())
-      }
-    }
-
-    setTimeout(function() {
-      setInterval(sendState, 100)
-    }, 1000);
-    
-    console.log('-> drive server started');
-    return router;
+	console.log('-> drive server started');
+	return router;
 }
 
-module.exports = {
-    init
-};
+module.exports = {init};
+
