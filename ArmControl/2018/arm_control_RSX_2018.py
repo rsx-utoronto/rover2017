@@ -235,13 +235,13 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
     #print R06_updated
 
 
-    # ### TYPE 1 fancy motions
-    # # update translation (in the tip reference frame)
+    # ### TYPE 1 fancy motions (in the tip reference frame)
+    # # update translation 
     # R06 = np.matrix( [ updatedHomTransMatrix[0][:3], updatedHomTransMatrix[1][:3], updatedHomTransMatrix[2][:3] ] )
     # # forward-backward movement update
     # xMovement = R06 * np.matrix( [0, 0, translationVector[0]] ).transpose()
     # updatedHomTransMatrix[0][3] += xMovement.tolist()[0][0]
-    # updatedH        momTransMatrix[1][3] += xMovement.tolist()[1][0]
+    # updatedHomTransMatrix[1][3] += xMovement.tolist()[1][0]
     # updatedHomTransMatrix[2][3] += xMovement.tolist()[2][0]
     # # left-right movement update
     # yMovement = R06 * np.matrix( [0, -translationVector[1], 0] ).transpose() # put "-" for the right movement direction
@@ -253,7 +253,6 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
     # updatedHomTransMatrix[0][3] += zMovement.tolist()[0][0]
     # updatedHomTransMatrix[1][3] += zMovement.tolist()[1][0]
     # updatedHomTransMatrix[2][3] += zMovement.tolist()[2][0]
-
 
     # # update rotation (in the tip reference frame)
     # # basic rotations
@@ -269,20 +268,20 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
     # # update rotation matrix
     # # rotation is happening in the order: around x -> around y -> around z
     # R06_updated = (R06 * Rx * Ry * Rz).tolist()
-    # #print R06_updated
+    #print R06_updated
 
 
-    ###!!! move the end effector to the specific predAll DOFs modeefined orientation, based on the predefined rotation matrices
-    buttons = getJoystickButtons()
-    #print buttons
+    # ###!!! move the end effector to the specific predAll DOFs modeefined orientation, based on the predefined rotation matrices
+    # buttons = getJoystickButtons()
+    # #print buttons
 
-    # turn to "Down" orientation
-    if buttons[21] == 1:
-        R06_updated = np.matrix( [ [1, 0, 0],
-                                    [0, -1, 0],
-                                    [0, 0, -1] ] ).tolist()
-    # # turn to "Forward" orientation
-    # elif buttons[21] == 1:
+    # turn to "Down" pose
+    # if buttons[18] == 1:
+    #     R06_updated = np.matrix( [ [1, 0, 0],
+    #                                 [0, -1, 0],
+    #                                 [0, 0, -1] ] ).tolist()
+    # # turn to "Forward" pose
+    # elif buttons[17] == 1:
     #     R06_updated = np.matrix( [ [0, 0, 1],
     #                                 [0, -1, 0],
     #                                 [1, 0, 0] ] ).tolist()
@@ -296,13 +295,13 @@ def updateHomTransMatrix(homTransMatrix, DHTable, translationVector, rotationVec
     #     R06_updated = np.matrix( [ [0, 1, 0],
     #                                 [0, 0, 1],
     #                                 [1, 0, 0] ] ).tolist()
-    # # turn to "Left-Forward" orientation
-    # elif buttons[21] == 1:
+    # turn to "Left-Forward" orientation
+    # elif buttons[19] == 1:
     #     R06_updated = np.matrix( [ [0, -1/math.sqrt(2), 1/math.sqrt(2)],
     #                                 [0, -1/math.sqrt(2), -1/math.sqrt(2)],
     #                                 [1, 0, 0] ] ).tolist()
     # # turn to "Right-Forward" orientation
-    # elif buttons[21] == 1:
+    # elif buttons[20] == 1:
     #     R06_updated = np.matrix( [ [0, 1/math.sqrt(2), 1/math.sqrt(2)],
     #                                 [0, -1/math.sqrt(2), 1/math.sqrt(2)],
     #                                 [1, 0, 0] ] ).tolist()
@@ -427,58 +426,60 @@ def getJoystickButtons():
 
 # TODO MAYBE IMPLEMENT DIFFERENTLY
 def sendAngleValues(qVect, start = 0):
+    global limitFlag
+    global modeOfOperation
 
-    # encoder steps per 2*pi rotation
-    q1Steps = 1680.0 * 60/24
-    q2Steps = 2048*4
-    q3Steps = 2048*4
-    q4Steps = 1680
-    q5Steps = 1680
-    q6Steps = 1680
-    q7Steps = 1#26.9*64 # gripper
-    # generate messages from qVect here q1String etc correspond to order in message, not exactly in qVect
-    q1String = str( int(qVect[0] * q1Steps/(2*math.pi) ) )
-    q2String = str( int(qVect[1] * q2Steps/(2*math.pi) ) )
-    q3String = str( int(qVect[2] * q3Steps/(2*math.pi) ) )
-    q4String = str( int(qVect[3] * q4Steps/(2*math.pi) ) )
-    q5String = str( int(qVect[4] * q5Steps/(2*math.pi) ) )
-    q6String = str( int(qVect[5] * q6Steps/(2*math.pi) ) )
-    q7String = str( int(qVect[6] * q7Steps ) ) # gripper
-
-    command = 'p'
-    #if start == 1:
-	#   command = 'g'
-    message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String+"%20"+q7String
-
-    sendMessage(message)
-
-
-    # # current implementation of servo control
-    # buttons = getJoystickButtons()
-    # if buttons[22] == 1:
-    #     message = 'o'
-    #     sendMessage(message)
-    # if buttons[25] == 1:
-    #     message = 'k'
-    #     sendMessage(message)
-    # miscellaneous buttons
-    if buttons[23] == 1:
-        message = 'b'
+    if modeOfOperation == 4:
+        
+        # generate messages from qVect here q1String etc correspond to order in message, not exactly in qVect
+        q1String = str( qVect[0] )
+        q2String = str( qVect[1] )
+        q3String = str( qVect[2] )
+        q4String = str( qVect[3] )
+        q5String = str( qVect[4] )
+        q6String = str( qVect[5] )
+        q7String = str( qVect[6] ) # gripper
+        
+        command = 'm'
+        message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String+"%20"+q7String
+        print message
         sendMessage(message)
-    if buttons[17] == 1:
-        message = 'c'
+    else:   
+        # encoder steps per 2*pi rotation
+        q1Steps = 1680.0 * 60/24
+        q2Steps = 2048*4
+        q3Steps = 2048*4
+        q4Steps = 1680
+        q5Steps = 1680
+        q6Steps = 1680
+        q7Steps = 1#26.9*64 # gripper
+        # generate messages from qVect here q1String etc correspond to order in message, not exactly in qVect
+        q1String = str( int(qVect[0] * q1Steps/(2*math.pi) ) )
+        q2String = str( int(qVect[1] * q2Steps/(2*math.pi) ) )
+        q3String = str( int(qVect[2] * q3Steps/(2*math.pi) ) )
+        q4String = str( int(qVect[3] * q4Steps/(2*math.pi) ) )
+        q5String = str( int(qVect[4] * q5Steps/(2*math.pi) ) )
+        q6String = str( int(qVect[5] * q6Steps/(2*math.pi) ) )
+        q7String = str( int(qVect[6] * q7Steps ) ) # gripper
+
+        if limitFlag == True:
+            command = 'p'
+        elif limitFlag == False:
+            command = 'f'
+        message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String+"%20"+q7String
         sendMessage(message)
-    if buttons[18] == 1:
-        message = 'd'
-        sendMessage(message)
-    if buttons[21] == 1:
+
+    # emergency stop
+    if buttons[1] == 1:
         message = 'e'
         sendMessage(message)
-    if buttons[19] == 1:
-        message = 'f'
+    # resume from emergency stop
+    if buttons[23] == 1:
+        message = 'c'
         sendMessage(message)
-    if buttons[20] == 1:
-        message = 'g'
+    # starting position calibration
+    if buttons[9] == 1:
+        message = 's'
         sendMessage(message)
 
     
@@ -499,10 +500,10 @@ def getJoystickDirection():
     global modeOfOperation
 
     joystickValues = getJoystickAxes()
-    print("Joystick direction values: {}".format(joystickValues))
+    #print("Joystick direction values: {}".format(joystickValues))
 
     if modeOfMovement == 0:
-        print("     All DOFs mode")
+        print("All DOFs mode")
         # mode for all joints being controlled at once
         beforeDirectionVector = copy.deepcopy(joystickValues)
         #print(beforeDirectionVector)
@@ -514,7 +515,7 @@ def getJoystickDirection():
                 directionVector[index] = thing
         #print(directionVector)
     elif modeOfMovement == 1:
-        print("     One DOF mode")
+        print("One DOF mode")
         # mode for only one joint at once rotation
         # determine direction
         directionVector = [0,0,0,0,0,0]
@@ -589,31 +590,13 @@ def visualizeArm(jointAngles):
     #print("Initial angles: {}".format(initAngles))
 
 
-# def resetArm():
-
-#     message = 'x'
-#     sendMessage(message)
-
-
 def sendMessage(message):
-    
     global conn
 
     conn.request("PUT","/arm/"+message+"/")
-
-    # r1 = conn.getresponse()
-    # print r1.status, r1.reason
-    # data1 = r1.read()
-    # print data1
-
-    # conn.request("GET", "/arm")
-    # r2 = conn.getresponse()
-    # print r2.status, r2.reason
-    # data2 = r2.read()
-    # print data2
-
     conn.close()
     
+
 def makeDHTable(jointAngles):
     #print("Current joint angles: {}".format(jointAngles))
     #print(jointAngles)
@@ -627,6 +610,7 @@ def makeDHTable(jointAngles):
                 [0, math.pi/2, 0, jointAngles[4]],
                 [0, 0, 18, jointAngles[5]] ]
     return DHTable
+
 
 def updateAngles(DHTable, updatedDHTable, joystickDirection):
     global k
@@ -866,9 +850,58 @@ def fullIK():
         #print( np.array(savedJointAngles) * 180/math.pi )
 
 
+def directControl():
+    # get the direction value to move in
+    joystickDirection = getJoystickDirection()
+    sensitivity = 1
+    i = 0
+    for elem in joystickDirection:
+        modElem = elem * sensitivity
+        if abs(modElem) > 1:
+            if modElem > 1:
+                modElem = 1.0
+            elif modElem < -1:
+                modElem = -1.0
+        joystickDirection[i] = modElem
+        i += 1
+    print("Current joystick direction:")
+    print(joystickDirection)
+    # get the current joint angles of the arm
+    global savedJointAngles
+    jointAngles = copy.deepcopy(savedJointAngles)
+
+    visualizeArm(jointAngles)
+
+    buttons = getJoystickButtons()
+    
+    try:
+        
+        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        if buttons[22] == 1:
+            gripperSpeed = 255
+        elif buttons[25] == 1:
+            gripperSpeed = -255
+        else:
+            gripperSpeed = 0
+        sendSpeeds = [ int(joystickDirection[1] * 255), int(joystickDirection[2] * 255), int(joystickDirection[0] * 255), int(joystickDirection[4] * 255), int(joystickDirection[3] * 255), int(joystickDirection[5] * 255), gripperSpeed ]
+        sendAngleValues(sendSpeeds)
+        
+        visualizeArm(savedJointAngles)
+        print("Joint angles and gripper: \n Shoulder Rotation(q1): {} \n Shoulder Pitch(q2): {} \n Elbow(q3): {} \n W1(q4): {} \n W2(q5): {} \n W3(q6): {} \n Gripper value: {} \n".format( savedJointAngles[0]*180/math.pi, savedJointAngles[1]*180/math.pi, savedJointAngles[2]*180/math.pi, savedJointAngles[3]*180/math.pi, savedJointAngles[4]*180/math.pi, savedJointAngles[5]*180/math.pi, savedGripperAngle ) )
+        #print( np.array(savedJointAngles) * 180/math.pi )
+    except:
+        print("Exception encountered")
+        
+        # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
+        sendSpeeds = [ 0, 0, 0, 0, 0, 0, 0 ]
+        sendAngleValues(sendSpeeds)
+        
+        visualizeArm(savedJointAngles)
+        print("Joint angles and gripper: \n Shoulder Rotation(q1): {} \n Shoulder Pitch(q2): {} \n Elbow(q3): {} \n W1(q4): {} \n W2(q5): {} \n W3(q6): {} \n Gripper value: {} \n".format( savedJointAngles[0]*180/math.pi, savedJointAngles[1]*180/math.pi, savedJointAngles[2]*180/math.pi, savedJointAngles[3]*180/math.pi, savedJointAngles[4]*180/math.pi, savedJointAngles[5]*180/math.pi, savedGripperAngle ) )
+        #print( np.array(savedJointAngles) * 180/math.pi )
+
 def updateOperationMode():
     global modeOfOperation
-    global tempAngles
     global savedJointAngles
 
     buttons = getJoystickButtons()
@@ -883,6 +916,10 @@ def updateOperationMode():
     elif buttons[26] == 1:
         modeOfOperation = 3
         print("Switched to full IK mode")
+        return 
+    elif buttons[6] == 1:
+        modeOfOperation = 4
+        print("Switched to Direct control mode")
         return modeOfOperation
 
 def updateModeOfMovement():
@@ -916,6 +953,25 @@ def updateSpeed():
         continue
 
 
+def updateLimitMode():
+    global lim_q1_min, lim_q1_max, lim_q2_min, lim_q2_max, lim_q3_min, lim_q3_max, lim_q4_min, lim_q4_max, lim_q5_min, lim_q5_max, lim_q6_min, lim_q6_max
+    global qlim
+    global limitFlag
+
+    buttons = getJoystickButtons()
+    if buttons[7] == 1:
+        print("Switched to NO LIMITS to angles mode")
+        qlim = np.array([[-1000000, 1000000], [-1000000, 1000000], [-1000000, 1000000], [-1000000, 1000000], [-1000000, 1000000], [-1000000, 1000000]]) * math.pi/180
+        #print qlim
+        limitFlag = False
+    elif buttons[21] == 1:
+        print("Switched to Limited angles mode")
+        qlim = np.array([[lim_q1_min, lim_q1_max], [lim_q2_min, lim_q2_max], [lim_q3_min, lim_q3_max], [lim_q4_min, lim_q4_max], [lim_q5_min, lim_q5_max], [lim_q6_min, lim_q6_max]]) * math.pi/180
+        #print qlim
+        limitFlag = True
+
+
+
 def main():
     # TODO GET THE MODE OF OPERATION
     # modes: '1'-manual, '2'-positional IK (first 3 joints), '3'-full IK
@@ -923,25 +979,68 @@ def main():
     global storageFile
     # resetting the IK model to zero position upon request 
     global savedJointAngles
+    global limitFlag
+
+    global qlim
+
     buttons = getJoystickButtons()
-    if buttons[11] == 1: # reset model to complete initial position
+    # Move arm to the "Initial" pose
+    if buttons[11] == 1:
         init_q2 = 1956.0/(2048*4)*360
         init_q3 = 1263.0/(2048*4)*360
         savedJointAngles = np.array([0,init_q2,init_q3,0,0,0]) * math.pi/180 # degrees
-        print("Arm reset to Zero pose")
+        print("Arm reset to the Initial pose")
+    # Move arm to the "Forward" pose
+    if buttons[17] == 1:
+        savedJointAngles = np.array([0,74.571,-39.836,0,55.265,0]) * math.pi/180 # degrees
+        print("Arm reset to the Forward pose")
+    # Move arm to the "Left-Forward" pose
+    if buttons[19] == 1:
+        savedJointAngles = np.array([19.847,65.963,-26.376,70.106,74.285,-36.814]) * math.pi/180 # degrees
+        print("Arm reset to the Left-Forward pose")
+    # Move arm to the "Right-Forward" pose
+    if buttons[20] == 1:
+        savedJointAngles = np.array([-19.847,65.963,-26.376,-70.106,74.285,36.814]) * math.pi/180 # degrees
+        print("Arm reset to the Right-Forward pose")
+    # Move arm to the "Down" pose
+    if buttons[18] == 1:
+        savedJointAngles = np.array([0,44.340,-13.260,0,-38.582,0]) * math.pi/180 # degrees
+        print("Arm reset to the Down pose")
 
     updateOperationMode()
     updateModeOfMovement()
     updateSpeed()
+    updateLimitMode()
     if modeOfOperation == 1:
-        print("     Manual mode")
+        print("Manual mode")
+        if limitFlag == True:
+            print(" Limited angles mode")
+            #print qlim
+        elif limitFlag == False:
+            print("NO LIMITS to angles mode")
+            #print qlim
         manual()
     elif modeOfOperation == 2:
-        print("     Positional IK mode")
+        print("Positional IK mode")
+        if limitFlag == True:
+            print("Limited angles mode")
+            #print qlim
+        elif limitFlag == False:
+            print("NO LIMITS to angles mode")
+            #print qlim
         positionalIK()
     elif modeOfOperation == 3:
-        print("     Full IK mode")
+        print("Full IK mode")
+        if limitFlag == True:
+            print("Limited angles mode")
+            #print qlim
+        elif limitFlag == False:
+            print("NO LIMITS to angles mode")
+            #print qlim
         fullIK()
+    elif modeOfOperation == 4:
+        print("Direct control mode")
+        directControl()
         
 
 
@@ -950,15 +1049,18 @@ if __name__ == "__main__":
     global savedGripperAngle
     global modeOfOperation
     global storageFile
-    global tempAngles
     global modeOfMovement # either motion in every DOF at once or only one DOF at once, "0" - all DOFs, "1" - one DOF
     global k, t # velocity coefficients for translational and rotational motions
     global qlim
     global maxRot # determines max rotation by a joint per turn
+    # declare limit angle variables as global to easily change between limited and limitless modes
+    global lim_q1_min, lim_q1_max, lim_q2_min, lim_q2_max, lim_q3_min, lim_q3_max, lim_q4_min, lim_q4_max, lim_q5_min, lim_q5_max, lim_q6_min, lim_q6_max
+    global limitFlag
+
     maxRot = 2*math.pi*10000/360 
     k = 0.6
     t = 0.03
-    modeOfMovement = 0 # all DOFs mode by default
+    modeOfMovement = 1 # One DOF mode by default
     modeOfOperation = 2 # positional IK mode by default
 
     serverIP = '192.168.0.3'
@@ -970,26 +1072,27 @@ if __name__ == "__main__":
     init_q3 = 1263.0/(2048*4)*360
     savedJointAngles = np.array([0,init_q2,init_q3,0,0,0]) * math.pi/180 # degrees
 
+    limitFlag = True
     #In the order of q1lim to q6lim [min,max]
-    lim_q1_min = -1400.0/(1680.0 * 60/24) *360
-    lim_q1_max = 3000.0/(1680.0 * 60/24) *360
-    lim_q2_min = -2158.0/(2048*4) *360
-    lim_q2_max = 1956.0/(2048*4) *360
-    lim_q3_min = -1180.0/(2048*4) *360
-    lim_q3_max = 1263.0/(2048*4) *360
-    lim_q4_min = -840.0/(1680) *360
-    lim_q4_max = 840.0/(1680) *360
-    lim_q5_min = -550.0/(1680) *360
-    lim_q5_max = 400/(1680) *360
+    lim_q1_min = -1401.0/(1680.0 * 60/24) *360
+    lim_q1_max = 3001.0/(1680.0 * 60/24) *360
+    lim_q2_min = -2159.0/(2048*4) *360
+    lim_q2_max = 1957.0/(2048*4) *360
+    lim_q3_min = -1181.0/(2048*4) *360
+    lim_q3_max = 1264.0/(2048*4) *360
+    lim_q4_min = -841.0/(1680) *360
+    lim_q4_max = 841.0/(1680) *360
+    lim_q5_min = -551.0/(1680) *360
+    lim_q5_max = 401.0/(1680) *360
     lim_q6_min = -10000000000.0/(1680) *360
     lim_q6_max = 10000000000.0/(1680) *360
 
-    qlim = np.array([[lim_q1_min, lim_q1_max], [lim_q2_min, lim_q2_max], [lim_q3_min, lim_q3_max], [lim_q4_min, lim_q4_max], [lim_q5_min, lim_q5_max], [lim_q6_min, lim_q6_max]]) * math.pi/180 # degrees
+    qlim = np.array([[lim_q1_min, lim_q1_max], [lim_q2_min, lim_q2_max], [lim_q3_min, lim_q3_max], [lim_q4_min, lim_q4_max], [lim_q5_min, lim_q5_max], [lim_q6_min, lim_q6_max]]) * math.pi/180
     #qlim = np.array([[-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000]]) * math.pi/180
+    #print qlim
     savedGripperAngle = 0
     setupVisualEnv()
     initializeJoystick()
-    #resetArm()
     
     while True:
 
@@ -997,7 +1100,10 @@ if __name__ == "__main__":
         frequency = 50
         timeDelay =  1.0/frequency
         #print(timeDelay)
-        time.sleep(timeDelay)
+        if modeOfOperation == 4: # need high frequency reliably for the directControl mode, so set a separate frequency specifically for it
+            time.sleep(0.02)
+        else:
+            time.sleep(timeDelay)
 
         # TODO
         turnedOn = False #GET THE TURNED_ON MODE FROM SOMEWHERE
@@ -1010,7 +1116,7 @@ if __name__ == "__main__":
             absAxesSum += abs(axis)
         #print absAxesSum
         # if one of the buttons pressed or one of the axes moved, move on!
-        if (absAxesSum > 0 or 1 in buttons):
+        if (absAxesSum > 0.1 or 1 in buttons):
             turnedOn = True
         #print turnedOn
         # TODO
