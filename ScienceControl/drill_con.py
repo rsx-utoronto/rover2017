@@ -6,7 +6,6 @@ import math
 import httplib
 import sys
 
-
 BLACK = (0, 0, 0)
 
 pygame.init()
@@ -40,22 +39,22 @@ def process_keyboard():
             if event.key == pygame.K_UP:
                 sendSpeeds[0] += 255
             if event.key == pygame.K_DOWN:
-                sendSpeeds[1] += 255
+                sendSpeeds[0] -= 255
             if event.key == pygame.K_RIGHT:
-                sendSpeeds[2] += 255
+                sendSpeeds[1] += 255
             if event.key == pygame.K_LEFT:
-                sendSpeeds[3] += 255
+                sendSpeeds[1] -= 255
             if event.key == pygame.K_SPACE:
                 sendSpeeds = [0, 0, 0, 0, 0, 0, 0]
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
                 sendSpeeds[0] -= 255
             if event.key == pygame.K_DOWN:
-                sendSpeeds[2] -= 255
+                sendSpeeds[0] += 255
             if event.key == pygame.K_RIGHT:
                 sendSpeeds[1] -= 255
             if event.key == pygame.K_LEFT:
-                sendSpeeds[3] -= 255
+                sendSpeeds[1] += 255
     send_movement(sendSpeeds)
 
 
