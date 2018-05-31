@@ -91,11 +91,11 @@ void loop() {
     as[i] = adc_read(i);
   }
 
-  air_temp_maxim = get_DS18S20_air_temp(DS18S20_PIN);
-  air_temp_lm35 = get_LM35_air_temp(LM35_PIN);
-  soil_moisture_0 = get_soil_moisture(MOISTURE0_PIN);
-  soil_moisture_0 = Serial.read();
-  air_temp_maxim = Serial.read();
+  // air_temp_maxim = get_DS18S20_air_temp(DS18S20_PIN);
+  // air_temp_lm35 = get_LM35_air_temp(LM35_PIN);
+  // soil_moisture_0 = get_soil_moisture(MOISTURE0_PIN);
+  // soil_moisture_0 = Serial.read();
+  // air_temp_maxim = Serial.read();
   //Serial.print("\t Moisture: ");    Serial.print(soil_moisture_0);
   //Serial.print("\t Maxim: ");       Serial.print(air_temp_maxim);
   //Serial.print("\t LM35: ");        Serial.print(air_temp_lm35);
@@ -106,6 +106,7 @@ void loop() {
   Serial.print("\t Humidity: ");    Serial.print(bme.humidity);
   Serial.print("\t VOCs (kOhms): ");Serial.print(bme.gas_resistance / 1000.0);
   Serial.print("\t Altitude wrt SL (m): "); Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+  Serial.print("\t ")
   Serial.println();
   
   /*
@@ -232,17 +233,17 @@ void setup_BME(void) {
   bme.setGasHeater(320, 150); // 320*C for 150 ms
 }
 
-float get_LM35_air_temp(byte analog_pin) {
-  float air_temp;
-  pinMode(analog_pin, INPUT);
-  delay(100); // wait a bit to clear jitter?
-  air_temp = analogRead(analog_pin);
-  air_temp = Serial.read();
-  Serial.println(" ");
-  Serial.println(air_temp);
-  air_temp = (5.0 * air_temp * 100.0) / 1024;
-  return air_temp;
-}
+// float get_LM35_air_temp(byte analog_pin) {
+//   float air_temp;
+//   pinMode(analog_pin, INPUT);
+//   delay(100); // wait a bit to clear jitter?
+//   air_temp = analogRead(analog_pin);
+//   air_temp = Serial.read();
+//   Serial.println(" ");
+//   Serial.println(air_temp);
+//   air_temp = (5.0 * air_temp * 100.0) / 1024;
+//   return air_temp;
+// }
 
 float get_soil_moisture(byte analog_pin) {
   float moisture;
