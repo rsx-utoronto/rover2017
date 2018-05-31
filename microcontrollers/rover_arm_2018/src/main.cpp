@@ -176,12 +176,6 @@ void update_goals(bool no_limits = false, bool absolute = true) {
         // Take into account spherical wrist rotation for the gripper output
         goal_pos[6] += raw_pos[6] + ((double) raw_pos[5] * 1680.0/(26.9*64.0));
     }
-    // TESTING
-    // for (int i = 0; i < 7; i++) {
-    //     Serial.print(goal_pos[i]);
-    //     Serial.print(' ');
-    // }
-    // PRINT_encoder_positions();
 }
 
 void direct_velocity_control(){
@@ -419,6 +413,11 @@ void TEST_print_encoder_pins(){
 }
 
 void PRINT_encoder_positions(){
+    Serial.print("Goals: ");
+    for (int i = 0; i < 7; i++) {
+        Serial.print(goal_pos[i]);
+        Serial.print(' ');
+    }
     Serial.print("Encoders: ");
     for(int i = 0; i < 7; i++){
         Serial.print(actual_pos[i]);
