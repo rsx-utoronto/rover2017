@@ -30,6 +30,7 @@ def init():
     screen.fill(WHITE)
     print("pygame started, click the window")
 
+
 def getJoystickAxes():
     out = []
     pygame.event.pump()
@@ -74,20 +75,20 @@ def loop():
                 speed = 50
             elif event.key == pygame.K_3:
                 speed = 75
-            elif event.key == pygame.K_4
+            elif event.key == pygame.K_4:
                 speed = 100
-            elif event.key == pygame.K_5
+            elif event.key == pygame.K_5:
                 speed = 125
-            elif event.key == pygame.K_6
+            elif event.key == pygame.K_6:
                 speed = 150
-            elif event.key == pygame.K_7
+            elif event.key == pygame.K_7:
                 speed = 175
-            elif event.key == pygame.K_8
+            elif event.key == pygame.K_8:
                 speed = 200
-            elif event.key == pygame.K_9
+            elif event.key == pygame.K_9:
                 speed = 225
-            elif event.key == pygame.K_0
-            speed = 255
+            elif event.key == pygame.K_0:
+                speed = 255
             
 
         elif event.type == pygame.KEYUP:
@@ -120,7 +121,8 @@ def loop():
 
 
 if __name__ == "__main__":
-    serverIP = '192.168.0.3'
+    # serverIP = '192.168.0.3'
+    serverIP = '192.168.1.177'
     serverHttpPort = '8080'
     global conn
     conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
