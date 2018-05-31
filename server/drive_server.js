@@ -11,7 +11,7 @@ function init(model, config) {
 	}
 
 	var router = express.Router();
-	var port = new SerialPort('/dev/ttyUSB0', {baudRate: 9600});
+	var port = new SerialPort('/dev/drive', {baudRate: 9600});
 	var portOpen = false; 
 
 	port.on('open', function() {
