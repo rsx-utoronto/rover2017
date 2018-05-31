@@ -1,3 +1,5 @@
+#include <Arduino.h>
+#include <science_2018.h>
 #include <stdint.h>
 #include <OneWire.h>
 #include <Wire.h>
@@ -6,24 +8,6 @@
 #include "Adafruit_BME680.h"
 #include <Adafruit_MLX90614.h>
 #include <Servo.h>
-
-/*
-  #define BME_SCK 13
-  #define BME_MISO 12
-  #define BME_MOSI 11
-  #define BME_CS 10
-*/
-
-// These aren't being used
-#define SCK 13
-#define MISO 12
-#define MOSI 11
-#define ADC_SELECTN 10
-
-// I got two different chips. Hardware compatible but different software!
-//#define ADC_MODEL 3008
-#define ADC_MODEL 3304
-#define SEALEVELPRESSURE_HPA (1013.25)
 
 // Comment in the appropriate line for the BME interface here
 Adafruit_BME680 bme; // I2C
@@ -34,20 +18,10 @@ Adafruit_BME680 bme; // I2C
 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
-#define DS18S20_PIN 4 // pin for maxim digital air temp sensor
-#define LM35_PIN A3 // pin for lm35 analog air temp sensor
-#define MOISTURE0_PIN A0 // pin for soil moisture sensor
-#define SERVO0_PIN 5 // pin for Servo 0
-#define SERVO1_PIN 6
-#define SERVO2_PIN 7
-#define SERVO3_PIN 8
-#define SERVO4_PIN 9
-#define DS18S20_CONVERSION_CONST 0.0625 //85 degrees celsius per 0x0550
-
 // DS18S20 Temperature chip i/o
 
-byte LCD = 6; // address of LCD Display
-byte c = 'A';
+char LCD = 6; // address of LCD Display
+char c = 'A';
 
 Servo servo[5]; //5 servos
 // Servos 0:3 control the doors
@@ -127,10 +101,10 @@ void loop() {
       case 't':
         servo[4].write(20);
         break;
-      case 'r'
+      case 'r':
         servo[4].write(160);
       default:
-        Serial.println("Command not recognized")
+        Serial.println("Command not recognized");
     }
   }
 
@@ -181,7 +155,7 @@ void loop() {
   delay(250);
 }
 
-float adc_read(byte ch) {
+float adc_read(char ch) {
     if (ch > 8) {
         Serial.println("error: invalid adc channel");
         return;
@@ -198,9 +172,9 @@ float adc_read(byte ch) {
     }
 }
 
-int adc_read_3008(byte ch) {
+int adc_read_3008(char ch) {
   int a = 0;
-  byte i;
+  char i;
   digitalWrite(ADC_SELECTN, 0); //init conversation
   clk_out(1);// start bit
   clk_out(1);// CONFIG MODE: SINGLE (O for differential
@@ -216,7 +190,7 @@ int adc_read_3008(byte ch) {
   return a;
 }
 
-void clk_out(byte b) {
+void clk_out(char b) {
   digitalWrite(SCK, 0);
   delayMicroseconds(4); // probably removable
   digitalWrite(MOSI, b);
@@ -225,17 +199,17 @@ void clk_out(byte b) {
   return;
 }
 
-byte clk_in(void) {
-  byte a;
+char clk_in(void) {
+  char a;
   digitalWrite(SCK, 0);
   a = digitalRead(MISO);
   digitalWrite(SCK, 1);
   return a;
 }
 
-int adc_read_3304(byte ch) {
+int adc_read_3304(char ch) {
   int a = 0;
-  byte i;
+  char i;
   digitalWrite(ADC_SELECTN, 0); //init conversation
   clk_out(1);// start bit
   clk_out(1);// CONFIG MODE: SINGLE (O for differential)
@@ -266,7 +240,7 @@ void setup_BME(void) {
   bme.setGasHeater(320, 150); // 320*C for 150 ms
 }
 
-// float get_LM35_air_temp(byte analog_pin) {
+// float get_LM35_air_temp(char analog_pin) {
 //   float air_temp;
 //   pinMode(analog_pin, INPUT);
 //   delay(100); // wait a bit to clear jitter?
@@ -278,7 +252,7 @@ void setup_BME(void) {
 //   return air_temp;
 // }
 
-float get_soil_moisture(byte analog_pin) {
+float get_soil_moisture(char analog_pin) {
   float moisture;
   pinMode(analog_pin, INPUT);
   delay(100);
@@ -287,12 +261,12 @@ float get_soil_moisture(byte analog_pin) {
   return moisture;
 }
 
-float get_DS18S20_air_temp(byte digital_pin) {
-  byte i;
-  byte present = 0;
-  byte data[12];
-  byte addr[8];
-  byte data_crc = 0;
+float get_DS18S20_air_temp(char digital_pin) {
+  char i;
+  char present = 0;
+  char data[12];
+  char addr[8];
+  char data_crc = 0;
   OneWire ds(digital_pin);
   int16_t DS18S20_tempdata = 0;
   float DS18S20_airtemp = 0;
@@ -342,7 +316,7 @@ float get_DS18S20_air_temp(byte digital_pin) {
   //Serial.print("P=");
   //Serial.print(present,HEX);
   //Serial.print(" ");
-  for ( i = 0; i < 9; i++) {           // we need 9 bytes
+  for ( i = 0; i < 9; i++) {           // we need 9 chars
     data[i] = ds.read();
     //Serial.print(data[i], HEX);
     //Serial.print(" ");
@@ -369,7 +343,7 @@ float get_DS18S20_air_temp(byte digital_pin) {
   return DS18S20_airtemp;
 }
 
-void I2C_TX(byte device, byte data) {
+void I2C_TX(char device, char data) {
   Wire.beginTransmission(device);
   Wire.write(data);
   Wire.endTransmission();
