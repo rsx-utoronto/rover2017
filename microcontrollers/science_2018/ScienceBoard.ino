@@ -84,9 +84,56 @@ void loop() {
   float soil_moisture_0;
   float air_temp_ch0;
   float as[8];
-  byte i;
-  byte angle0 = 20;
-  byte angle1 = 150;
+  char i;
+
+  char door_closed_angle = 20;
+  char door_open_angle = 150;
+
+  // Parse commands from the serial buffer
+  if (Serial.available()) {
+    switch (Serial.read())
+    {
+      case '0': // Close all doors
+        servo[0].write(door_closed_angle);
+        servo[1].write(door_closed_angle);
+        servo[2].write(door_closed_angle);
+        servo[3].write(door_closed_angle);
+        break;
+        break;
+      case '1':
+        servo[0].write(door_open_angle);
+        servo[1].write(door_closed_angle);
+        servo[2].write(door_closed_angle);
+        servo[3].write(door_closed_angle);
+        break;
+      case '2':
+        servo[0].write(door_closed_angle);
+        servo[1].write(door_open_angle);
+        servo[2].write(door_closed_angle);
+        servo[3].write(door_closed_angle);
+        break;
+      case '3':
+        servo[0].write(door_closed_angle);
+        servo[1].write(door_closed_angle);
+        servo[2].write(door_open_angle);
+        servo[3].write(door_closed_angle);
+        break;
+      case '4':
+        servo[0].write(door_closed_angle);
+        servo[1].write(door_closed_angle);
+        servo[2].write(door_closed_angle);
+        servo[3].write(door_open_angle);
+        break;
+      case 't':
+        servo[4].write(20);
+        break;
+      case 'r'
+        servo[4].write(160);
+      default:
+        Serial.println("Command not recognized")
+    }
+  }
+
   for (i = 0; i < 8; i++) {
     as[i] = adc_read(i);
   }
@@ -99,15 +146,14 @@ void loop() {
   //Serial.print("\t Moisture: ");    Serial.print(soil_moisture_0);
   //Serial.print("\t Maxim: ");       Serial.print(air_temp_maxim);
   //Serial.print("\t LM35: ");        Serial.print(air_temp_lm35);
-  Serial.print("\t MLX ambient: "); Serial.print(mlx.readAmbientTempC());
-  Serial.print("\t MLX Object: ");  Serial.print(mlx.readObjectTempC());
-  Serial.print("\t BME680 Temp: "); Serial.print(bme.temperature);
-  Serial.print("\t Pressure: ");    Serial.print(bme.pressure);
-  Serial.print("\t Humidity: ");    Serial.print(bme.humidity);
-  Serial.print("\t VOCs (kOhms): ");Serial.print(bme.gas_resistance / 1000.0);
+  Serial.print("Timestamp: ");              Serial.print(millis());
+  Serial.print("\t MLX ambient: ");         Serial.print(mlx.readAmbientTempC());
+  Serial.print("\t MLX Object: ");          Serial.print(mlx.readObjectTempC());
+  Serial.print("\t BME680 Temp: ");         Serial.print(bme.temperature);
+  Serial.print("\t Pressure: ");            Serial.print(bme.pressure);
+  Serial.print("\t Humidity: ");            Serial.print(bme.humidity);
+  Serial.print("\t VOCs (kOhms): ");        Serial.print(bme.gas_resistance / 1000.0);
   Serial.print("\t Altitude wrt SL (m): "); Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
-  Serial.print("\t ")
-  Serial.println();
   
   /*
   for (i = 0; i < 8; i++) {
@@ -132,20 +178,7 @@ void loop() {
     c = 'A';
   }
   */
-  
-  for (int k = 20; k <= 160; k += 2) {
-      for (i = 0; i < 5; i++) {
-  //      servo[i].write(angle0);
-          servo[i].write(k);
-          delay(5);
-      }
-  }
-
-  delay(500);
-  for (i = 0; i < 5; i++) {
-    servo[i].write(angle1);
-  }
-
+  delay(250);
 }
 
 float adc_read(byte ch) {
