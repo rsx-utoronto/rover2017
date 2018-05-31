@@ -53,7 +53,6 @@ def loop():
             done = True
 
         elif event.type == pygame.KEYDOWN:
-            print(event.key)
             if event.key == pygame.K_UP:
                 left += speed
                 right += speed
@@ -118,7 +117,7 @@ def loop():
     else:
         right_string = str(int(max(right, -speed)))
     sendMessage(command + "%20" + left_string + "%20" + right_string)
-
+    print(command + "%20" + left_string + "%20" + right_string)
 
 if __name__ == "__main__":
     # serverIP = '192.168.0.3'
