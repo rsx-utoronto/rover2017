@@ -18,22 +18,22 @@ void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   while (!Serial); // wait for serial port to connectx. Needed for native USB port only
-  Serial.setTimeout(2); // 2ms timeout
+  Serial.setTimeout(10); // 2ms timeout
 }
 
 // Helper functions
 /* Takes a speed from -255 to 255, maps it to 255 to 0 */
-void setLeftSpd(int spd) {
+void setRightSpd(int spd) {
   for (int i = 0; i < 3; i++) {
     analogWrite(speedPins[i], abs(spd));
-    digitalWrite(directionPins[i], spd > 0 ? HIGH : LOW);
+    digitalWrite(directionPins[i], spd > 0 ? LOW : HIGH);
   }
 }
 
-void setRightSpd(int spd) {
+void setLeftSpd(int spd) {
     for (int i = 3; i < 6; i++) {
       analogWrite(speedPins[i], abs(spd));
-      digitalWrite(directionPins[i], spd > 0 ? HIGH : LOW);
+      digitalWrite(directionPins[i], spd > 0 ? LOW : HIGH);
     }
 }
 
