@@ -6,13 +6,14 @@ import math
 import httplib
 import sys
 
-BLACK = (0, 0, 0)
+BLUE = (0, 0, 255)
 
 pygame.init()
-size = [200, 200]
+size = [300, 200]
 screen = pygame.display.set_mode(size)
+pygame.display.set_caption("DRILL")
 pygame.mouse.set_visible(0)
-screen.fill(BLACK)
+screen.fill(BLUE)
 
 
 def send_movement(speeds):
