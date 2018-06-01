@@ -2,10 +2,10 @@
 #define science_2818_h
 
 // These aren't being used
-#define SCK 13
-#define MISO 12
-#define MOSI 11
-#define ADC_SELECTN 10
+#define SCK 3
+#define MISO 2
+#define MOSI A2
+#define ADC_SELECTN A3
 // I got two different chips. Hardware compatible but different software!
 //#define ADC_MODEL 3008
 #define ADC_MODEL 3304

@@ -27,6 +27,9 @@ Servo servo[5]; //5 servos
 // Servos 0:3 control the doors
 // Servo 4 controls the swing arm
 
+  int door_closed_angle[4] = {180, 180, 180, 180};
+  int door_open_angle[4] = {0, 0, 0, 0};
+
 void setup() {
   Serial.begin(9600);
   setup_BME();
@@ -50,6 +53,10 @@ void setup() {
   //  Wire.begin();
 
   analogReference(EXTERNAL);
+  servo[0].write(door_closed_angle[0]);
+  servo[1].write(door_closed_angle[1]);
+  servo[2].write(door_closed_angle[2]);
+  servo[3].write(door_closed_angle[3]);
 }
 
 void loop() {
@@ -58,57 +65,53 @@ void loop() {
   float soil_moisture_0;
   float air_temp_ch0;
   float as[8];
-  char i;
-
-  char door_closed_angle = 20;
-  char door_open_angle = 150;
 
   // Parse commands from the serial buffer
   if (Serial.available()) {
     switch (Serial.read())
     {
-      case '0': // Close all doors
-        servo[0].write(door_closed_angle);
-        servo[1].write(door_closed_angle);
-        servo[2].write(door_closed_angle);
-        servo[3].write(door_closed_angle);
+      case 'c': // Close all doors
+        servo[0].write(door_closed_angle[0]);
+        servo[1].write(door_closed_angle[1]);
+        servo[2].write(door_closed_angle[2]);
+        servo[3].write(door_closed_angle[3]);
         break;
+      case '0':
+        servo[0].write(door_open_angle[0]);
+        servo[1].write(door_closed_angle[1]);
+        servo[2].write(door_closed_angle[2]);
+        servo[3].write(door_closed_angle[3]);
         break;
       case '1':
-        servo[0].write(door_open_angle);
-        servo[1].write(door_closed_angle);
-        servo[2].write(door_closed_angle);
-        servo[3].write(door_closed_angle);
+        servo[0].write(door_closed_angle[0]);
+        servo[1].write(door_open_angle[1]);
+        servo[2].write(door_closed_angle[2]);
+        servo[3].write(door_closed_angle[3]);
         break;
       case '2':
-        servo[0].write(door_closed_angle);
-        servo[1].write(door_open_angle);
-        servo[2].write(door_closed_angle);
-        servo[3].write(door_closed_angle);
+        servo[0].write(door_closed_angle[0]);
+        servo[1].write(door_closed_angle[1]);
+        servo[2].write(door_open_angle[2]);
+        servo[3].write(door_closed_angle[3]);
         break;
       case '3':
-        servo[0].write(door_closed_angle);
-        servo[1].write(door_closed_angle);
-        servo[2].write(door_open_angle);
-        servo[3].write(door_closed_angle);
-        break;
-      case '4':
-        servo[0].write(door_closed_angle);
-        servo[1].write(door_closed_angle);
-        servo[2].write(door_closed_angle);
-        servo[3].write(door_open_angle);
+        servo[0].write(door_closed_angle[0]);
+        servo[1].write(door_closed_angle[1]);
+        servo[2].write(door_closed_angle[2]);
+        servo[3].write(door_open_angle[3]);
         break;
       case 't':
-        servo[4].write(20);
+        servo[4].write(22);
         break;
       case 'r':
-        servo[4].write(160);
+        servo[4].write(150);
+        break;
       default:
         Serial.println("Command not recognized");
     }
   }
 
-  for (i = 0; i < 8; i++) {
+  for (int i = 0; i < 8; i++) {
     as[i] = adc_read(i);
   }
 
@@ -128,15 +131,17 @@ void loop() {
   Serial.print("\t Humidity: ");            Serial.print(bme.humidity);
   Serial.print("\t VOCs (kOhms): ");        Serial.print(bme.gas_resistance / 1000.0);
   Serial.print("\t Altitude wrt SL (m): "); Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+  Serial.println();
   
-  /*
-  for (i = 0; i < 8; i++) {
+  for (int i = 0; i < 8; i++) {
     Serial.print("\t ");
     Serial.print(i);
     Serial.print(": ");
     Serial.print(as[i],5);
   }
-
+  Serial.println();
+  
+  /*
   air_temp_ch0 = (5.0 * as[0] * 100.0);
   Serial.print("\t CH0TMP: ");
   air_temp_ch0 = Serial.read();
