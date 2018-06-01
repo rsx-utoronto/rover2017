@@ -37,13 +37,13 @@ def process_keyboard():
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                sendSpeeds[3] += 50
+                sendSpeeds[3] += speed
             if event.key == pygame.K_DOWN:
-                sendSpeeds[3] -= 50
+                sendSpeeds[3] -= speed
             if event.key == pygame.K_RIGHT:
-                sendSpeeds[1] -= 150
+                sendSpeeds[1] -= speed
             if event.key == pygame.K_LEFT:
-                sendSpeeds[1] += 150
+                sendSpeeds[1] += speed
             if event.key == pygame.K_1:
                 speed = 25
             if event.key == pygame.K_2:
@@ -68,13 +68,13 @@ def process_keyboard():
                 sendSpeeds = [0, 0, 0, 0, 0, 0, 0]
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
-                sendSpeeds[3] -= 50
+                sendSpeeds[3] -= speed
             if event.key == pygame.K_DOWN:
-                sendSpeeds[3] += 50
+                sendSpeeds[3] += speed
             if event.key == pygame.K_RIGHT:
-                sendSpeeds[1] += 150
+                sendSpeeds[1] += speed
             if event.key == pygame.K_LEFT:
-                sendSpeeds[1] -= 150
+                sendSpeeds[1] -= speed
     send_movement(sendSpeeds)
 
 
