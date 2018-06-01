@@ -30,7 +30,7 @@ def sendMessage(message):
 
 
 sendSpeeds = [0, 0, 0, 0, 0, 0, 0]
-
+speed = 50
 
 def process_keyboard():
     global sendSpeeds
@@ -44,6 +44,26 @@ def process_keyboard():
                 sendSpeeds[1] -= 150
             if event.key == pygame.K_LEFT:
                 sendSpeeds[1] += 150
+            if event.key == pygame.K_1:
+                speed = 25
+            if event.key == pygame.K_2:
+                speed = 50
+            if event.key == pygame.K_3:
+                speed = 75
+            if event.key == pygame.K_4:
+                speed = 100
+            if event.key == pygame.K_5:
+                speed = 125
+            if event.key == pygame.K_6:
+                speed = 150
+            if event.key == pygame.K_7:
+                speed = 175
+            if event.key == pygame.K_8:
+                speed = 200
+            if event.key == pygame.K_9:
+                speed = 225
+            if event.key == pygame.K_0:
+                speed = 255
             if event.key == pygame.K_SPACE:
                 sendSpeeds = [0, 0, 0, 0, 0, 0, 0]
         if event.type == pygame.KEYUP:
