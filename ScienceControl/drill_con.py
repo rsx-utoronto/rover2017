@@ -31,53 +31,75 @@ def sendMessage(message):
 
 
 sendSpeeds = [0, 0, 0, 0, 0, 0, 0]
-speed = 50
+drill_speed = 50
+platform_speed = 50
 
 
 def process_keyboard():
     global sendSpeeds
-    global speed
+    global drill_speed
+    global platform_speed
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                sendSpeeds[3] += speed
+                sendSpeeds[3] += platform_speed
             if event.key == pygame.K_DOWN:
-                sendSpeeds[3] -= speed
+                sendSpeeds[3] -= platform_speed
             if event.key == pygame.K_RIGHT:
-                sendSpeeds[1] -= speed
+                sendSpeeds[1] -= drill_speed
             if event.key == pygame.K_LEFT:
-                sendSpeeds[1] += speed
+                sendSpeeds[1] += drill_speed
             if event.key == pygame.K_1:
-                speed = 25
+                drill_speed = 25
             if event.key == pygame.K_2:
-                speed = 50
+                drill_speed = 50
             if event.key == pygame.K_3:
-                speed = 75
+                drill_speed = 75
             if event.key == pygame.K_4:
-                speed = 100
+                drill_speed = 100
             if event.key == pygame.K_5:
-                speed = 125
+                drill_speed = 125
             if event.key == pygame.K_6:
-                speed = 150
+                drill_speed = 150
             if event.key == pygame.K_7:
-                speed = 175
+                drill_speed = 175
             if event.key == pygame.K_8:
-                speed = 200
+                drill_speed = 200
             if event.key == pygame.K_9:
-                speed = 225
+                drill_speed = 225
             if event.key == pygame.K_0:
-                speed = 255
+                drill_speed = 255
+            if event.key == pygame.K_q:
+                platform_speed = 10
+            if event.key == pygame.K_w:
+                platform_speed = 20
+            if event.key == pygame.K_e:
+                platform_speed = 30
+            if event.key == pygame.K_r:
+                platform_speed = 40
+            if event.key == pygame.K_t:
+                platform_speed = 60
+            if event.key == pygame.K_y:
+                platform_speed = 90
+            if event.key == pygame.K_u:
+                platform_speed = 130
+            if event.key == pygame.K_i:
+                platform_speed = 180
+            if event.key == pygame.K_o:
+                platform_speed = 225
+            if event.key == pygame.K_p:
+                platform_speed = 255
             if event.key == pygame.K_SPACE:
                 sendSpeeds = [0, 0, 0, 0, 0, 0, 0]
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
-                sendSpeeds[3] -= speed
+                sendSpeeds[3] -= platform_speed
             if event.key == pygame.K_DOWN:
-                sendSpeeds[3] += speed
+                sendSpeeds[3] += platform_speed
             if event.key == pygame.K_RIGHT:
-                sendSpeeds[1] += speed
+                sendSpeeds[1] += drill_speed
             if event.key == pygame.K_LEFT:
-                sendSpeeds[1] -= speed
+                sendSpeeds[1] -= drill_speed
     send_movement(sendSpeeds)
 
 
