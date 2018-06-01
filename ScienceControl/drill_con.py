@@ -33,8 +33,10 @@ def sendMessage(message):
 sendSpeeds = [0, 0, 0, 0, 0, 0, 0]
 speed = 50
 
+
 def process_keyboard():
     global sendSpeeds
+    global speed
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
