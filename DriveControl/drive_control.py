@@ -23,7 +23,7 @@ right = 0
 
 def init():
     pygame.init()
-    size = [700, 500]
+    size = [300, 200]
     screen = pygame.display.set_mode(size)
     pygame.mouse.set_visible(0)
     pygame.display.set_caption("RSX rover drive control")
