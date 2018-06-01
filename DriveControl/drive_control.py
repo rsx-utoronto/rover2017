@@ -120,8 +120,7 @@ def loop():
     print(command + "%20" + left_string + "%20" + right_string)
 
 if __name__ == "__main__":
-    # serverIP = '192.168.0.3'
-    serverIP = '192.168.1.177'
+    serverIP = '192.168.0.3'
     serverHttpPort = '8080'
     global conn
     conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
