@@ -10,8 +10,6 @@ import httplib
 import sys
 import threading
 
-message_lock = threading.Lock()
-message_to_send = "a" # a harmless read encoder command
 
 
 def put_msg(message):
@@ -24,6 +22,7 @@ def put_msg(message):
     except Exception as e:
         print "!!! ERROR in put_msg:"
         print e
+        time.sleep(0.1)
 
 
 def messageThread():
@@ -1125,8 +1124,14 @@ if __name__ == "__main__":
     global lim_q1_min, lim_q1_max, lim_q2_min, lim_q2_max, lim_q3_min, lim_q3_max, lim_q4_min, lim_q4_max, lim_q5_min, lim_q5_max, lim_q6_min, lim_q6_max
     global limitFlag
     global ikType
+    # for sending message as a thread
+    global message_to_send
+    global message_lock
     global THREAD_MODE_FLAG
     THREAD_MODE_FLAG = True
+    message_to_send = ""
+    message_lock = threading.Lock()
+
 
     # do networking if connFlag == 1, don't otherwise
     global connFlag
