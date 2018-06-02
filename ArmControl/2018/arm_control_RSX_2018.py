@@ -997,6 +997,7 @@ def main():
     global storageFile
     # resetting the IK model to zero position upon request 
     global savedJointAngles
+    global savedGripperAngle
     global limitFlag
 
     global qlim
@@ -1065,6 +1066,13 @@ def main():
         print("Direct control mode")
         directControl()
 
+    # saving the current arm status just in case
+    storageFile = open('savedJointAngles.txt', 'w')
+    storageFile.write( str(savedJointAngles) )
+    storageFile.close()
+    storageFile = open('savedGripperAngle.txt', 'w')
+    storageFile.write( str(savedGripperAngle) )
+    storageFile.close()
 
 
         
@@ -1086,7 +1094,7 @@ if __name__ == "__main__":
 
     # do networking if connFlag == 1, don't otherwise
     global connFlag
-    connFlag = 1;
+    connFlag = 0;
 
     maxRot = 2*math.pi*10000/360 
     k = 0.6
@@ -1100,9 +1108,32 @@ if __name__ == "__main__":
     global conn
     conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
 
-    init_q2 = 1956.0/(2048*4)*360
-    init_q3 = 1263.0/(2048*4)*360
-    savedJointAngles = np.array([0,init_q2,init_q3,0,0,0]) * math.pi/180 # degrees
+
+    # choose between import and non-import modes
+    if len(sys.argv)==2 and sys.argv[1] == 'import':
+        angleFile = open('savedJointAngles.txt','r')
+        angles = angleFile.read()
+        angleFile.close()
+        angles = angles.strip()
+        angles = angles.strip('[]')
+        angles = angles.split(',')
+        for i in range( len(angles) ):
+            angles[i] = float(angles[i])
+        #print( angles )
+        savedJointAngles = angles
+
+        gripperFile = open('savedGripperAngle.txt','r')
+        gripper = gripperFile.read()
+        gripperFile.close()
+        gripper = gripper.strip()
+        gripper = float(gripper)
+        savedGripperAngle = gripper
+
+    else:
+        init_q2 = 1956.0/(2048*4)*360
+        init_q3 = 1263.0/(2048*4)*360
+        savedJointAngles = np.array([0,init_q2,init_q3,0,0,0]) * math.pi/180 # degrees
+        savedGripperAngle = 0
 
     limitFlag = True
     #In the order of q1lim to q6lim [min,max]
@@ -1122,7 +1153,6 @@ if __name__ == "__main__":
     qlim = np.array([[lim_q1_min, lim_q1_max], [lim_q2_min, lim_q2_max], [lim_q3_min, lim_q3_max], [lim_q4_min, lim_q4_max], [lim_q5_min, lim_q5_max], [lim_q6_min, lim_q6_max]]) * math.pi/180
     #qlim = np.array([[-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000], [-18000, 18000]]) * math.pi/180
     #print qlim
-    savedGripperAngle = 0
     setupVisualEnv()
     initializeJoystick()
     
