@@ -442,7 +442,7 @@ def sendAngleValues(qVect, start = 0):
         
         command = 'm'
         message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String+"%20"+q7String
-        print message
+        #print message
         sendMessage(message)
     else:   
         # encoder steps per 2*pi rotation
@@ -563,7 +563,7 @@ def updateGripperAngle(localSavedGripperAngle):
 
     # servo moves in the range 0 -1023
     updatedGripperAngle = localSavedGripperAngle
-    step = 100
+    step = 200
     if buttons[22] == 1:
         if updatedGripperAngle+step <= 21000:
             updatedGripperAngle += step
@@ -595,6 +595,7 @@ def sendMessage(message):
     global connFlag
 
     if connFlag == 1:
+        print message
         conn.request("PUT","/arm/"+message+"/")
         conn.close()
     
@@ -855,7 +856,8 @@ def fullIK():
 def directControl():
     # get the direction value to move in
     joystickDirection = getJoystickDirection()
-    sensitivity = 1
+    global k
+    sensitivity = k
     i = 0
     for elem in joystickDirection:
         modElem = elem * sensitivity
@@ -1062,6 +1064,9 @@ def main():
     elif modeOfOperation == 4:
         print("Direct control mode")
         directControl()
+
+
+    
         
 
 
