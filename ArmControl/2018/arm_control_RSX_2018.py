@@ -595,7 +595,7 @@ def sendMessage(message):
     global connFlag
 
     if connFlag == 1:
-        print message
+        print ("The message to send is: {}".format(message))
         conn.request("PUT","/arm/"+message+"/")
         conn.close()
     
@@ -1066,7 +1066,7 @@ def main():
         directControl()
 
 
-    
+
         
 
 
