@@ -8,6 +8,33 @@ import pygame
 import math
 import httplib
 import sys
+import threading
+
+message_lock = threading.Lock()
+message_to_send = "a" # a harmless read encoder command
+
+
+def put_msg(message):
+    global conn
+    global connFlag
+    try:
+        print ("The message to send is: {}".format(message))
+        conn.request("PUT", "/arm/"+message+"/")
+        conn.close()
+    except Exception as e:
+        print "!!! ERROR in put_msg:"
+        print e
+
+
+def messageThread():
+    global message_to_send
+    while True:
+        message_lock.acquire()
+        try:
+            msg = message_to_send
+        finally:
+            message_lock.release()
+        put_msg(msg)
 
 
 def homogenousTransform(dhVector):
@@ -591,13 +618,19 @@ def visualizeArm(jointAngles):
 
 
 def sendMessage(message):
+    global message_to_send
     global conn
     global connFlag
-
+    global THREAD_MODE_FLAG
     if connFlag == 1:
-        print ("The message to send is: {}".format(message))
-        conn.request("PUT","/arm/"+message+"/")
-        conn.close()
+        if THREAD_MODE_FLAG:
+            message_lock.acquire()
+            try:
+                message_to_send = message
+            finally:
+                message_lock.release()
+        else:
+            put_msg(message)
     
 
 def makeDHTable(jointAngles):
@@ -697,6 +730,7 @@ def manual():
         #print( np.array(savedJointAngles) * 180/math.pi )
     except:
         print("Exception encountered")
+        # TODO: fix undefined q1, etc here
         jointAngles = copy.deepcopy( [q1,q2,q3,q4,q5,q6] )
         #print("Updated joint angles: {}".format(jointAngles)) 
         savedJointAngles = copy.deepcopy(jointAngles)
@@ -1091,10 +1125,16 @@ if __name__ == "__main__":
     global lim_q1_min, lim_q1_max, lim_q2_min, lim_q2_max, lim_q3_min, lim_q3_max, lim_q4_min, lim_q4_max, lim_q5_min, lim_q5_max, lim_q6_min, lim_q6_max
     global limitFlag
     global ikType
+    global THREAD_MODE_FLAG
+    THREAD_MODE_FLAG = True
 
     # do networking if connFlag == 1, don't otherwise
     global connFlag
-    connFlag = 0;
+    connFlag = 1
+
+    if THREAD_MODE_FLAG and connFlag:
+        message_worker = threading.Thread(target=messageThread)
+        message_worker.start()
 
     maxRot = 2*math.pi*10000/360 
     k = 0.6
