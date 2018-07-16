@@ -16,7 +16,7 @@ def put_msg(message):
     global conn
     global connFlag
     try:
-        print ("The message to send is: {}".format(message))
+        # print ("The message to send is: {}".format(message))
         conn.request("PUT", "/arm/"+message+"/")
         conn.close()
     except Exception as e:
@@ -585,18 +585,25 @@ def getJoystickDirection():
 
 def updateGripperAngle(localSavedGripperAngle):
     buttons = getJoystickButtons()
+    global limitFlag
 
+    if limitFlag == False:
+        openedLimit = 100000000
+        closedLimit = -100000000
+    else:
+        openedLimit = 21000
+        closedLimit = 0
 
     # servo moves in the range 0 -1023
     updatedGripperAngle = localSavedGripperAngle
     step = 200
     if buttons[22] == 1:
-        if updatedGripperAngle+step <= 21000:
+        if updatedGripperAngle+step <= openedLimit:
             updatedGripperAngle += step
         else:
             print("Gripper completely open")
     elif buttons[25] == 1:
-        if updatedGripperAngle-step >= 0:
+        if updatedGripperAngle-step >= closedLimit:
             updatedGripperAngle -= step
         else:
             print("Gripper completely closed")
@@ -887,6 +894,7 @@ def fullIK():
 
 
 def directControl():
+    global THREAD_MODE_FLAG
     # get the direction value to move in
     joystickDirection = getJoystickDirection()
     global k
@@ -921,7 +929,9 @@ def directControl():
         else:
             gripperSpeed = 0
         sendSpeeds = [ int(joystickDirection[1] * 255), int(joystickDirection[2] * 255), int(joystickDirection[0] * 255), int(-joystickDirection[4] * 255), int(joystickDirection[5] * 255), int(joystickDirection[3] * 255), gripperSpeed ]
+        
         sendAngleValues(sendSpeeds)
+        
         
         visualizeArm(savedJointAngles)
         print("Joint angles and gripper: \n Shoulder Rotation(q1): {} \n Shoulder Pitch(q2): {} \n Elbow(q3): {} \n W1(q4): {} \n W2(q5): {} \n W3(q6): {} \n Gripper value: {} \n".format( savedJointAngles[0]*180/math.pi, savedJointAngles[1]*180/math.pi, savedJointAngles[2]*180/math.pi, savedJointAngles[3]*180/math.pi, savedJointAngles[4]*180/math.pi, savedJointAngles[5]*180/math.pi, savedGripperAngle ) )
@@ -931,8 +941,9 @@ def directControl():
         
         # MOVE THE ARM TO THE NEW PLACE!!!!!!!!!!
         sendSpeeds = [ 0, 0, 0, 0, 0, 0, 0 ]
-        sendAngleValues(sendSpeeds)
         
+        sendAngleValues(sendSpeeds)
+             
         visualizeArm(savedJointAngles)
         print("Joint angles and gripper: \n Shoulder Rotation(q1): {} \n Shoulder Pitch(q2): {} \n Elbow(q3): {} \n W1(q4): {} \n W2(q5): {} \n W3(q6): {} \n Gripper value: {} \n".format( savedJointAngles[0]*180/math.pi, savedJointAngles[1]*180/math.pi, savedJointAngles[2]*180/math.pi, savedJointAngles[3]*180/math.pi, savedJointAngles[4]*180/math.pi, savedJointAngles[5]*180/math.pi, savedGripperAngle ) )
         #print( np.array(savedJointAngles) * 180/math.pi )
@@ -1137,7 +1148,7 @@ if __name__ == "__main__":
     global connFlag
     connFlag = 1
 
-    if THREAD_MODE_FLAG and connFlag:
+    if THREAD_MODE_FLAG and connFlag == 1:
         message_worker = threading.Thread(target=messageThread)
         message_worker.start()
 
@@ -1212,18 +1223,18 @@ if __name__ == "__main__":
         else:
             time.sleep(timeDelay)
 
-        turnedOn = False
+        turnedOn = True
         axes = getJoystickAxes()
         buttons = getJoystickButtons()
         #print axes
         #print buttons
-        absAxesSum = 0
-        for axis in axes:
-            absAxesSum += abs(axis)
-        #print absAxesSum
-        # if one of the buttons pressed or one of the axes moved, move on!
-        if (absAxesSum > 0.1 or 1 in buttons):
-            turnedOn = True
+        # absAxesSum = 0
+        # for axis in axes:
+        #     absAxesSum += abs(axis)
+        # #print absAxesSum
+        # # if one of the buttons pressed or one of the axes moved, move on!
+        # if (absAxesSum > 0.1 or 1 in buttons):
+        #     turnedOn = True
         #print turnedOn
         # TODO
         breakTrigger = False #GET THE BREAK TRIGGER FROM SOMEWHERE
