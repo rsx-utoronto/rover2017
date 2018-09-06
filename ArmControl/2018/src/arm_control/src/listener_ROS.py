@@ -4,13 +4,11 @@ import rospy
 from std_msgs.msg import String
 import serial
 
-ser = serial.Serial('/dev/ttyACM0', 115200)
+
 
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + 'Message: %s', data.data)
-    ser.open()
     ser.write(data.data)
-    ser.close()
 
 def listener():
 
@@ -27,4 +25,6 @@ def listener():
     rospy.spin()
 
 if __name__ == '__main__':
+    ser = serial.Serial('/dev/ttyACM0', 115200)
     listener()
+    ser.close()
