@@ -20,8 +20,9 @@ def put_msg(message):
     global connFlag
     try:
         if not rospy.is_shutdown():
-            rospy.loginfo(message)
-            pub.publish()
+            #rospy.loginfo(message)
+            pub.publish(message)
+            rate.sleep()
         # print ("The message to send is: {}".format(message))
         #conn.request("PUT", "/arm/"+message+"/")
         #conn.close()
@@ -426,7 +427,7 @@ def initializeJoystick():
 
 def setupVisualEnv():
     env = openravepy.Environment()
-    env.Load('environment.xml')
+    env.Load('src/arm_control/src/environment.xml')
     env.SetViewer('qtcoin')
     viewer = env.GetViewer()
     global robot
@@ -1117,10 +1118,10 @@ def main():
         directControl()
 
     # saving the current arm status just in case
-    storageFile = open('savedJointAngles.txt', 'w')
+    storageFile = open('src/arm_control/src/savedJointAngles.txt', 'w')
     storageFile.write( str(savedJointAngles) )
     storageFile.close()
-    storageFile = open('savedGripperAngle.txt', 'w')
+    storageFile = open('src/arm_control/src/savedGripperAngle.txt', 'w')
     storageFile.write( str(savedGripperAngle) )
     storageFile.close()
 
@@ -1141,6 +1142,13 @@ if __name__ == "__main__":
     global lim_q1_min, lim_q1_max, lim_q2_min, lim_q2_max, lim_q3_min, lim_q3_max, lim_q4_min, lim_q4_max, lim_q5_min, lim_q5_max, lim_q6_min, lim_q6_max
     global limitFlag
     global ikType
+    # initializing ROS node
+    global pub
+    pub = rospy.Publisher('arm', String, queue_size=0)
+    rospy.init_node('arm_talker', anonymous=True)
+    global rate
+    rate = rospy.Rate(10) # 10 Hz
+
     # for sending message as a thread
     global message_to_send
     global message_lock
@@ -1170,15 +1178,11 @@ if __name__ == "__main__":
     #global conn
     #conn = httplib.HTTPConnection(serverIP+":"+serverHttpPort)
 
-    global pub
-    pub = rospy.Publisher('arm', String, queue_size=10)
-    rospy.init_node('arm_talker', anonymous=True)
-
 
 
     # choose between import and non-import modes
     if len(sys.argv)==2 and sys.argv[1] == 'import':
-        angleFile = open('savedJointAngles.txt','r')
+        angleFile = open('src/arm_control/src/savedJointAngles.txt','r')
         angles = angleFile.read()
         angleFile.close()
         angles = angles.strip()
@@ -1189,7 +1193,7 @@ if __name__ == "__main__":
         #print( angles )
         savedJointAngles = angles
 
-        gripperFile = open('savedGripperAngle.txt','r')
+        gripperFile = open('src/arm_control/src/savedGripperAngle.txt','r')
         gripper = gripperFile.read()
         gripperFile.close()
         gripper = gripper.strip()
