@@ -474,7 +474,7 @@ def sendAngleValues(qVect, start = 0):
         q7String = str( qVect[6] ) # gripper
         
         command = 'm'
-        message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String+"%20"+q7String
+        message = command+" "+q1String+" "+q2String+" "+q3String+" "+q4String+" "+q5String+" "+q6String+" "+q7String
         #print message
         sendMessage(message)
     else:   
@@ -499,7 +499,7 @@ def sendAngleValues(qVect, start = 0):
             command = 'p'
         elif limitFlag == False:
             command = 'f'
-        message = command+"%20"+q1String+"%20"+q2String+"%20"+q3String+"%20"+q4String+"%20"+q5String+"%20"+q6String+"%20"+q7String
+        message = command+" "+q1String+" "+q2String+" "+q3String+" "+q4String+" "+q5String+" "+q6String+" "+q7String
         sendMessage(message)
 
     # emergency stop
@@ -1144,10 +1144,10 @@ if __name__ == "__main__":
     global ikType
     # initializing ROS node
     global pub
-    pub = rospy.Publisher('arm', String, queue_size=0)
+    pub = rospy.Publisher('arm', String, queue_size=10)
     rospy.init_node('arm_talker', anonymous=True)
     global rate
-    rate = rospy.Rate(10) # 10 Hz
+    rate = rospy.Rate(100) # in Hz
 
     # for sending message as a thread
     global message_to_send
@@ -1229,7 +1229,7 @@ if __name__ == "__main__":
     
     while True:
 
-        # frequency of the loop in Hz
+        # frequency of the model loop in Hz
         frequency = 50
         timeDelay =  1.0/frequency
         #print(timeDelay)
